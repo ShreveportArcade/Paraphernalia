@@ -11,7 +11,7 @@ public class Workflow : Editor {
  	// From: http://wiki.unity3d.com/index.php/AddChild
  	// Author: Neil Carter (NCarter)
  	[MenuItem ("GameObject/Add Child &c")]
-    static void MenuAddChild() {
+    static void AddChild() {
         Transform[] transforms = Selection.GetTransforms(SelectionMode.TopLevel | SelectionMode.OnlyUserModifiable);
 		Undo.RecordObjects(transforms, "adds children to selected transforms");
         foreach(Transform transform in transforms) {
@@ -25,7 +25,7 @@ public class Workflow : Editor {
     // From: http://wiki.unity3d.com/index.php/AddParent
     // Author: Neil Carter (NCarter)
     [MenuItem ("GameObject/Add Parent %g")]
-    static void MenuInsertParent() {
+    static void AddParent() {
         Transform[] transforms = Selection.GetTransforms(SelectionMode.TopLevel | SelectionMode.OnlyUserModifiable);
  
         GameObject newParent = new GameObject("_Parent");
