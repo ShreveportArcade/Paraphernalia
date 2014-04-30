@@ -1,1 +1,5 @@
-This is a collection of scripts I like to use as a starting point when I sit down to make a game. I don't claim to understand the legality of putting all of these files in one place and giving them a common namespace, but since Editor extensions aren't compiled with your game's binary issues with copyleft software may not affect your project. Not all files share the same license. Check the comments at the top of those files to know. If you're uncomfortable with a particular file's license, delete it and move on.
+This is a collection of scripts I like to use as a starting point when I sit down to make a game. 
+I don't claim to understand the legality of putting all of these files in one place and giving them 
+a common namespace, but since Editor extensions aren't compiled with your game's binary issues with 
+copyleft software may not affect your project. Not all files share the same license. Check the 
+comments at the top of those files to know.
