@@ -1,0 +1,3 @@
+The licenses in this folder only apply to the files located in the 'ThirdParty' directory.
+
+Not all files share the same license. Check the comments at the top of those files to know.
