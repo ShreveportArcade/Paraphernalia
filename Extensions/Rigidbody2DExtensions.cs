@@ -1,13 +1,13 @@
-﻿// From: http://forum.unity3d.com/threads/213397-Rigidbody2D-ForceMode-Impulse
-//       http://answers.unity3d.com/questions/574864/rigidbody2d-and-forcemodeaddvelocity.html
-// Author: gfoot 
-// made into an extension by Kencho
-
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 
+namespace Paraphernalia.Extensions {
 public static class Rigidbody2DExtensions {
 
+	// From: http://forum.unity3d.com/threads/213397-Rigidbody2D-ForceMode-Impulse
+	//       http://answers.unity3d.com/questions/574864/rigidbody2d-and-forcemodeaddvelocity.html
+	// Author: gfoot 
+	// made into an extension by Kencho
 	public static void AddForce(this Rigidbody2D rigidbody2D, Vector2 force, ForceMode mode = ForceMode.Force) {
 		switch (mode) {
 		case ForceMode.Force:
@@ -24,4 +24,5 @@ public static class Rigidbody2DExtensions {
 			break;
 		}
 	}
+}
 }
