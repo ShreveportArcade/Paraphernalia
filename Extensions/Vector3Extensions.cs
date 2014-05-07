@@ -22,6 +22,15 @@ using System.Collections.Generic;
 namespace Paraphernalia.Extensions {
 public static class Vector3Extensions {
 
+	public static Vector3 Average (this Vector3[] points) {
+		Vector3 average = Vector3.zero;
+		for (int i = 1; i < points.Length; i++) {
+			average += points[i];
+		}
+		average /= (float)points.Length;
+		return average;
+	}
+
 	public static Vector3[] Resample (this Vector3[] path, int n, bool closed) {		
 		float I = path.PathLength(closed) / (n - 1);
 		float D = 0.0f;
