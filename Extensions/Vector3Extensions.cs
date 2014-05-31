@@ -99,7 +99,6 @@ public static class Vector3Extensions {
 
 		return len;
 	}
-
 	
 	public static Vector3 Center (this Vector3[] points) {
 		Vector3 sum = Vector3.zero;
