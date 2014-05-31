@@ -1,4 +1,6 @@
 ﻿/*
+License and copyrights are as follows, except where noted below.
+
 Copyright (C) 2014 Nolan Baker
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
@@ -31,6 +33,10 @@ public static class Vector3Extensions {
 		return average;
 	}
 
+	// Resample is adapted from $1 recognizer
+	// From: http://depts.washington.edu/aimgroup/proj/dollar/
+	// License: New BSD License
+	// Copyright (c) 2007-2011, Jacob O. Wobbrock, Andrew D. Wilson and Yang Li.
 	public static Vector3[] Resample (this Vector3[] path, int n, bool closed) {		
 		float I = path.PathLength(closed) / (n - 1);
 		float D = 0.0f;
