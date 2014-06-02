@@ -33,7 +33,7 @@ class Line2D {
 
 		if (vertical) this.slope = Mathf.Infinity;
 		else this.slope = (p2.y - p1.y) / (p2.x - p1.x);
-		
+
 		this.intercept = p1.y - this.slope * p1.x;
 	}
 
@@ -50,6 +50,22 @@ class Line2D {
 	public float Distance (Vector2 point) {
 		if (vertical) return Mathf.Abs(point.x - this.point.x);
 		return Mathf.Abs(slope * point.x - point.y + intercept) / Mathf.Sqrt(slope * slope + 1);
+	}
+
+	public int Side (Vector2 point) {
+		if (PointWithX(point.x) == PointWithY(point.y)) return 0;
+		if (vertical) return (int)Mathf.Sign(point.x - this.point.x);
+		if (slope < 1 && slope > -1) return (int)Mathf.Sign(point.x - PointWithY(point.y).x);
+		else return (int)Mathf.Sign(point.y - PointWithX(point.x).y);
+	}
+
+	public Vector2 Intersect (Line2D line) {
+		if (this.slope == line.slope || (line.vertical && this.vertical)) return Vector2.zero;
+		if (this.vertical) return line.PointWithX(this.point.x);
+		if (line.vertical) return this.PointWithX(line.point.x);
+
+		float x = (line.intercept - this.intercept) / (this.slope - line.slope);
+		return new Vector2(x, this.slope * x + this.intercept);
 	}
 }
 }

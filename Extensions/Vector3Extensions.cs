@@ -114,5 +114,20 @@ public static class Vector3Extensions {
 		}
 		return points;
 	}
+
+	public static Bounds GetBounds (this Vector3[] points) {
+		Bounds b = new Bounds();
+		Vector3 max = points[0];
+		Vector3 min = points[0];
+		for (int i = 1; i < points.Length; i++) {
+			Vector3 p = points[i];
+			if (p.x > max.x) max.x = p.x;
+			else if (p.x < min.x) min.x = p.x;
+			else if (p.y > max.y) max.y = p.y;
+			else if (p.y < min.y) min.y = p.y;
+		}
+		b.SetMinMax(min, max);
+		return b;
+	}
 }
 }
