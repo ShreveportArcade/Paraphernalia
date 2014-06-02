@@ -94,25 +94,26 @@ class Polygon {
 		List<Polygon> currentPolys = new List<Polygon>();
 		currentPolys.Add(this);
 		for (float x = rect.xMin + size.x; x < rect.xMax; x += size.x) {
-			Line2D line = new Line(new Vector2(x, 0), new Vector2(x, 1));
+			Line2D xLine = new Line2D(new Vector2(x, 0), new Vector2(x, 1));
 			List<Polygon> leftPolys = new List<Polygon>();
 			List<Polygon> rightPolys = new List<Polygon>();
 			foreach (Polygon p in currentPolys) {
-				Polygon[][] split = p.Split(line);
+				Polygon[][] split = p.Split(xLine);
 				leftPolys.AddRange(split[0]);
 				rightPolys.AddRange(split[1]);
 			}
+
 			currentPolys = rightPolys;
 			for (float y = rect.yMin + size.y; y < rect.yMax; y += size.y) {
 				List<Polygon> topPolys = new List<Polygon>();
 				List<Polygon> bottomPolys = new List<Polygon>();
-				Line2D line = new Line(new Vector2(x, 0), new Vector2(x, 1));
+				Line2D yLine = new Line2D(new Vector2(x, 0), new Vector2(x, 1));
 				foreach (Polygon p in leftPolys) {
-					Polygon[][] split = p.Split(line);
+					Polygon[][] split = p.Split(yLine);
 					leftPolys.AddRange(split[0]);
 					rightPolys.AddRange(split[1]);
 				}
-				outputPolys.AddRange()
+				// outputPolys.AddRange();
 			}
 		}
 
