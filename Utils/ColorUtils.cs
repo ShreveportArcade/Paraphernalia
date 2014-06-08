@@ -24,6 +24,25 @@ using System.Collections;
 namespace Paraphernalia.Utils {
 public static class ColorUtils {
 
+	public static Color Random () {
+		float r = UnityEngine.Random.value;
+		float g = UnityEngine.Random.value;
+		float b = UnityEngine.Random.value;
+		float a = UnityEngine.Random.value;
+		return new Color(r, g, b, a);
+	}
+
+	public static Color Random (float alpha) {
+		float r = UnityEngine.Random.value;
+		float g = UnityEngine.Random.value;
+		float b = UnityEngine.Random.value;
+		return new Color(r, g, b, alpha);
+	}
+
+	public static Color Random (Color target, float weight) {
+		return Color.Lerp(ColorUtils.Random(), target, weight);
+	}
+
 	public static Color HSVtoRGB (Vector4 hsv) {
 		float chroma = hsv.z * hsv.y;
 		float h = 6 * hsv.x;
