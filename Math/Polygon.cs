@@ -18,6 +18,7 @@ DEALINGS IN THE SOFTWARE.
 
 using UnityEngine;
 using System.Collections.Generic;
+using Paraphernalia.Extensions;
 
 namespace Paraphernalia.Math {
 [System.Serializable]
@@ -71,21 +72,21 @@ class Polygon {
 	}
 
 	public void UpdateRect () {
-		float left = Mathf.Infinity;
-		float right = Mathf.NegativeInfinity;
-		float bottom = Mathf.Infinity;
-		float top = Mathf.NegativeInfinity;
+		float left = path[0].x;
+		float right = path[0].x;
+		float bottom = path[0].y;
+		float top = path[0].y;
 		for (int i = 0; i < path.Length; i++) {
 			Vector2 p = path[i];
 			if (p.x > right) right = p.x;
 			else if (p.x < left) left = p.x;
-			else if (p.y > top) top = p.y;
+			if (p.y > top) top = p.y;
 			else if (p.y < bottom) bottom = p.y;
 		}
 		_rect = Rect.MinMaxRect(left, bottom, right, top);
 	}
 
-	public bool ContainsPoint (Vector2 point) {
+	public bool Contains (Vector2 point) {
 		return GetWindingNumber(point) != 0;
 	}
 
@@ -93,16 +94,33 @@ class Polygon {
 		float winding = 0;
 		int len = path.Length;
 		for (int i = 0; i < len; i++) {
-			Vector2 p1 = path[(i + len - 1) % len] - point;
-			Vector2 p2 = path[i] - point;
-			winding += Vector2.Angle(p1, p2);
+			Vector2 p1 = (path[(i + len - 1) % len] - point).normalized;
+			Vector2 p2 = (path[i] - point).normalized;
+			winding += Mathf.Atan2(
+				p1.x * p2.y - p1.y * p2.x, 
+				p1.x * p2.x + p1.y * p2.y
+			);
 		}
+		return Mathf.RoundToInt(winding / (2 * Mathf.PI));
+	}
 
-		return Mathf.RoundToInt(winding / 360f);
+	public int GetWindingNumber () {
+		float winding = 0;
+		int len = path.Length;
+		for (int i = 0; i < len; i++) {
+			Vector2 p = path[i];
+			Vector2 p1 = (path[(i + len - 1) % len] - p).normalized;
+			Vector2 p2 = (path[(i + len + 1) % len] - p).normalized;
+			winding += Mathf.PI - Mathf.Atan2(
+				p1.x * p2.y - p1.y * p2.x, 
+				p1.x * p2.x + p1.y * p2.y
+			);
+		}
+		return Mathf.RoundToInt(winding / (2 * Mathf.PI));
 	}
 
 	public Polygon[][] Split (Line2D line) {
-		// nope, fails when the path crosses into a polygon that's already been split off
+		// if (GetWindingNumber() > 0) _path = path.Reverse();
 
 		int len = path.Length;
 		List<Polygon> leftPolys = new List<Polygon>();
@@ -114,21 +132,23 @@ class Polygon {
 
 		int lastSide = line.Side(path[len-1]);
 		Vector2 lastPoint = path[len-1];
+		Polygon polyToRevisit = null;
 
 		for (int i = 0; i < len; i++) {
 			int side = line.Side(path[i]);
 
 			// if we've crossed the line
 			if (Mathf.Abs(lastSide - side) == 2) {
-				// TODO: look through current polygons on this side 
-				// to see if this point is contained in it
-				// if so, append to said polygon until you exit again
 
 				Line2D l = new Line2D(lastPoint, path[i]);
 				Vector2 intersect = l.Intersect(line);
 				newPath.Add(intersect);
 				if (firstPath.Count == 0) {
 					firstPath.AddRange(newPath);
+				}
+				else if (polyToRevisit != null) {
+					polyToRevisit.AppendToPath(newPath.ToArray());
+					polyToRevisit = null;
 				}
 				else {
 					Polygon poly = new Polygon(newPath.ToArray());
@@ -137,6 +157,21 @@ class Polygon {
 				}
 				newPath.Clear();
 				newPath.Add(intersect);
+				
+				// look through current polygons on this side 
+				// to see if this point is contained in it
+				// if so, append to said polygon until you exit again
+				if (polyToRevisit == null) {
+					Polygon[] polyCheckList = new Polygon[0];
+					if (side > 0) polyCheckList = rightPolys.ToArray();
+					else if (side < 0) polyCheckList = leftPolys.ToArray();
+					for (int j = 0; j < polyCheckList.Length; j++) {
+						if (polyCheckList[j].Contains(path[i])) {
+							polyToRevisit = polyCheckList[j];
+							break;
+						}
+					}
+				}
 			}
 
 			newPath.Add(path[i]);
@@ -151,15 +186,15 @@ class Polygon {
 		if (firstSide < 0) leftPolys.Add(lastPoly);
 		else rightPolys.Add(lastPoly);
 
-		Debug.Log(leftPolys.Count + " " + rightPolys.Count);
+		// Debug.Log(leftPolys.Count + " " + rightPolys.Count);
 		return new Polygon[2][] {leftPolys.ToArray(), rightPolys.ToArray()};
 	}
 
 	public Polygon[] TestSplit () {
-		float x = (rect.xMax + rect.xMin) * 0.5f;
-		float y = (rect.yMax + rect.yMin) * 0.5f;
+		float x = rect.x + rect.width * 0.5f;
+		float y = rect.y + rect.height * 0.5f;
 
-		Debug.Log(rect + " " + x + " " + y);
+		// Debug.Log("rect:" + rect + " x:" + x + " y:" + y);
 		Line2D l = new Line2D(new Vector2(0, y), new Vector2(1, y));
 		Polygon[][] polys = this.Split(l);
 		List<Polygon> list = new List<Polygon>(polys[0]);
@@ -174,8 +209,8 @@ class Polygon {
 			list2.AddRange(split[1]);
 		}
 
-		return list2.ToArray();
-		// return list.ToArray();
+		// return list2.ToArray();
+		return list.ToArray();
 	}
 
 	public Polygon[] Subdivide (Vector2 size) {
@@ -208,7 +243,7 @@ class Polygon {
 
 			currentPolys = rightPolys;
 		}
-		Debug.Log(currentPolys.Count);
+		// Debug.Log(currentPolys.Count);
 		return outputPolys.ToArray();
 	}
 }

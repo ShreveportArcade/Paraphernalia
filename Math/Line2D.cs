@@ -55,8 +55,7 @@ class Line2D {
 	public int Side (Vector2 point) {
 		if (PointWithX(point.x) == PointWithY(point.y)) return 0;
 		if (vertical) return (int)Mathf.Sign(point.x - this.point.x);
-		if (slope < 1 && slope > -1) return (int)Mathf.Sign(point.x - PointWithY(point.y).x);
-		else return (int)Mathf.Sign(point.y - PointWithX(point.x).y);
+		return (int)Mathf.Sign(point.x - PointWithY(point.y).x);
 	}
 
 	public Vector2 Intersect (Line2D line) {
