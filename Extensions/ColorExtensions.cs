@@ -25,5 +25,10 @@ public static class ColorExtensions {
 		for (int i = 0; i < colors.Length; i++) colors[i].a = alpha;
 		return colors;
 	}	
+
+	public static Color SetAlpha (this Color color, float alpha) {
+		color.a = alpha;
+		return color;
+	}
 }
 }
