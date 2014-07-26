@@ -123,8 +123,8 @@ class Polygon {
 		// if (GetWindingNumber() > 0) _path = path.Reverse();
 
 		int len = path.Length;
-		List<Polygon> leftPolys = new List<Polygon>();
-		List<Polygon> rightPolys = new List<Polygon>();
+		List<Polygon> negPolys = new List<Polygon>();
+		List<Polygon> posPolys = new List<Polygon>();
 		List<Vector2> newPath = new List<Vector2>();
 		
 		List<Vector2> firstPath = new List<Vector2>();
@@ -152,8 +152,8 @@ class Polygon {
 				}
 				else {
 					Polygon poly = new Polygon(newPath.ToArray());
-					if (lastSide < 0) leftPolys.Add(poly);
-					else rightPolys.Add(poly);
+					if (lastSide < 0) negPolys.Add(poly);
+					else posPolys.Add(poly);
 				}
 				newPath.Clear();
 				newPath.Add(intersect);
@@ -163,8 +163,8 @@ class Polygon {
 				// if so, append to said polygon until you exit again
 				if (polyToRevisit == null) {
 					Polygon[] polyCheckList = new Polygon[0];
-					if (side > 0) polyCheckList = rightPolys.ToArray();
-					else if (side < 0) polyCheckList = leftPolys.ToArray();
+					if (side > 0) polyCheckList = posPolys.ToArray();
+					else if (side < 0) polyCheckList = negPolys.ToArray();
 					for (int j = 0; j < polyCheckList.Length; j++) {
 						if (polyCheckList[j].Contains(path[i])) {
 							polyToRevisit = polyCheckList[j];
@@ -183,11 +183,11 @@ class Polygon {
 			newPath.AddRange(firstPath);
 		}
 		Polygon lastPoly = new Polygon(newPath.ToArray());
-		if (firstSide < 0) leftPolys.Add(lastPoly);
-		else rightPolys.Add(lastPoly);
+		if (firstSide < 0) negPolys.Add(lastPoly);
+		else posPolys.Add(lastPoly);
 
-		// Debug.Log(leftPolys.Count + " " + rightPolys.Count);
-		return new Polygon[2][] {leftPolys.ToArray(), rightPolys.ToArray()};
+		// Debug.Log(negPolys.Count + " " + posPolys.Count);
+		return new Polygon[2][] {negPolys.ToArray(), posPolys.ToArray()};
 	}
 
 	public Polygon[] TestSplit () {
