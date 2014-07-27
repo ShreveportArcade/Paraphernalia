@@ -1,3 +1,4 @@
+
 This is a collection of scripts I like to use as a starting point when I sit 
 down to make a game. I don't claim to understand the legality of putting all 
 of these files in one place and giving them a common namespace, but since 
@@ -10,7 +11,7 @@ Attribution Share Alike. The author of MaxRectsBinPack, for example, clearly
 states that the work is public domain and you can "do whatever you want with 
 it."
 
-May 4, 2014 - The Plot Thickens
+Edit: May 4, 2014
 I was reading into the license thing again and I came across http://wiki.
 unity3d.com/index.php/Talk:Main_Page#Terms_of_Use. It seems as if the CC3 
 Share Alike license was tacked on after many of these scripts were posted to 
