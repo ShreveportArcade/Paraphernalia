@@ -18,6 +18,7 @@ DEALINGS IN THE SOFTWARE.
 
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace Paraphernalia.Extensions {
 public static class GameObjectExtensions {
@@ -40,6 +41,16 @@ public static class GameObjectExtensions {
             GameObject child = t.GetChild(i).gameObject;
             _Destroy(child);
         }
+    }
+
+    public static T[] GetChildComponents<T> (this Transform t) where T : Component {
+        List<T> children = new List<T>();
+        for (int i = 0; i < t.childCount; i++) {
+            GameObject child = t.GetChild(i).gameObject;
+            T component = child.GetComponent<T>();
+            if (component != null) children.Add(component);
+        }
+        return children.ToArray();
     }
 
     public static T GetOrAddComponent<T>(this GameObject go) where T : Component {

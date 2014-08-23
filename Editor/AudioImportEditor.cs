@@ -113,9 +113,9 @@ public class AudioImportEditor {
     // ----------------------------------------------------------------------------
  
     static void SelectedToggleCompressionSettings(AudioImporterFormat newFormat) {
-        AudioClip[] audioclips = GetSelectedAudioclips();
-        foreach (AudioClip audioclip in audioclips) {
-            string path = AssetDatabase.GetAssetPath(audioclip);
+        AudioClip[] audioClips = GetSelectedAudioclips();
+        foreach (AudioClip audioClip in audioClips) {
+            string path = AssetDatabase.GetAssetPath(audioClip);
             AudioImporter audioImporter = AssetImporter.GetAtPath(path) as AudioImporter;
             audioImporter.format = newFormat;
             AssetDatabase.ImportAsset(path);
@@ -123,9 +123,9 @@ public class AudioImportEditor {
     }
  
     static void SelectedSetCompressionBitrate(int newCompressionBitrate) {
-        AudioClip[] audioclips = GetSelectedAudioclips();
-        foreach (AudioClip audioclip in audioclips) {
-            string path = AssetDatabase.GetAssetPath(audioclip);
+        AudioClip[] audioClips = GetSelectedAudioclips();
+        foreach (AudioClip audioClip in audioClips) {
+            string path = AssetDatabase.GetAssetPath(audioClip);
             AudioImporter audioImporter = AssetImporter.GetAtPath(path) as AudioImporter;
             audioImporter.compressionBitrate = newCompressionBitrate;
             AssetDatabase.ImportAsset(path);
@@ -133,9 +133,9 @@ public class AudioImportEditor {
     }
  
     static void SelectedToggleDecompressOnLoadSettings(AudioImporterLoadType loadType) {
-        AudioClip[] audioclips = GetSelectedAudioclips();
-        foreach (AudioClip audioclip in audioclips) {
-            string path = AssetDatabase.GetAssetPath(audioclip);
+        AudioClip[] audioClips = GetSelectedAudioclips();
+        foreach (AudioClip audioClip in audioClips) {
+            string path = AssetDatabase.GetAssetPath(audioClip);
             AudioImporter audioImporter = AssetImporter.GetAtPath(path) as AudioImporter;
             audioImporter.loadType = loadType;
             AssetDatabase.ImportAsset(path);
@@ -143,9 +143,9 @@ public class AudioImportEditor {
     }
  
     static void SelectedToggle3DSoundSettings(bool enabled) {
-        AudioClip[] audioclips = GetSelectedAudioclips();
-        foreach (AudioClip audioclip in audioclips) {
-            string path = AssetDatabase.GetAssetPath(audioclip);
+        AudioClip[] audioClips = GetSelectedAudioclips();
+        foreach (AudioClip audioClip in audioClips) {
+            string path = AssetDatabase.GetAssetPath(audioClip);
             AudioImporter audioImporter = AssetImporter.GetAtPath(path) as AudioImporter;
             audioImporter.threeD = enabled;
             AssetDatabase.ImportAsset(path);
@@ -153,9 +153,9 @@ public class AudioImportEditor {
     }
  
     static void SelectedToggleForceToMonoSettings(bool enabled) {
-        AudioClip[] audioclips = GetSelectedAudioclips();
-        foreach (AudioClip audioclip in audioclips) {
-            string path = AssetDatabase.GetAssetPath(audioclip);
+        AudioClip[] audioClips = GetSelectedAudioclips();
+        foreach (AudioClip audioClip in audioClips) {
+            string path = AssetDatabase.GetAssetPath(audioClip);
             AudioImporter audioImporter = AssetImporter.GetAtPath(path) as AudioImporter;
             audioImporter.forceToMono = enabled;
             AssetDatabase.ImportAsset(path);
@@ -163,6 +163,7 @@ public class AudioImportEditor {
     }
  
     static AudioClip[] GetSelectedAudioclips() {
-        return Selection.GetFiltered(typeof(AudioClip), SelectionMode.DeepAssets) as AudioClip[];
+        Object[] array = Selection.GetFiltered(typeof(AudioClip), SelectionMode.DeepAssets);
+        return System.Array.ConvertAll(array, item => (AudioClip)item);
     }
 }
