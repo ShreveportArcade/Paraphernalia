@@ -171,6 +171,34 @@ public class Interpolate {
         }
         return f;
     }
+
+    public static float Ease(EaseType type, float t) {
+        switch (type) {
+            case EaseType.Linear: return Interpolate.Linear(t);
+            case EaseType.EaseInQuad: return Interpolate.EaseInQuad(t);
+            case EaseType.EaseOutQuad: return Interpolate.EaseOutQuad(t);
+            case EaseType.EaseInOutQuad: return Interpolate.EaseInOutQuad(t);
+            case EaseType.EaseInCubic: return Interpolate.EaseInCubic(t);
+            case EaseType.EaseOutCubic: return Interpolate.EaseOutCubic(t);
+            case EaseType.EaseInOutCubic: return Interpolate.EaseInOutCubic(t);
+            case EaseType.EaseInQuart: return Interpolate.EaseInQuart(t);
+            case EaseType.EaseOutQuart: return Interpolate.EaseOutQuart(t);
+            case EaseType.EaseInOutQuart: return Interpolate.EaseInOutQuart(t);
+            case EaseType.EaseInQuint: return Interpolate.EaseInQuint(t);
+            case EaseType.EaseOutQuint: return Interpolate.EaseOutQuint(t);
+            case EaseType.EaseInOutQuint: return Interpolate.EaseInOutQuint(t);
+            case EaseType.EaseInSine: return Interpolate.EaseInSine(t);
+            case EaseType.EaseOutSine: return Interpolate.EaseOutSine(t);
+            case EaseType.EaseInOutSine: return Interpolate.EaseInOutSine(t);
+            case EaseType.EaseInExpo: return Interpolate.EaseInExpo(t);
+            case EaseType.EaseOutExpo: return Interpolate.EaseOutExpo(t);
+            case EaseType.EaseInOutExpo: return Interpolate.EaseInOutExpo(t);
+            case EaseType.EaseInCirc: return Interpolate.EaseInCirc(t);
+            case EaseType.EaseOutCirc: return Interpolate.EaseOutCirc(t);
+            case EaseType.EaseInOutCirc: return Interpolate.EaseInOutCirc(t);
+            default: return t;
+        }
+    }
  
     /**
      * Returns sequence generator from the first node to the last node over
@@ -385,6 +413,10 @@ public class Interpolate {
     public static float Linear(float start, float distance, float t) {
         return distance * t + start;
     }
+
+    public static float Linear(float t) {
+        return t;
+    }
  
     /**
      * quadratic easing in - accelerating from zero velocity
@@ -398,6 +430,10 @@ public class Interpolate {
     public static float EaseInQuad(float start, float distance, float t) {
         return distance * t * t + start;
     }
+
+    public static float EaseInQuad(float t) {
+        return t * t;
+    }
  
     /**
      * quadratic easing out - decelerating to zero velocity
@@ -410,6 +446,10 @@ public class Interpolate {
 
     public static float EaseOutQuad(float start, float distance, float t) {
         return -distance * t * (t - 2) + start;
+    }
+
+    public static float EaseOutQuad(float t) {
+        return -t * (t - 2);
     }
  
     /**
@@ -426,6 +466,10 @@ public class Interpolate {
     public static float EaseInOutQuad(float start, float distance, float t) {
         return -distance / 2 * (t * (t - 2) - 1) + start;
     }
+
+    public static float EaseInOutQuad(float t) {
+        return -1 / 2 * (t * (t - 2) - 1);
+    }
  
     /**
      * cubic easing in - accelerating from zero velocity
@@ -438,6 +482,10 @@ public class Interpolate {
 
     public static float EaseInCubic(float start, float distance, float t) {
         return distance * t * t * t + start;
+    }
+
+    public static float EaseInCubic(float t) {
+        return t * t * t;
     }
  
     /**
@@ -452,6 +500,10 @@ public class Interpolate {
 
     public static float EaseOutCubic(float start, float distance, float t) {
         return distance * (t * t * t + 1) + start;
+    }
+
+    public static float EaseOutCubic(float t) {
+        return t * t * t + 1;
     }
  
     /**
@@ -468,6 +520,10 @@ public class Interpolate {
     public static float EaseInOutCubic(float start, float distance, float t) {
         return distance / 2 * (t * t * t + 2) + start;
     }
+
+    public static float EaseInOutCubic(float t) {
+        return 1 / 2 * (t * t * t + 2);
+    }
  
     /**
      * quartic easing in - accelerating from zero velocity
@@ -480,6 +536,10 @@ public class Interpolate {
 
     public static float EaseInQuart(float start, float distance, float t) {
         return distance * t * t * t * t + start;
+    }
+
+    public static float EaseInQuart(float t) {
+        return t * t * t * t;
     }
  
     /**
@@ -495,6 +555,10 @@ public class Interpolate {
     public static float EaseOutQuart(float start, float distance, float t) {
         return -distance * (t * t * t * t - 1) + start;
     }
+
+    public static float EaseOutQuart(float t) {
+        return -t * t * t * t + 1;
+    }
  
     /**
      * quartic easing in/out - acceleration until halfway, then deceleration
@@ -508,6 +572,11 @@ public class Interpolate {
     public static float EaseInOutQuart(float start, float distance, float t) {
         if (t < 0.5f) return EaseInQuart(start, distance, t);
        	else return EaseOutQuart(start, distance, t);
+    }
+
+    public static float EaseInOutQuart(float t) {
+        if (t < 0.5f) return EaseInQuart(t);
+        else return EaseOutQuart(t);
     }
  
 
@@ -523,6 +592,10 @@ public class Interpolate {
     public static float EaseInQuint(float start, float distance, float t) {
         return distance * t * t * t * t * t + start;
     }
+
+    public static float EaseInQuint(float t) {
+        return t * t * t * t * t;
+    }
  
     /**
      * quintic easing out - decelerating to zero velocity
@@ -537,6 +610,10 @@ public class Interpolate {
     public static float EaseOutQuint(float start, float distance, float t) {
         return distance * (t * t * t * t * t + 1) + start;
     }
+
+    public static float EaseOutQuint(float t) {
+        return t * t * t * t * t + 1;
+    }
  
     /**
      * quintic easing in/out - acceleration until halfway, then deceleration
@@ -549,7 +626,12 @@ public class Interpolate {
 
     public static float EaseInOutQuint(float start, float distance, float t) {
         if (t < 0.5f) return EaseInQuint(start, distance, t);
-       	else return EaseOutQuint(start, distance, t);
+        else return EaseOutQuint(start, distance, t);
+    }
+
+    public static float EaseInOutQuint(float t) {
+        if (t < 0.5f) return EaseInQuint(t);
+        else return EaseOutQuint(t);
     }
  
     /**
@@ -566,6 +648,10 @@ public class Interpolate {
         return -distance * Mathf.Cos(t * (Mathf.PI / 2)) + distance + start;
     }
  
+    public static float EaseInSine(float t) {
+        return -Mathf.Cos(t * (Mathf.PI / 2)) + 1;
+    }
+ 
     /**
      * sinusoidal easing out - decelerating to zero velocity
      */
@@ -577,6 +663,10 @@ public class Interpolate {
 
     public static float EaseOutSine(float start, float distance, float t) {
         return distance * Mathf.Sin(t * (Mathf.PI / 2)) + start;
+    }
+
+    public static float EaseOutSine(float t) {
+        return Mathf.Sin(t * (Mathf.PI / 2));
     }
  
     /**
@@ -593,6 +683,10 @@ public class Interpolate {
         return -distance / 2 * (Mathf.Cos(Mathf.PI * t) - 1) + start;
     }
  
+    public static float EaseInOutSine(float t) {
+        return -1 / 2 * (Mathf.Cos(Mathf.PI * t) - 1);
+    }
+ 
     /**
      * exponential easing in - accelerating from zero velocity
      */
@@ -605,6 +699,10 @@ public class Interpolate {
  
     public static float EaseInExpo(float start, float distance, float t) {
         return distance * Mathf.Pow(2, 10 * (t - 1)) + start;
+    }
+ 
+    public static float EaseInExpo(float t) {
+        return Mathf.Pow(2, 10 * (t - 1));
     }
 
     /**
@@ -619,6 +717,10 @@ public class Interpolate {
 
     public static float EaseOutExpo(float start, float distance, float t) {
         return distance * (-Mathf.Pow(2, -10 * t) + 1) + start;
+    }
+
+    public static float EaseOutExpo(float t) {
+        return -Mathf.Pow(2, -10 * t) + 1;
     }
  
     /**
@@ -635,6 +737,10 @@ public class Interpolate {
     public static float EaseInOutExpo(float start, float distance, float t) {
         return distance / 2 * (-Mathf.Pow(2, -10 * t) + 2) + start;
     }
+
+    public static float EaseInOutExpo(float t) {
+        return 1 / 2 * (-Mathf.Pow(2, -10 * t) + 2);
+    }
  
     /**
      * circular easing in - accelerating from zero velocity
@@ -647,6 +753,10 @@ public class Interpolate {
 
     public static float EaseInCirc(float start, float distance, float t) {
         return -distance * (Mathf.Sqrt(1 - t * t) - 1) + start;
+    }
+
+    public static float EaseInCirc(float t) {
+        return -Mathf.Sqrt(1 - t * t) + 1;
     }
  
     /**
@@ -662,6 +772,10 @@ public class Interpolate {
     public static float EaseOutCirc(float start, float distance, float t) {
         return distance * Mathf.Sqrt(1 - t * t) + start;
     }
+
+    public static float EaseOutCirc(float t) {
+        return Mathf.Sqrt(1 - t * t);
+    }
  
     /**
      * circular easing in/out - acceleration until halfway, then deceleration
@@ -676,6 +790,10 @@ public class Interpolate {
 
     public static float EaseInOutCirc(float start, float distance, float t) {
         return distance / 2 * (Mathf.Sqrt(1 - t * t) + 1) + start;
+    }
+
+    public static float EaseInOutCirc(float t) {
+        return 0.5f * Mathf.Sqrt(1 - t * t) + 0.5f;
     }
 }
 }
