@@ -122,9 +122,9 @@ public static class Vector3Extensions {
 		for (int i = 1; i < points.Length; i++) {
 			Vector3 p = points[i];
 			if (p.x > max.x) max.x = p.x;
-			else if (p.x < min.x) min.x = p.x;
-			else if (p.y > max.y) max.y = p.y;
-			else if (p.y < min.y) min.y = p.y;
+			if (p.x < min.x) min.x = p.x;
+			if (p.y > max.y) max.y = p.y;
+			if (p.y < min.y) min.y = p.y;
 		}
 		b.SetMinMax(min, max);
 		return b;

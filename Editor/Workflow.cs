@@ -74,6 +74,25 @@ public class Workflow : Editor {
 		Selection.objects = newSelection.ToArray();
 	}
 
+	[MenuItem ("Edit/Select Children %&c")]
+	static void SelectChildren() { 
+		List< GameObject > oldSelection = new List< GameObject >();
+		List< GameObject > newSelection = new List< GameObject >();
+ 
+		foreach (GameObject obj in Selection.GetFiltered(typeof(GameObject), SelectionMode.ExcludePrefab)) {
+			oldSelection.Add(obj);
+		}
+ 
+		foreach (GameObject obj in oldSelection) {
+			foreach (Transform t in obj.transform) {
+				newSelection.Add(t.gameObject);
+			}
+		}
+ 
+		Undo.RecordObjects(Selection.objects, "selects children");
+		Selection.objects = newSelection.ToArray();
+	}
+
 	// From: http://wiki.unity3d.com/index.php/MoveToOrigin
 	// Author: Matthew Miner (matthew@matthewminer.com)
 	[MenuItem ("GameObject/Move To Origin &m")]

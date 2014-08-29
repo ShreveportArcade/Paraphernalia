@@ -43,6 +43,13 @@ public static class GameObjectExtensions {
         }
     }
 
+    public static void DestroyChildrenAfter (this Transform t, int index) {
+        for (int i = t.childCount - 1; i >= index; i--) {
+            GameObject child = t.GetChild(i).gameObject;
+            _Destroy(child);
+        }
+    }
+
     public static T[] GetChildComponents<T> (this Transform t) where T : Component {
         List<T> children = new List<T>();
         for (int i = 0; i < t.childCount; i++) {
