@@ -20,6 +20,10 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
+#if UNITY_EDITOR
+using System.Reflection;
+#endif
+
 namespace Paraphernalia.Extensions {
 public static class GameObjectExtensions {
 
@@ -35,6 +39,28 @@ public static class GameObjectExtensions {
     	}
     	#endif
 	}
+
+    public static UnityEngine.Object Instantiate (this UnityEngine.Object obj) {
+        #if UNITY_EDITOR
+        if (Application.isPlaying) {
+        #endif
+            return GameObject.Instantiate(obj);
+        #if UNITY_EDITOR
+        }
+        else {
+            System.Type prefabUtility = System.Type.GetType("UnityEditor.PrefabUtility, UnityEditor", false, false);
+            System.Type[] paramTypes = new System.Type[]{ typeof(UnityEngine.Object) };
+            System.Reflection.MethodInfo method = prefabUtility.GetMethod(
+                "InstantiatePrefab", 
+                BindingFlags.Public | BindingFlags.Static,
+                null,
+                paramTypes,
+                null
+            );
+            return method.Invoke(null, new UnityEngine.Object[]{obj}) as UnityEngine.Object;
+        }
+        #endif
+    }
 
     public static void DestroyChildren (this Transform t) {
         for (int i = t.childCount - 1; i >= 0; i--) {
