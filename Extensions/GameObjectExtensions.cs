@@ -62,6 +62,22 @@ public static class GameObjectExtensions {
         #endif
     }
 
+    public static bool GetStatic(this GameObject go) {
+        #if UNITY_EDITOR
+        System.Reflection.PropertyInfo property = go.GetType().GetProperty("isStatic", BindingFlags.Instance | BindingFlags.Public);
+        return (bool)property.GetValue(go, null);
+        #else
+        return false;
+        #endif
+    }
+
+    public static void SetStatic(this GameObject go, bool isStatic) {
+        #if UNITY_EDITOR
+        System.Reflection.PropertyInfo property = go.GetType().GetProperty("isStatic", BindingFlags.Instance | BindingFlags.Public);
+        property.SetValue(go, isStatic, null);
+        #endif
+    }
+
     public static void DestroyChildren (this Transform t) {
         for (int i = t.childCount - 1; i >= 0; i--) {
             GameObject child = t.GetChild(i).gameObject;
