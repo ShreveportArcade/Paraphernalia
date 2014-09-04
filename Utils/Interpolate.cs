@@ -292,6 +292,16 @@ public class Interpolate {
             }
         }
         return points[0];
+    } 
+
+    public static Vector3 QuadBezier(Vector3 start, Vector3 cp, Vector3 end, float t) {
+        float f = (1-t);
+        return f*f*start + 2*f*t*cp + t*t*end;
+    }
+
+    public static Vector3 CubicBezier(Vector3 start, Vector3 cp1, Vector3 cp2, Vector3 end, float t) {
+        float f = (1-t);
+        return f*f*f*start + 3*f*f*t*cp1 + 3*f*t*t*cp2 + t*t*t*end;
     }
  
     /**
