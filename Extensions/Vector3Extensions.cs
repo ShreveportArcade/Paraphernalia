@@ -88,6 +88,17 @@ public static class Vector3Extensions {
 		return ang;
 	}
 
+	public static float ClosedWinding (this Vector3[] path) {
+		float ang = 0;
+        for (int i = 0; i < path.Length; i++) {
+			ang += Vector3.Cross(
+				path[(i-1+path.Length)%path.Length] - path[i], 
+				path[(i+1)%path.Length] - path[i]).z;
+		}
+
+		return ang;
+	}
+
 	public static float PathLength (this Vector3[] path, bool closed) {
 		float len = 0;
         for (int i = 1; i < path.Length; i++) {
