@@ -119,6 +119,43 @@ class Polygon {
 		return Mathf.RoundToInt(winding / (2 * Mathf.PI));
 	}
 
+	public Polygon GetOffset (float offset) {
+		return new Polygon(GetOffsetPath(offset));
+	}
+
+	public Vector2[] GetOffsetPath (float offset) {
+		int len = path.Length;
+		List<Vector2> newPath = new List<Vector2>();
+
+		Vector2 prev = path[len-1];
+		Vector2 curr = path[0];
+		Vector2 next = path[1];
+		
+		Vector2 currDir = (prev - curr).normalized;
+		Vector2 nextDir = (next - curr).normalized;
+
+		Vector2 prevOut = currDir.GetPerpendicular();
+		Vector2 currOut = nextDir.GetPerpendicular();
+		
+		for (int i = 1; i < len + 1; i++) {
+			prev = curr;
+			curr = next;
+			next = path[(i+1)%len];
+
+			currDir = nextDir;
+			nextDir = (next - curr).normalized;
+			
+			prevOut = currOut;
+			currOut = nextDir.GetPerpendicular();
+
+			Line2D lineA = new Line2D(prevOut, prevOut + currDir);
+			Line2D lineB = new Line2D(currOut, currOut + nextDir);
+			newPath.Add(curr + lineA.Intersect(lineB) * offset);
+		}
+
+		return newPath.ToArray();
+	}
+
 	public Polygon[][] Split (Line2D line) {
 		// if (GetWindingNumber() > 0) _path = path.Reverse();
 
