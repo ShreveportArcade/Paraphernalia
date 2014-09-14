@@ -16,27 +16,27 @@ public class Interpolate {
  */
     public enum EaseType {
         Linear,
-        EaseInQuad,
-        EaseOutQuad,
-        EaseInOutQuad,
-        EaseInCubic,
-        EaseOutCubic,
-        EaseInOutCubic,
-        EaseInQuart,
-        EaseOutQuart,
-        EaseInOutQuart,
-        EaseInQuint,
-        EaseOutQuint,
-        EaseInOutQuint,
-        EaseInSine,
-        EaseOutSine,
-        EaseInOutSine,
-        EaseInExpo,
-        EaseOutExpo,
-        EaseInOutExpo,
-        EaseInCirc,
-        EaseOutCirc,
-        EaseInOutCirc
+        InQuad,
+        OutQuad,
+        InOutQuad,
+        InCubic,
+        OutCubic,
+        InOutCubic,
+        InQuart,
+        OutQuart,
+        InOutQuart,
+        InQuint,
+        OutQuint,
+        InOutQuint,
+        InSine,
+        OutSine,
+        InOutSine,
+        InExpo,
+        OutExpo,
+        InOutExpo,
+        InCirc,
+        OutCirc,
+        InOutCirc
     }
  
     /**
@@ -147,27 +147,27 @@ public class Interpolate {
         Function f = null;
         switch (type) {
             case EaseType.Linear: f = Interpolate.Linear; break;
-            case EaseType.EaseInQuad: f = Interpolate.EaseInQuad; break;
-            case EaseType.EaseOutQuad: f = Interpolate.EaseOutQuad; break;
-            case EaseType.EaseInOutQuad: f = Interpolate.EaseInOutQuad; break;
-            case EaseType.EaseInCubic: f = Interpolate.EaseInCubic; break;
-            case EaseType.EaseOutCubic: f = Interpolate.EaseOutCubic; break;
-            case EaseType.EaseInOutCubic: f = Interpolate.EaseInOutCubic; break;
-            case EaseType.EaseInQuart: f = Interpolate.EaseInQuart; break;
-            case EaseType.EaseOutQuart: f = Interpolate.EaseOutQuart; break;
-            case EaseType.EaseInOutQuart: f = Interpolate.EaseInOutQuart; break;
-            case EaseType.EaseInQuint: f = Interpolate.EaseInQuint; break;
-            case EaseType.EaseOutQuint: f = Interpolate.EaseOutQuint; break;
-            case EaseType.EaseInOutQuint: f = Interpolate.EaseInOutQuint; break;
-            case EaseType.EaseInSine: f = Interpolate.EaseInSine; break;
-            case EaseType.EaseOutSine: f = Interpolate.EaseOutSine; break;
-            case EaseType.EaseInOutSine: f = Interpolate.EaseInOutSine; break;
-            case EaseType.EaseInExpo: f = Interpolate.EaseInExpo; break;
-            case EaseType.EaseOutExpo: f = Interpolate.EaseOutExpo; break;
-            case EaseType.EaseInOutExpo: f = Interpolate.EaseInOutExpo; break;
-            case EaseType.EaseInCirc: f = Interpolate.EaseInCirc; break;
-            case EaseType.EaseOutCirc: f = Interpolate.EaseOutCirc; break;
-            case EaseType.EaseInOutCirc: f = Interpolate.EaseInOutCirc; break;
+            case EaseType.InQuad: f = Interpolate.EaseInQuad; break;
+            case EaseType.OutQuad: f = Interpolate.EaseOutQuad; break;
+            case EaseType.InOutQuad: f = Interpolate.EaseInOutQuad; break;
+            case EaseType.InCubic: f = Interpolate.EaseInCubic; break;
+            case EaseType.OutCubic: f = Interpolate.EaseOutCubic; break;
+            case EaseType.InOutCubic: f = Interpolate.EaseInOutCubic; break;
+            case EaseType.InQuart: f = Interpolate.EaseInQuart; break;
+            case EaseType.OutQuart: f = Interpolate.EaseOutQuart; break;
+            case EaseType.InOutQuart: f = Interpolate.EaseInOutQuart; break;
+            case EaseType.InQuint: f = Interpolate.EaseInQuint; break;
+            case EaseType.OutQuint: f = Interpolate.EaseOutQuint; break;
+            case EaseType.InOutQuint: f = Interpolate.EaseInOutQuint; break;
+            case EaseType.InSine: f = Interpolate.EaseInSine; break;
+            case EaseType.OutSine: f = Interpolate.EaseOutSine; break;
+            case EaseType.InOutSine: f = Interpolate.EaseInOutSine; break;
+            case EaseType.InExpo: f = Interpolate.EaseInExpo; break;
+            case EaseType.OutExpo: f = Interpolate.EaseOutExpo; break;
+            case EaseType.InOutExpo: f = Interpolate.EaseInOutExpo; break;
+            case EaseType.InCirc: f = Interpolate.EaseInCirc; break;
+            case EaseType.OutCirc: f = Interpolate.EaseOutCirc; break;
+            case EaseType.InOutCirc: f = Interpolate.EaseInOutCirc; break;
         }
         return f;
     }
@@ -175,27 +175,27 @@ public class Interpolate {
     public static float Ease(EaseType type, float t) {
         switch (type) {
             case EaseType.Linear: return Interpolate.Linear(t);
-            case EaseType.EaseInQuad: return Interpolate.EaseInQuad(t);
-            case EaseType.EaseOutQuad: return Interpolate.EaseOutQuad(t);
-            case EaseType.EaseInOutQuad: return Interpolate.EaseInOutQuad(t);
-            case EaseType.EaseInCubic: return Interpolate.EaseInCubic(t);
-            case EaseType.EaseOutCubic: return Interpolate.EaseOutCubic(t);
-            case EaseType.EaseInOutCubic: return Interpolate.EaseInOutCubic(t);
-            case EaseType.EaseInQuart: return Interpolate.EaseInQuart(t);
-            case EaseType.EaseOutQuart: return Interpolate.EaseOutQuart(t);
-            case EaseType.EaseInOutQuart: return Interpolate.EaseInOutQuart(t);
-            case EaseType.EaseInQuint: return Interpolate.EaseInQuint(t);
-            case EaseType.EaseOutQuint: return Interpolate.EaseOutQuint(t);
-            case EaseType.EaseInOutQuint: return Interpolate.EaseInOutQuint(t);
-            case EaseType.EaseInSine: return Interpolate.EaseInSine(t);
-            case EaseType.EaseOutSine: return Interpolate.EaseOutSine(t);
-            case EaseType.EaseInOutSine: return Interpolate.EaseInOutSine(t);
-            case EaseType.EaseInExpo: return Interpolate.EaseInExpo(t);
-            case EaseType.EaseOutExpo: return Interpolate.EaseOutExpo(t);
-            case EaseType.EaseInOutExpo: return Interpolate.EaseInOutExpo(t);
-            case EaseType.EaseInCirc: return Interpolate.EaseInCirc(t);
-            case EaseType.EaseOutCirc: return Interpolate.EaseOutCirc(t);
-            case EaseType.EaseInOutCirc: return Interpolate.EaseInOutCirc(t);
+            case EaseType.InQuad: return Interpolate.EaseInQuad(t);
+            case EaseType.OutQuad: return Interpolate.EaseOutQuad(t);
+            case EaseType.InOutQuad: return Interpolate.EaseInOutQuad(t);
+            case EaseType.InCubic: return Interpolate.EaseInCubic(t);
+            case EaseType.OutCubic: return Interpolate.EaseOutCubic(t);
+            case EaseType.InOutCubic: return Interpolate.EaseInOutCubic(t);
+            case EaseType.InQuart: return Interpolate.EaseInQuart(t);
+            case EaseType.OutQuart: return Interpolate.EaseOutQuart(t);
+            case EaseType.InOutQuart: return Interpolate.EaseInOutQuart(t);
+            case EaseType.InQuint: return Interpolate.EaseInQuint(t);
+            case EaseType.OutQuint: return Interpolate.EaseOutQuint(t);
+            case EaseType.InOutQuint: return Interpolate.EaseInOutQuint(t);
+            case EaseType.InSine: return Interpolate.EaseInSine(t);
+            case EaseType.OutSine: return Interpolate.EaseOutSine(t);
+            case EaseType.InOutSine: return Interpolate.EaseInOutSine(t);
+            case EaseType.InExpo: return Interpolate.EaseInExpo(t);
+            case EaseType.OutExpo: return Interpolate.EaseOutExpo(t);
+            case EaseType.InOutExpo: return Interpolate.EaseInOutExpo(t);
+            case EaseType.InCirc: return Interpolate.EaseInCirc(t);
+            case EaseType.OutCirc: return Interpolate.EaseOutCirc(t);
+            case EaseType.InOutCirc: return Interpolate.EaseInOutCirc(t);
             default: return t;
         }
     }
