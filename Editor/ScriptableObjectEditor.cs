@@ -1,12 +1,16 @@
 using UnityEditor;
 using UnityEngine;
 
-[CustomEditor(typeof(ScriptableObject))]
-class ScriptableObjectEditor : Editor {
-	
-	static bool foldout = false;
+[CustomEditor(typeof(MonoScript))]
+class MonoScriptEditor : Editor {
 
 	public override void OnInspectorGUI () {
-		if (EditorGUILayout.Foldout(foldout, "Show Script")) base.OnInspectorGUI();
+		if (target == null) return;
+		MonoScript script = target as MonoScript;
+		System.Type t = script.GetClass();
+		if (!t.IsSubclassOf(typeof(Editor))) {
+			if (t.IsSubclassOf(typeof(ScriptableObject)) && GUILayout.Button("Create Asset"))
+				ScriptableObjectUtility.CreateAsset(t);
+		}
 	}
 }
