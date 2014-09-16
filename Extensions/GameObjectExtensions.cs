@@ -19,6 +19,7 @@ DEALINGS IN THE SOFTWARE.
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using Paraphernalia.Utils;
 
 #if UNITY_EDITOR
 using System.Reflection;
@@ -26,19 +27,6 @@ using System.Reflection;
 
 namespace Paraphernalia.Extensions {
 public static class GameObjectExtensions {
-
-	private static void _Destroy (UnityEngine.Object obj) {
-		#if UNITY_EDITOR
-		if (Application.isPlaying) {
-		#endif
-    		GameObject.Destroy(obj);
-    	#if UNITY_EDITOR
-    	}
-    	else {
-    		GameObject.DestroyImmediate(obj);
-    	}
-    	#endif
-	}
 
     public static UnityEngine.Object Instantiate (this UnityEngine.Object obj) {
         #if UNITY_EDITOR
@@ -81,14 +69,14 @@ public static class GameObjectExtensions {
     public static void DestroyChildren (this Transform t) {
         for (int i = t.childCount - 1; i >= 0; i--) {
             GameObject child = t.GetChild(i).gameObject;
-            _Destroy(child);
+            GameObjectUtils.Destroy(child);
         }
     }
 
     public static void DestroyChildrenAfter (this Transform t, int index) {
         for (int i = t.childCount - 1; i >= index; i--) {
             GameObject child = t.GetChild(i).gameObject;
-            _Destroy(child);
+            GameObjectUtils.Destroy(child);
         }
     }
 
@@ -110,14 +98,14 @@ public static class GameObjectExtensions {
 
     public static void DestroyComponent<T>(this GameObject go) where T : Component {
     	T component = go.GetComponent<T>();
-    	if (component != null) _Destroy(component);
+    	if (component != null) GameObjectUtils.Destroy(component);
     }
 
     public static void DestroyComponents<T>(this GameObject go) where T : Component {
     	T[] components = go.GetComponents<T>();
         for (int i = 0; i < components.Length; i++) {
             T component = components[i];
-    		_Destroy(component);
+    		GameObjectUtils.Destroy(component);
         }
     }
 }
