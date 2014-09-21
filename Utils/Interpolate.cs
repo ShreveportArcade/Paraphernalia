@@ -478,7 +478,8 @@ public class Interpolate {
     }
 
     public static float EaseInOutQuad(float t) {
-        return -1 / 2 * (t * (t - 2) - 1);
+        if (t < 0.5f) return EaseInQuad(2 * t) * 0.5f;
+        else return EaseOutQuad(2 * (t - 0.5f)) * 0.5f + 0.5f;
     }
  
     /**
@@ -513,7 +514,8 @@ public class Interpolate {
     }
 
     public static float EaseOutCubic(float t) {
-        return t * t * t + 1;
+        t = 1 - t;
+        return 1 - t * t * t;
     }
  
     /**
@@ -532,7 +534,8 @@ public class Interpolate {
     }
 
     public static float EaseInOutCubic(float t) {
-        return 1 / 2 * (t * t * t + 2);
+        if (t < 0.5f) return EaseInCubic(2 * t) * 0.5f;
+        else return EaseOutCubic(2 * (t - 0.5f)) * 0.5f + 0.5f;
     }
  
     /**
@@ -567,7 +570,8 @@ public class Interpolate {
     }
 
     public static float EaseOutQuart(float t) {
-        return -t * t * t * t + 1;
+        t = 1 - t;
+        return 1 - t * t * t * t;
     }
  
     /**
@@ -622,7 +626,8 @@ public class Interpolate {
     }
 
     public static float EaseOutQuint(float t) {
-        return t * t * t * t * t + 1;
+        t = 1 - t;
+        return 1 - t * t * t * t * t;
     }
  
     /**
@@ -694,7 +699,7 @@ public class Interpolate {
     }
  
     public static float EaseInOutSine(float t) {
-        return -1 / 2 * (Mathf.Cos(Mathf.PI * t) - 1);
+        return -0.5f * (Mathf.Cos(Mathf.PI * t) - 1);
     }
  
     /**
@@ -749,7 +754,8 @@ public class Interpolate {
     }
 
     public static float EaseInOutExpo(float t) {
-        return 1 / 2 * (-Mathf.Pow(2, -10 * t) + 2);
+        if (t < 0.5f) return EaseInExpo(2 * t) * 0.5f;
+        else return EaseOutExpo(2 * (t - 0.5f)) * 0.5f + 0.5f;
     }
  
     /**
@@ -784,6 +790,7 @@ public class Interpolate {
     }
 
     public static float EaseOutCirc(float t) {
+        t -= 1;
         return Mathf.Sqrt(1 - t * t);
     }
  
@@ -803,7 +810,8 @@ public class Interpolate {
     }
 
     public static float EaseInOutCirc(float t) {
-        return 0.5f * Mathf.Sqrt(1 - t * t) + 0.5f;
+        if (t < 0.5f) return EaseInCirc(2 * t) * 0.5f;
+        else return EaseOutCirc(2 * (t - 0.5f)) * 0.5f + 0.5f;
     }
 }
 }
