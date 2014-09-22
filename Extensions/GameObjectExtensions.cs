@@ -110,18 +110,13 @@ public static class GameObjectExtensions {
     }
 
     public static Bounds RendererBounds (this GameObject go) {
-        Renderer[] renderers = go.GetComponents<Renderer>();
+        Renderer[] renderers = go.GetComponentsInChildren<Renderer>();
         if (renderers.Length == 0) {
             return new Bounds(go.transform.position, Vector3.one * 0.01f);
         }
         Bounds b = renderers[0].bounds;
         for (int i = 1; i < renderers.Length; i++) {
             b.Encapsulate(renderers[i].bounds);
-        }
-
-        SpriteRenderer[] spriteRenderers = go.GetComponents<SpriteRenderer>();
-        for (int i = 0; i < spriteRenderers.Length; i++) {
-            b.Encapsulate(spriteRenderers[i].bounds);
         }
 
         return b;
