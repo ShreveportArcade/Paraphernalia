@@ -90,23 +90,41 @@ public static class GameObjectExtensions {
         return children.ToArray();
     }
 
-    public static T GetOrAddComponent<T>(this GameObject go) where T : Component {
+    public static T GetOrAddComponent<T> (this GameObject go) where T : Component {
         T component = go.GetComponent<T>();
         if (component == null) component = go.AddComponent<T>();
         return component;
     }
 
-    public static void DestroyComponent<T>(this GameObject go) where T : Component {
+    public static void DestroyComponent<T> (this GameObject go) where T : Component {
     	T component = go.GetComponent<T>();
     	if (component != null) GameObjectUtils.Destroy(component);
     }
 
-    public static void DestroyComponents<T>(this GameObject go) where T : Component {
+    public static void DestroyComponents<T> (this GameObject go) where T : Component {
     	T[] components = go.GetComponents<T>();
         for (int i = 0; i < components.Length; i++) {
             T component = components[i];
     		GameObjectUtils.Destroy(component);
         }
+    }
+
+    public static Bounds RendererBounds (this GameObject go) {
+        Renderer[] renderers = go.GetComponents<Renderer>();
+        if (renderers.Length == 0) {
+            return new Bounds(go.transform.position, Vector3.one * 0.01f);
+        }
+        Bounds b = renderers[0].bounds;
+        for (int i = 1; i < renderers.Length; i++) {
+            b.Encapsulate(renderers[i].bounds);
+        }
+
+        SpriteRenderer[] spriteRenderers = go.GetComponents<SpriteRenderer>();
+        for (int i = 0; i < spriteRenderers.Length; i++) {
+            b.Encapsulate(spriteRenderers[i].bounds);
+        }
+
+        return b;
     }
 }
 }
