@@ -32,7 +32,7 @@ public class MaterialIndexDrawer : PropertyDrawer {
 
 			GUIContent[] materialNames = Array.ConvertAll(
 				go.renderer.sharedMaterials, 
-				m => new GUIContent(m.name)
+				m => new GUIContent((m == null)?"null":m.name)
 			);
 			property.intValue = EditorGUI.Popup(rect, label, property.intValue, materialNames);
 		}
