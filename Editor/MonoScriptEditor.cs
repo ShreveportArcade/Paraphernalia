@@ -4,6 +4,8 @@ using UnityEngine;
 [CustomEditor(typeof(MonoScript))]
 class MonoScriptEditor : Editor {
 
+	static bool showCode = false;
+
 	public override void OnInspectorGUI () {
 		if (target == null || !(target is MonoScript)) return;
 		MonoScript script = target as MonoScript;
@@ -12,6 +14,11 @@ class MonoScriptEditor : Editor {
 		if (!(t.IsSubclassOf(typeof(Editor)) || t.IsSubclassOf(typeof(EditorWindow)))) {
 			if (t.IsSubclassOf(typeof(ScriptableObject)) && GUILayout.Button("Create Asset"))
 				ScriptableObjectUtility.CreateAsset(t);
+		}
+
+		showCode = EditorGUILayout.Foldout(showCode, "Code");
+		if (showCode) {
+			EditorGUILayout.TextArea(script.text);
 		}
 	}
 }
