@@ -24,3 +24,10 @@ removing the CC3 Share Alike license at this point as it seems to be a blanket
 stamp on all code posted to the Unify Community without the consent of the 
 authors. In many cases, it was tacked on years after the code was posted. To 
 be safe though, I'll wait until I have talked to the authors to remove it.
+
+Edit: Jan 5, 2015
+I finally bit the bullet and tracked down all of the people who have code in
+this repo. So far Matthew Miner, Marc Kusters, and Neil Carter have given their
+permission to relicense their code under MIT. I'm still waiting to hear back
+from the rest, but I'm hopeful that I'll be able to ditch this unnecessary
+amount of license stuff and replace it with a more useful readme file.
