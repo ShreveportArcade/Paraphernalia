@@ -121,5 +121,13 @@ public static class GameObjectExtensions {
 
         return b;
     }
+
+    public static bool IsVisible (this GameObject go) {
+        Renderer[] renderers = go.GetComponentsInChildren<Renderer>();
+        for (int i = 0; i < renderers.Length; i++) {
+            if (renderers[i].isVisible) return true;
+        }
+        return false;
+    }
 }
 }

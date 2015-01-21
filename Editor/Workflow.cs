@@ -1,6 +1,5 @@
 // A collection of workflow scripts from http://wiki.unity3d.com/index.php/Scripts/Editor
 // Shortcut keys and Undo functionality added by Nolan Baker
-// License: Creative Commons Attribution Share Alike
 	
 using UnityEngine;
 using UnityEditor;
