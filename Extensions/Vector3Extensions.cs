@@ -140,5 +140,18 @@ public static class Vector3Extensions {
 		b.SetMinMax(min, max);
 		return b;
 	}
+
+	public static Vector3 ClipToBounds (this Vector3 v, Bounds bounds) {
+		if (v.x > bounds.center.x + bounds.extents.x) v.x = bounds.center.x + bounds.extents.x;
+		else if (v.x < bounds.center.x - bounds.extents.x) v.x = bounds.center.x - bounds.extents.x;
+
+		if (v.y > bounds.center.y + bounds.extents.y) v.y = bounds.center.y + bounds.extents.y;
+		else if (v.y < bounds.center.y - bounds.extents.y) v.y = bounds.center.y - bounds.extents.y;
+
+		if (v.z > bounds.center.z + bounds.extents.z) v.z = bounds.center.z + bounds.extents.z;
+		else if (v.z < bounds.center.z - bounds.extents.z) v.z = bounds.center.z - bounds.extents.z;
+
+		return v;
+	}
 }
 }

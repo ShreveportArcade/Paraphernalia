@@ -19,6 +19,7 @@ DEALINGS IN THE SOFTWARE.
 using UnityEngine;
 using System.Collections;
 using Paraphernalia.Utils;
+using Paraphernalia.Extensions;
 
 [ExecuteInEditMode]
 public class TrackingCamera : MonoBehaviour {
@@ -29,13 +30,18 @@ public class TrackingCamera : MonoBehaviour {
 	public float speed = 1;
 	public float moveStartDist = 1f;
 	public bool adjustForVelocity = true;
+	public bool bounded = false;
+	public Bounds bounds;
 	public Interpolate.EaseType easeType = Interpolate.EaseType.InOutQuad;
 
-	void Update () {
+	void LateUpdate () {
 		if (target != null) {
 
 			#if UNITY_EDITOR
-			if (!Application.isPlaying) transform.position = target.position + offset;
+			if (!Application.isPlaying) {
+				transform.position = target.position + offset;
+				if (bounded) transform.position = transform.position.ClipToBounds(bounds);
+			}
 			else {
 			#endif
 				LerpToTarget();
@@ -57,11 +63,22 @@ public class TrackingCamera : MonoBehaviour {
 		float d = Vector3.Distance(target.position, transform.position + offset);
 		if (d > moveStartDist) {
 			Vector3 off = adjustForVelocity? offset + (Vector3)v * Time.deltaTime : offset;
-			transform.position = Vector3.Lerp(
+			Vector3 targetPosition = Vector3.Lerp(
 				transform.position,
 				target.position + off,
 				Time.deltaTime * speed
 			);
+			
+			if (bounded) {
+				targetPosition = targetPosition.ClipToBounds(bounds);
+			}
+			
+			transform.position = targetPosition;
 		}
 	}
+
+	void OnDrawGizmos() {
+        Gizmos.color = Color.white;
+        Gizmos.DrawWireCube(bounds.center, bounds.extents);
+    }
 }
