@@ -31,7 +31,7 @@ public class MaterialIndexDrawer : PropertyDrawer {
 			else if (obj is Component) go = (obj as Component).gameObject;
 
 			GUIContent[] materialNames = Array.ConvertAll(
-				go.renderer.sharedMaterials, 
+				go.GetComponent<Renderer>().sharedMaterials, 
 				m => new GUIContent((m == null)?"null":m.name)
 			);
 			property.intValue = EditorGUI.Popup(rect, label, property.intValue, materialNames);

@@ -59,7 +59,7 @@ public class TrackingCamera : MonoBehaviour {
 	}
 
 	void LerpToTarget () {
-		Vector2 v = (target.rigidbody2D == null)? Vector2.zero: target.rigidbody2D.velocity;
+		Vector2 v = (target.GetComponent<Rigidbody2D>() == null)? Vector2.zero: target.GetComponent<Rigidbody2D>().velocity;
 		float d = Vector3.Distance(target.position, transform.position + offset);
 		if (d > moveStartDist) {
 			Vector3 off = adjustForVelocity? offset + (Vector3)v * Time.deltaTime : offset;

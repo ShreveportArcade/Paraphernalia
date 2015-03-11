@@ -42,7 +42,7 @@ public class ScaleToViewport : MonoBehaviour {
 		p.x = (l + r) * 0.5f;
 		transform.position = p;
 
-		float xScale = (r - l) / (renderer.bounds.max.x - renderer.bounds.min.x);
+		float xScale = (r - l) / (GetComponent<Renderer>().bounds.max.x - GetComponent<Renderer>().bounds.min.x);
 		Vector3 scale = transform.localScale;
 		scale.x *= xScale;
 		transform.localScale = scale;
