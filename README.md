@@ -1,33 +1,9 @@
+# Paraphernalia 
+(ˌperəfərˈnālyə/) *noun* 
+miscellaneous articles, especially the equipment needed for a particular activity
 
-This is a collection of scripts I like to use as a starting point when I sit 
-down to make a game. I don't claim to understand the legality of putting all 
-of these files in one place and giving them a common namespace, but since 
-Editor extensions aren't compiled with your game's binary issues with copyleft 
-software may not affect your project. Not all files share the same license.
-Check the comments at the top of those files to know. Furthermore, it's likely 
-that many of the authors of the files posted on wiki.unity3d.com were not 
-aware that content is automatically licensed under Creative Commons 
-Attribution Share Alike. The author of MaxRectsBinPack, for example, clearly 
-states that the work is public domain and you can "do whatever you want with 
-it."
+## Intro
 
-Edit: May 4, 2014
-I was reading into the license thing again and I came across http://wiki.
-unity3d.com/index.php/Talk:Main_Page#Terms_of_Use. It seems as if the CC3 
-Share Alike license was tacked on after many of these scripts were posted to 
-Unify. On July 27, 2011, Technicat pointed out that there was no terms of use.
-His assumption was that code was licensed under MIT. On September 2, 2011,
-NCarter, author of many of the tools in this repo, replied with a dead link to 
-Unify Community's copyrights page and the assertion that "everything on the 
-wiki may be freely used in any way you can imagine." I'm leaning toward 
-removing the CC3 Share Alike license at this point as it seems to be a blanket 
-stamp on all code posted to the Unify Community without the consent of the 
-authors. In many cases, it was tacked on years after the code was posted. To 
-be safe though, I'll wait until I have talked to the authors to remove it.
+Paraphernalia is a collection of utility scripts we use when we make stuff. We got tired of copying and pasting stuff from old projects and hunting things down on the Unify Community, so we organized them into folders, namespaced stuff, and put them in a git repo so we could just add them as a submodule when we start new projects. Everything is licensed under MIT with permission from the authors. We've done our best to document who did what. Enjoy.
 
-Edit: Jan 5, 2015
-I finally bit the bullet and tracked down all of the people who have code in
-this repo. So far Matthew Miner, Marc Kusters, and Neil Carter have given their
-permission to relicense their code under MIT. I'm still waiting to hear back
-from the rest, but I'm hopeful that I'll be able to ditch this unnecessary
-amount of license stuff and replace it with a more useful readme file.
+## Modules

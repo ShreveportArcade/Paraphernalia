@@ -1,7 +1,6 @@
 ﻿// based on BlenderCameraControls.cs by Marc Kusters (Nighteyes)
 // which is based on BlenderCamControl.cs by Sarper Soher
 // made into a static class with menu items by Nolan Baker
-// Licensed under Creative Commons Attribution Share Alike.
 
 using UnityEngine;
 using UnityEditor;

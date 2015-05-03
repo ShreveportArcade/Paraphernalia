@@ -1,6 +1,5 @@
 ﻿// from http://wiki.unity3d.com/index.php/CreateScriptableObjectAsset
 // Author: Brandon Edmark
-// licensed under Creative Commons Attribution Share Alike.
 
 using UnityEngine;
 using UnityEditor;
