@@ -35,7 +35,6 @@ public static class Vector3Extensions {
 
 	// Resample is adapted from $1 recognizer
 	// From: http://depts.washington.edu/aimgroup/proj/dollar/
-	// License: New BSD License
 	// Copyright (c) 2007-2011, Jacob O. Wobbrock, Andrew D. Wilson and Yang Li.
 	public static Vector3[] Resample (this Vector3[] path, int n, bool closed) {		
 		float I = path.PathLength(closed) / (n - 1);
@@ -109,14 +108,6 @@ public static class Vector3Extensions {
 		}
 
 		return len;
-	}
-	
-	public static Vector3 Center (this Vector3[] points) {
-		Vector3 sum = Vector3.zero;
-		for (int i = 0; i < points.Length; i++) {
-			sum += points[i];	
-		}
-		return sum * (1.0f / points.Length);
 	}
 
 	public static Vector3[] MoveBy (this Vector3[] points, Vector3 delta) {

@@ -1,7 +1,6 @@
 ﻿// From: http://wiki.unity3d.com/index.php?title=Triangulator
 // Author: Runevision
 // made static class, updated to use Vector3 - Nolan Baker
-// Licensed under Creative Commons Attribution Share Alike
 
 using UnityEngine;
 using System.Collections.Generic;

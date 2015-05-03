@@ -6,7 +6,6 @@ using UnityEngine;
 // Original JS version: Fernando Zapata (fernando@cpudreams.com)
 // C# Version: Andrea85cs (andrea85cs@dynematica.it)
 // added conveinence functions for t in [0,1] - Nolan Baker
-// Licensed under Creative Commons Attribution Share Alike
  
 namespace Paraphernalia.Utils {
 public class Interpolate {
