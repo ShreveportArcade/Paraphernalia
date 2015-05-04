@@ -35,6 +35,7 @@ public static class Vector3Extensions {
 
 	// Resample is adapted from $1 recognizer
 	// From: http://depts.washington.edu/aimgroup/proj/dollar/
+	// For inquires about this fn or the $1 recognizer, please email wobbrock@uw.edu.
 	// Copyright (c) 2007-2011, Jacob O. Wobbrock, Andrew D. Wilson and Yang Li.
 	public static Vector3[] Resample (this Vector3[] path, int n, bool closed) {		
 		float I = path.PathLength(closed) / (n - 1);
