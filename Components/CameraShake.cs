@@ -5,9 +5,9 @@ using Paraphernalia.Extensions;
 namespace Paraphernalia.Components {
 public class CameraShake : MonoBehaviour {
 
-	public Vector3 extents = new Vector3(0.1f, 0.1f, 0);
-	private float magnitude;
-	private float duration;
+	public Vector3 extents = new Vector3(1,1,0);
+	public float magnitude = 1;
+	public float duration = 1;
 
 	void Awake () {
 		if (transform.parent == null) {
@@ -16,6 +16,12 @@ public class CameraShake : MonoBehaviour {
 		if (transform.localPosition != Vector3.zero) {
 			Debug.LogWarning("CameraShake expects an the object to be at the local origin.");
 		}
+	}
+
+	[ContextMenu("Shake")]
+	public void Shake () {
+		StopCoroutine("ShakeCoroutine");
+		StartCoroutine("ShakeCoroutine");
 	}
 
 	public void Shake (float magnitude, float duration) {

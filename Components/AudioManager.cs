@@ -76,9 +76,10 @@ public class AudioManager : MonoBehaviour {
 		}
 	}
 
-	public static void PlayEffect(AudioClip clip) {
+	public static void PlayEffect(AudioClip clip, float volume = 1, float pitch = 1) {
 		AudioSource source = instance.sfxSources[instance.currentSFXSource];
-		source.PlayOneShot(clip, 1);
+		source.pitch = pitch;
+		source.PlayOneShot(clip, volume);
 		instance.currentSFXSource = (instance.currentSFXSource + 1) % instance.sfxSourcesCount;
 	}
 
