@@ -25,9 +25,8 @@ namespace Paraphernalia.Extensions {
 public static class Vector3Extensions {
 
 	public static Vector3 Average (this Vector3[] points) {
-		Vector3 average = Vector3.zero;
+		Vector3 average = points[0];
 		for (int i = 1; i < points.Length; i++) {
-			Debug.Log(points[i]);
 			average += points[i];
 		}
 		average /= (float)points.Length;
