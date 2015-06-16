@@ -27,6 +27,7 @@ public static class Vector3Extensions {
 	public static Vector3 Average (this Vector3[] points) {
 		Vector3 average = Vector3.zero;
 		for (int i = 1; i < points.Length; i++) {
+			Debug.Log(points[i]);
 			average += points[i];
 		}
 		average /= (float)points.Length;
@@ -142,6 +143,19 @@ public static class Vector3Extensions {
 
 		if (v.z > bounds.center.z + bounds.extents.z) v.z = bounds.center.z + bounds.extents.z;
 		else if (v.z < bounds.center.z - bounds.extents.z) v.z = bounds.center.z - bounds.extents.z;
+
+		return v;
+	}
+
+	public static Vector3 ClipToExtents (this Vector3 v, Vector3 extents) {
+		if (v.x > extents.x) v.x = extents.x;
+		else if (v.x < -extents.x) v.x = -extents.x;
+
+		if (v.y > extents.y) v.y = extents.y;
+		else if (v.y < -extents.y) v.y = -extents.y;
+
+		if (v.z > extents.z) v.z = extents.z;
+		else if (v.z < -extents.z) v.z = -extents.z;
 
 		return v;
 	}

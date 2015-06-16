@@ -21,6 +21,7 @@ using System.Collections;
 using Paraphernalia.Utils;
 using Paraphernalia.Extensions;
 
+namespace Paraphernalia.Components {
 [ExecuteInEditMode]
 public class TrackingCamera : MonoBehaviour {
 
@@ -81,4 +82,5 @@ public class TrackingCamera : MonoBehaviour {
         Gizmos.color = Color.white;
         Gizmos.DrawWireCube(bounds.center, bounds.extents);
     }
+}
 }
