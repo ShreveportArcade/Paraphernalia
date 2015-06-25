@@ -43,5 +43,17 @@ public static class ArrayExtensions {
 		}
 		return array;
 	}
+
+	// this is fast but memory hungry, maybe this instead? -> http://stackoverflow.com/a/876410
+	public static T[] Shift<T> (this T[] array, int amount) {
+		int len = array.Length;
+		amount =  -len + (amount) % len;
+		T[] result = new T[len];
+		for (int i = 0; i < len; i++) {
+			int shift = (i - amount) % len;
+			result[i] = array[shift];
+		}
+		return result;
+	}
 }
 }
