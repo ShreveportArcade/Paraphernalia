@@ -18,6 +18,11 @@ public class CameraShake : MonoBehaviour {
 		}
 	}
 
+	public static void MainCameraShake () {
+		CameraShake s = Camera.main.gameObject.GetOrAddComponent<CameraShake>();
+		s.Shake();
+	}
+
 	[ContextMenu("Shake")]
 	public void Shake () {
 		StopCoroutine("ShakeCoroutine");
