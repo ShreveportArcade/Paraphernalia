@@ -24,7 +24,7 @@ using System.Collections;
 public class VerticalSpriteOrdering : MonoBehaviour {
 
 	public float orderMultiplier = 100;
-	public int orderOffset = 0;
+	public float orderOffset = 0;
 	public bool isStatic = true;
 
 	[SerializeField, HideInInspector]private SpriteRenderer _spriteRenderer;
@@ -60,6 +60,6 @@ public class VerticalSpriteOrdering : MonoBehaviour {
 
 	[ContextMenu("Update Sort Order")]
 	public void UpdateSortOrder () {
-		spriteRenderer.sortingOrder = (int)(-transform.position.y * orderMultiplier) + orderOffset;
+		spriteRenderer.sortingOrder = (int)(-transform.position.y * orderMultiplier + orderOffset);
 	}
 }
