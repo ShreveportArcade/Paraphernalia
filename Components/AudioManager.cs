@@ -23,6 +23,8 @@ using System.Collections.Generic;
 namespace Paraphernalia.Components {
 public class AudioManager : MonoBehaviour {
 
+	public List<AudioClip> clips = new List<AudioClip>();
+
 	[Range(0,10)] public int sfxSourcesCount = 5;
 	private int currentSFXSource = 0;
 	private AudioSource[] sfxSources;
@@ -76,8 +78,14 @@ public class AudioManager : MonoBehaviour {
 		}
 	}
 
-	public static void PlayEffect(AudioClip clip, float volume = 1, float pitch = 1) {
+	public static void PlayEffect(string name, Transform t = null, float volume = 1, float pitch = 1) {
+		AudioClip clip = instance.clips.Find(c => c.name == name);
+		PlayEffect(clip, t, volume, pitch);
+	}
+
+	public static void PlayEffect(AudioClip clip, Transform t = null, float volume = 1, float pitch = 1) {
 		AudioSource source = instance.sfxSources[instance.currentSFXSource];
+		if (t != null) source.gameObject.transform.position = t.position;
 		source.pitch = pitch;
 		source.PlayOneShot(clip, volume);
 		instance.currentSFXSource = (instance.currentSFXSource + 1) % instance.sfxSourcesCount;
