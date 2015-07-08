@@ -25,10 +25,12 @@ public class AudioManager : MonoBehaviour {
 
 	public List<AudioClip> clips = new List<AudioClip>();
 
+	[Range(0,2)] public float sfxVolume = 1;
 	[Range(0,10)] public int sfxSourcesCount = 5;
 	private int currentSFXSource = 0;
 	private AudioSource[] sfxSources;
 
+	[Range(0,2)] public float musicVolume = 1;
 	private int currentMusicSource = 0;
 	private AudioSource[] musicSources;
 
@@ -87,17 +89,19 @@ public class AudioManager : MonoBehaviour {
 		AudioSource source = instance.sfxSources[instance.currentSFXSource];
 		if (t != null) source.gameObject.transform.position = t.position;
 		source.pitch = pitch;
-		source.PlayOneShot(clip, volume);
+		source.PlayOneShot(clip, volume * instance.sfxVolume);
 		instance.currentSFXSource = (instance.currentSFXSource + 1) % instance.sfxSourcesCount;
 	}
 
 	public static void PlayMusic(AudioClip clip) {
 		AudioSource currentSource = instance.musicSources[instance.currentMusicSource];
 		currentSource.clip = clip;
+		currentSource.volume = instance.musicVolume;
 		currentSource.Play();
 	}
 
 	public static void CrossfadeMusic(AudioClip clip, float fadeDuration) {
+		instance.StopCoroutine("CrossfadeMusicCoroutine");
 		instance.musicSources[(instance.currentMusicSource + 1) % 2].clip = clip;
 		instance.StartCoroutine("CrossfadeMusicCoroutine", fadeDuration);
 	}
@@ -111,8 +115,8 @@ public class AudioManager : MonoBehaviour {
 		float t = 0;
 		while (t < fadeDuration) {
 			float frac = t / fadeDuration;
-			sourceA.volume = 1 - frac;
-			sourceB.volume = frac;
+			sourceA.volume = (1 - frac) * musicVolume;
+			sourceB.volume = frac * musicVolume;
 			t += Time.deltaTime;
 			yield return new WaitForEndOfFrame();
 		}
