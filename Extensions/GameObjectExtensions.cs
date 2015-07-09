@@ -80,6 +80,10 @@ public static class GameObjectExtensions {
         }
     }
 
+    public static T[] GetChildComponents<T> (this GameObject g) where T :Component {
+        return g.transform.GetChildComponents<T>();
+    }
+
     public static T[] GetChildComponents<T> (this Transform t) where T : Component {
         List<T> children = new List<T>();
         for (int i = 0; i < t.childCount; i++) {
