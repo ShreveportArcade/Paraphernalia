@@ -123,7 +123,7 @@ public class AudioManager : MonoBehaviour {
 		
 		sourceA.volume = 0;
 		sourceA.Stop();
-		sourceB.volume = 1;
+		sourceB.volume = 1 * musicVolume;
 	}
 }
 }
