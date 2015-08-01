@@ -9,7 +9,7 @@ public class Projectile : MonoBehaviour {
 
 	public float speed = 5;
 	public ParticleSystem particles;
-	public AudioClip explosionSound;
+	public string onHitAudioClipName = "laserHit";
 	public string onHitParticleSystemName = "PlasmaExplosion";
 
 	public void Fire (Vector3 position, Vector3 direction) {
@@ -28,7 +28,7 @@ public class Projectile : MonoBehaviour {
 	}
 
 	void OnHit() {
-		AudioManager.PlayEffect(explosionSound);
+		AudioManager.PlayEffect(onHitAudioClipName, transform, Random.Range(0.7f, 1), Random.Range(0.95f, 1.05f));
 		ParticleManager.Play(onHitParticleSystemName, transform.position);
 		gameObject.SetActive(false);
 		CameraShake.MainCameraShake();

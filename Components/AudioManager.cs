@@ -89,7 +89,9 @@ public class AudioManager : MonoBehaviour {
 		AudioSource source = instance.sfxSources[instance.currentSFXSource];
 		if (t != null) source.gameObject.transform.position = t.position;
 		source.pitch = pitch;
-		source.PlayOneShot(clip, volume * instance.sfxVolume);
+		source.clip = clip;
+		source.volume = volume * instance.sfxVolume;
+		source.Play();
 		instance.currentSFXSource = (instance.currentSFXSource + 1) % instance.sfxSourcesCount;
 	}
 
