@@ -11,6 +11,7 @@ public class Projectile : MonoBehaviour {
 	public ParticleSystem particles;
 	public string onHitAudioClipName = "laserHit";
 	public string onHitParticleSystemName = "PlasmaExplosion";
+	public Color onHitColor = Color.white;
 
 	public void Fire (Vector3 position, Vector3 direction) {
 		gameObject.SetActive(true);
@@ -27,9 +28,9 @@ public class Projectile : MonoBehaviour {
 		OnHit();
 	}
 
-	void OnHit() {
+	public void OnHit() {
 		AudioManager.PlayEffect(onHitAudioClipName, transform, Random.Range(0.7f, 1), Random.Range(0.95f, 1.05f));
-		ParticleManager.Play(onHitParticleSystemName, transform.position);
+		ParticleManager.Play(onHitParticleSystemName, transform.position, onHitColor);
 		gameObject.SetActive(false);
 		CameraShake.MainCameraShake();
 	}

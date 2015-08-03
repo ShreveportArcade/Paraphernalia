@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using Paraphernalia.Extensions;
 
 namespace Paraphernalia.Utils {
 public static class Steering {
@@ -37,6 +38,24 @@ public static class Steering {
 		Vector3 futurePos = targetPos + targetVel * dist / maxSpeed;
 		return Flee(position, velocity, futurePos, maxSpeed);
 
+	}
+
+	public static Vector2 ObstacleSweep2D (Vector2 origin, float radius, Vector2 dir, float distance = Mathf.Infinity, int layerMask = Physics2D.DefaultRaycastLayers, int deg = 15) {
+		bool defaultBehaviour = Physics2D.raycastsHitTriggers;
+		Physics2D.raycastsHitTriggers = true;
+		for (int i = 0; i < 180; i += deg) {
+			for (int j = -1; j < 2; j += 2) {
+				Vector2 newDir = dir.normalized.RotatedByDeg((float)(i * j));
+				RaycastHit2D hit = Physics2D.CircleCast(origin, radius, newDir, distance, layerMask);
+
+				if (hit.collider == null) {
+					Physics2D.raycastsHitTriggers = defaultBehaviour;
+					return newDir * dir.magnitude;
+				}
+			}
+		}
+		Physics2D.raycastsHitTriggers = defaultBehaviour;
+		return Vector2.zero;
 	}
 }
 }

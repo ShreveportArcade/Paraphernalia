@@ -23,6 +23,7 @@ using System.Collections.Generic;
 namespace Paraphernalia.Components {
 public class AudioManager : MonoBehaviour {
 
+	public AudioClip music;
 	public List<AudioClip> clips = new List<AudioClip>();
 
 	[Range(0,2)] public float sfxVolume = 1;
@@ -54,6 +55,7 @@ public class AudioManager : MonoBehaviour {
 			DontDestroyOnLoad(_instance.gameObject);
 			CreateSFXPool();
 			CreateMusicPool();
+			if (music != null) PlayMusic(music);
 		}
 		else if (_instance != this) {
 			Debug.LogWarning("AudioManager already initialized, destroying duplicate");

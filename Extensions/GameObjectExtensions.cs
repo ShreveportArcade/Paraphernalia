@@ -80,6 +80,16 @@ public static class GameObjectExtensions {
         }
     }
 
+    public static T GetAncestorComponent<T> (this GameObject g) where T :Component {
+        Transform parent = g.transform.parent;
+        while (parent != null) {
+            T component = parent.gameObject.GetComponent<T>();
+            if (component != null) return component;
+            parent = parent.parent;
+        }
+        return null;
+    }
+
     public static T[] GetChildComponents<T> (this GameObject g) where T :Component {
         return g.transform.GetChildComponents<T>();
     }
