@@ -26,6 +26,7 @@ namespace Paraphernalia.Components {
 public class TrackingCamera : MonoBehaviour {
 
 	public string targetTag = "Player";
+	new public Camera camera;
 	public Transform target;
 	public Vector3 offset = -Vector3.forward;
 	public float speed = 1;
@@ -36,12 +37,12 @@ public class TrackingCamera : MonoBehaviour {
 	public Interpolate.EaseType easeType = Interpolate.EaseType.InOutQuad;
 
 	void LateUpdate () {
-		if (target != null) {
+		if (target != null && camera != null) {
 
 			#if UNITY_EDITOR
 			if (!Application.isPlaying) {
 				transform.position = target.position + offset;
-				if (bounded) transform.position = transform.position.ClipToBounds(bounds);
+				if (bounded) transform.position = camera.GetBoundedPos(bounds);
 			}
 			else {
 			#endif
@@ -70,11 +71,11 @@ public class TrackingCamera : MonoBehaviour {
 				Time.deltaTime * speed
 			);
 			
-			if (bounded) {
-				targetPosition = targetPosition.ClipToBounds(bounds);
-			}
-			
 			transform.position = targetPosition;
+
+			if (bounded) {
+				transform.position = camera.GetBoundedPos(bounds);
+			}
 		}
 	}
 
