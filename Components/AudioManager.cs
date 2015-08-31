@@ -49,6 +49,9 @@ public class AudioManager : MonoBehaviour {
 		}
 	}
 
+	public float minPlayInterval = 0.01f;
+	private Dictionary<int, float> lastPlayed = new Dictionary<int, float>();
+
 	void Awake () {
 		if (_instance == null) {
 			_instance = this;
@@ -84,10 +87,16 @@ public class AudioManager : MonoBehaviour {
 
 	public static void PlayEffect(string name, Transform t = null, float volume = 1, float pitch = 1) {
 		AudioClip clip = instance.clips.Find(c => c.name == name);
-		PlayEffect(clip, t, volume, pitch);
+		if (clip != null) PlayEffect(clip, t, volume, pitch);
 	}
 
 	public static void PlayEffect(AudioClip clip, Transform t = null, float volume = 1, float pitch = 1) {
+		int id = clip.GetInstanceID();
+		if (instance.lastPlayed.ContainsKey(id) && 
+			Time.time - instance.lastPlayed[id] < instance.minPlayInterval) {
+			return;
+		}
+		instance.lastPlayed[id] = Time.time;
 		AudioSource source = instance.sfxSources[instance.currentSFXSource];
 		if (t != null) source.gameObject.transform.position = t.position;
 		source.pitch = pitch;
