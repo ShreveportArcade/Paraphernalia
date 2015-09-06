@@ -143,5 +143,10 @@ public static class GameObjectExtensions {
         }
         return false;
     }
+
+    public static bool InLayerMask (this GameObject go, LayerMask mask) {
+        int layer = (int)Mathf.Pow(2, go.layer);
+        return ((mask & layer) == layer);
+    }
 }
 }

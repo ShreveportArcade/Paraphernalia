@@ -37,6 +37,7 @@ public class ParticleManager : MonoBehaviour {
 	}
 
 	public static void Play(string name, Vector3 position, Color? color = null) {
+		if (instance == null || !instance.currentIndices.ContainsKey(name)) return;
 		int index = instance.currentIndices[name];
 		ParticleSystem particleSystem = instance.pools[name][index];
 		particleSystem.transform.position = position;
