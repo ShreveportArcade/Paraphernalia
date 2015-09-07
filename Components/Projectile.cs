@@ -8,17 +8,18 @@ using Paraphernalia.Components;
 public class Projectile : MonoBehaviour {
 
 	public float speed = 5;
+	[Range(0,1)] public float gunVelocityDamping = 0.1f;
 	public ParticleSystem particles;
 	public string onHitAudioClipName = "laserHit";
 	public bool shakeCamera = true;
 	public string onHitParticleSystemName = "PlasmaExplosion";
 	public Color onHitColor = Color.white;
 	
-	public void Fire (Vector3 position, Vector3 direction) {
+	public void Fire (Vector3 position, Vector3 direction, Vector3 gunVelocity = default(Vector3)) {
 		transform.right = direction;
 		gameObject.SetActive(true);
 		transform.position = position;
-		GetComponent<Rigidbody2D>().velocity = direction.normalized * speed;
+		GetComponent<Rigidbody2D>().velocity = direction.normalized * speed + gunVelocity * (1 - gunVelocityDamping);
 		if (particles) particles.Play();
 	}
 

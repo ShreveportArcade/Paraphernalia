@@ -28,15 +28,24 @@ public class TrackingCamera : MonoBehaviour {
 	public string targetTag = "Player";
 	new public Camera camera;
 	public Transform target;
+	public bool useFixedUpdate = false;
 	public Vector3 offset = -Vector3.forward;
 	public float speed = 1;
 	public float moveStartDist = 1f;
-	public bool adjustForVelocity = true;
+	public Vector2 velocityAdjustment = new Vector2(0.2f, 0);
 	public bool bounded = false;
 	public Bounds bounds;
 	public Interpolate.EaseType easeType = Interpolate.EaseType.InOutQuad;
 
 	void LateUpdate () {
+		if (!useFixedUpdate || !Application.isPlaying) UpdatePosition();
+	}
+
+	void FixedUpdate () {
+		if (useFixedUpdate) UpdatePosition();
+	}
+
+	void UpdatePosition () {
 		if (target != null && camera != null) {
 
 			#if UNITY_EDITOR
@@ -61,13 +70,13 @@ public class TrackingCamera : MonoBehaviour {
 	}
 
 	void LerpToTarget () {
-		Vector2 v = (target.GetComponent<Rigidbody2D>() == null)? Vector2.zero: target.GetComponent<Rigidbody2D>().velocity;
+		Rigidbody2D r = target.GetComponent<Rigidbody2D>();
+		Vector2 v = (r == null)? Vector2.zero: Vector2.Scale(r.velocity, velocityAdjustment);
 		float d = Vector3.Distance(target.position, transform.position + offset);
 		if (d > moveStartDist) {
-			Vector3 off = adjustForVelocity? offset + (Vector3)v * Time.deltaTime : offset;
 			Vector3 targetPosition = Vector3.Lerp(
 				transform.position,
-				target.position + off,
+				target.position + offset + (Vector3)v - Vector3.forward * v.magnitude,
 				Time.deltaTime * speed
 			);
 			
