@@ -32,7 +32,7 @@ public class TrackingCamera : MonoBehaviour {
 	public Vector3 offset = -Vector3.forward;
 	public float speed = 1;
 	public float moveStartDist = 1f;
-	public Vector2 velocityAdjustment = new Vector2(0.2f, 0);
+	public Vector3 velocityAdjustment = new Vector2(0.2f, 0);
 	public bool bounded = false;
 	public Bounds bounds;
 	public Interpolate.EaseType easeType = Interpolate.EaseType.InOutQuad;
@@ -71,12 +71,12 @@ public class TrackingCamera : MonoBehaviour {
 
 	void LerpToTarget () {
 		Rigidbody2D r = target.GetComponent<Rigidbody2D>();
-		Vector2 v = (r == null)? Vector2.zero: Vector2.Scale(r.velocity, velocityAdjustment);
+		Vector2 v = (r == null)? Vector2.zero: Vector2.Scale(r.velocity, (Vector2)velocityAdjustment);
 		float d = Vector3.Distance(target.position, transform.position + offset);
 		if (d > moveStartDist) {
 			Vector3 targetPosition = Vector3.Lerp(
 				transform.position,
-				target.position + offset + (Vector3)v - Vector3.forward * v.magnitude,
+				target.position + offset + (Vector3)v - Vector3.forward * v.magnitude * velocityAdjustment.z,
 				Time.deltaTime * speed
 			);
 			
