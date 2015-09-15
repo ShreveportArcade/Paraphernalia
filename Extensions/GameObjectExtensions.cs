@@ -66,6 +66,16 @@ public static class GameObjectExtensions {
         #endif
     }
 
+    public static List<T> GetActiveChildren<T> (this Transform t) where T : Component {
+        List<T> activeChildren = new List<T>();
+        for (int i = 0; i < t.childCount; i++) {
+            GameObject child = t.GetChild(i).gameObject;
+            T component = child.GetComponent<T>();
+            if (child.activeSelf && component != null) activeChildren.Add(component);
+        }
+        return activeChildren;
+    }
+
     public static void DestroyChildren (this Transform t) {
         for (int i = t.childCount - 1; i >= 0; i--) {
             GameObject child = t.GetChild(i).gameObject;
@@ -80,7 +90,7 @@ public static class GameObjectExtensions {
         }
     }
 
-    public static T GetAncestorComponent<T> (this GameObject g) where T :Component {
+    public static T GetAncestorComponent<T> (this GameObject g) where T : Component {
         Transform parent = g.transform.parent;
         while (parent != null) {
             T component = parent.gameObject.GetComponent<T>();
@@ -90,7 +100,7 @@ public static class GameObjectExtensions {
         return null;
     }
 
-    public static T[] GetChildComponents<T> (this GameObject g) where T :Component {
+    public static T[] GetChildComponents<T> (this GameObject g) where T : Component {
         return g.transform.GetChildComponents<T>();
     }
 
