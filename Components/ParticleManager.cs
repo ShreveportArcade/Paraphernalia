@@ -37,10 +37,15 @@ public class ParticleManager : MonoBehaviour {
 	}
 
 	public static void Play(string name, Vector3 position, Color? color = null) {
+		Play(name, position, Vector3.up, color);
+	}
+
+	public static void Play(string name, Vector3 position, Vector3 normal, Color? color = null) {
 		if (instance == null || !instance.currentIndices.ContainsKey(name)) return;
 		int index = instance.currentIndices[name];
 		ParticleSystem particleSystem = instance.pools[name][index];
 		particleSystem.transform.position = position;
+		particleSystem.transform.up = normal;
 		if (color != null) particleSystem.startColor = color.Value;
 		particleSystem.Play();
 		index = (index + 1) % instance.poolSize;

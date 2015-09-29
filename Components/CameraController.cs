@@ -18,13 +18,21 @@ DEALINGS IN THE SOFTWARE.
 
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using Paraphernalia.Utils;
 using Paraphernalia.Extensions;
 
 namespace Paraphernalia.Components {
 [ExecuteInEditMode]
-public class TrackingCamera : MonoBehaviour {
+public class CameraController : MonoBehaviour {
 
+	private static CameraController _instance;
+	public static CameraController instance {
+		get { return _instance; }
+	}
+
+	public List<CameraZone> cameraZones = new List<CameraZone>();
+	public AudioClip defaultMusic;
 	public string targetTag = "Player";
 	new public Camera camera;
 	public Transform target;
@@ -37,6 +45,17 @@ public class TrackingCamera : MonoBehaviour {
 	public Bounds bounds;
 	public Interpolate.EaseType easeType = Interpolate.EaseType.InOutQuad;
 
+	void Awake () {
+		if (_instance == null) { 
+			_instance = this;
+			SetPosition();
+		}
+		else {
+			Debug.LogWarning("Instance of CameraController already exists. Destroying duplicate.");
+			GameObjectUtils.Destroy(gameObject);
+		}
+	}
+
 	void LateUpdate () {
 		if (!useFixedUpdate || !Application.isPlaying) UpdatePosition();
 	}
@@ -45,14 +64,27 @@ public class TrackingCamera : MonoBehaviour {
 		if (useFixedUpdate) UpdatePosition();
 	}
 
+	void SetPosition () {
+		GameObject go = GameObject.FindWithTag("Player");
+		Collider2D[] colliders = Physics2D.OverlapPointAll(go.transform.position);
+
+		if (target == null) target = go.transform;
+		transform.position = target.position + offset;
+		foreach (Collider2D collider in colliders) {
+			CameraZone zone = collider.gameObject.GetComponent<CameraZone>();
+			if (zone != null) {
+				transform.position = zone.position;
+				return;
+			}
+		}
+		if (bounded) transform.position = camera.GetBoundedPos(bounds);
+	}
+
 	void UpdatePosition () {
 		if (target != null && camera != null) {
 
 			#if UNITY_EDITOR
-			if (!Application.isPlaying) {
-				transform.position = target.position + offset;
-				if (bounded) transform.position = camera.GetBoundedPos(bounds);
-			}
+			if (!Application.isPlaying) SetPosition();
 			else {
 			#endif
 				LerpToTarget();
@@ -70,6 +102,8 @@ public class TrackingCamera : MonoBehaviour {
 	}
 
 	void LerpToTarget () {
+		if (cameraZones.Count > 0) return;
+
 		Rigidbody2D r = target.GetComponent<Rigidbody2D>();
 		Vector2 v = (r == null)? Vector2.zero: Vector2.Scale(r.velocity, (Vector2)velocityAdjustment);
 		float d = Vector3.Distance(target.position, transform.position + offset);
@@ -79,13 +113,38 @@ public class TrackingCamera : MonoBehaviour {
 				target.position + offset + (Vector3)v - Vector3.forward * v.magnitude * velocityAdjustment.z,
 				Time.deltaTime * speed
 			);
-			
 			transform.position = targetPosition;
-
-			if (bounded) {
-				transform.position = camera.GetBoundedPos(bounds);
-			}
 		}
+
+		if (bounded) transform.position = camera.GetBoundedPos(bounds);
+	}
+
+	public static void AddZone(CameraZone zone) {
+		instance.cameraZones.Add(zone);
+		instance.StopCoroutine("TransitionToZoneCoroutine");
+		instance.StartCoroutine("TransitionToZoneCoroutine");
+	}
+
+	public static void RemoveZone(CameraZone zone) {
+		instance.cameraZones.Remove(zone);
+		instance.StopCoroutine("TransitionToZoneCoroutine");
+		if (instance.cameraZones.Count > 0) instance.StartCoroutine("TransitionToZoneCoroutine");
+		else if (instance.defaultMusic != null) AudioManager.CrossfadeMusic(instance.defaultMusic, 0.5f);
+		
+	}
+
+	IEnumerator TransitionToZoneCoroutine () {
+		CameraZone zone = cameraZones[cameraZones.Count - 1];
+		if (zone.music != null) AudioManager.CrossfadeMusic(zone.music, zone.transitionTime);
+		Vector3 startPos = transform.position;
+		float t = 0;
+		while (t < zone.transitionTime) {
+			t += Time.deltaTime;
+			float frac = t / zone.transitionTime;
+			transform.position = Vector3.Lerp(startPos, zone.position, frac);
+			yield return new WaitForEndOfFrame();
+		}
+		transform.position = zone.position;
 	}
 
 	void OnDrawGizmos() {
