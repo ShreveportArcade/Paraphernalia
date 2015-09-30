@@ -120,6 +120,7 @@ public class CameraController : MonoBehaviour {
 	}
 
 	public static void AddZone(CameraZone zone) {
+		if (instance.cameraZones.Contains(zone)) return;
 		instance.cameraZones.Add(zone);
 		instance.StopCoroutine("TransitionToZoneCoroutine");
 		instance.StartCoroutine("TransitionToZoneCoroutine");
