@@ -55,7 +55,7 @@ public class AudioManager : MonoBehaviour {
 	void Awake () {
 		if (_instance == null) {
 			_instance = this;
-			DontDestroyOnLoad(_instance.gameObject);
+			if (_instance.transform.parent == null) DontDestroyOnLoad(_instance.gameObject);
 			CreateSFXPool();
 			CreateMusicPool();
 			if (music != null) PlayMusic(music);
