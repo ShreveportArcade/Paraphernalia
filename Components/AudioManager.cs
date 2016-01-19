@@ -24,6 +24,7 @@ namespace Paraphernalia.Components {
 public class AudioManager : MonoBehaviour {
 
 	public AudioClip music;
+	public bool autoStartMusic = true;
 	public List<AudioClip> clips = new List<AudioClip>();
 
 	[Range(0,2)] public float sfxVolume = 1;
@@ -58,7 +59,7 @@ public class AudioManager : MonoBehaviour {
 			if (_instance.transform.parent == null) DontDestroyOnLoad(_instance.gameObject);
 			CreateSFXPool();
 			CreateMusicPool();
-			if (music != null) PlayMusic(music);
+			if (autoStartMusic) PlayMusic();
 		}
 		else if (_instance != this) {
 			Debug.LogWarning("AudioManager already initialized, destroying duplicate");
@@ -106,12 +107,31 @@ public class AudioManager : MonoBehaviour {
 		instance.currentSFXSource = (instance.currentSFXSource + 1) % instance.sfxSourcesCount;
 	}
 
-	public static void PlayMusic(AudioClip clip) {
+	public static void PlayMusic (AudioClip clip) {
 		AudioSource currentSource = instance.musicSources[instance.currentMusicSource];
 		if (currentSource.clip == clip) return;
 		currentSource.clip = clip;
 		currentSource.volume = instance.musicVolume;
 		currentSource.Play();
+	}
+
+	public static void PlayMusic () {
+		if (instance.music != null) PlayMusic(instance.music);
+	}
+
+	public static void PauseMusic () {
+		AudioSource currentSource = instance.musicSources[instance.currentMusicSource];
+		if (currentSource != null) currentSource.Pause();
+	}
+
+	public static void ResumeMusic () {
+		AudioSource currentSource = instance.musicSources[instance.currentMusicSource];
+		if (currentSource != null) currentSource.UnPause();
+	}
+
+	public static void StopMusic () {
+		AudioSource currentSource = instance.musicSources[instance.currentMusicSource];
+		if (currentSource != null) currentSource.Stop();
 	}
 
 	public static void CrossfadeMusic(AudioClip clip, float fadeDuration) {
