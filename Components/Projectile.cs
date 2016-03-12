@@ -13,9 +13,10 @@ public class Projectile : MonoBehaviour {
 	[Range(0,1)] public float pursuitDamping = 0.1f;
 	[Range(0,1)] public float gunVelocityDamping = 0.1f;
 	public ParticleSystem particles;
-	public string onHitAudioClipName = "laserHit";
+	public string onFireAudioClipName = "";
+	public string onHitAudioClipName = "";
 	public bool shakeCamera = true;
-	public string onHitParticleSystemName = "PlasmaExplosion";
+	public string onHitParticleSystemName = "";
 	public Color onHitColor = Color.white;
 	public Rigidbody2D target;
 	
@@ -25,10 +26,19 @@ public class Projectile : MonoBehaviour {
 		rigidbody2D = GetComponent<Rigidbody2D>();
 	}
 
-	public void Fire (Vector3 position, Vector3 direction, Vector3 gunVelocity = default(Vector3)) {
-		transform.right = direction;
+	public void Ready (Transform parent) {
+		StopCoroutine("LifeCycleCoroutine");
 		gameObject.SetActive(true);
-		transform.position = position;
+		transform.parent = parent;
+		transform.position = parent.position;
+		GetComponent<Rigidbody2D>().velocity = Vector3.zero;
+	}
+
+	public void Fire (Vector3 direction, Vector3 gunVelocity = default(Vector3)) {
+		transform.parent = null;
+		AudioManager.PlayEffect(onFireAudioClipName, transform, Random.Range(0.7f, 1), Random.Range(0.95f, 1.05f));
+		transform.up = direction;
+		gameObject.SetActive(true);
 		GetComponent<Rigidbody2D>().velocity = direction.normalized * speed + gunVelocity * (1 - gunVelocityDamping);
 		if (particles) particles.Play();
 		StopCoroutine("LifeCycleCoroutine");
