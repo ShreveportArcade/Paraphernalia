@@ -66,6 +66,14 @@ public static class GameObjectExtensions {
         #endif
     }
 
+    public static bool HasActiveChildren<T> (this Transform t) where T : Component {
+        for (int i = 0; i < t.childCount; i++) {
+            GameObject child = t.GetChild(i).gameObject;
+            if (child.activeSelf && child.GetComponent<T>()) return true;
+        }
+        return false;
+    }
+
     public static List<T> GetActiveChildren<T> (this Transform t) where T : Component {
         List<T> activeChildren = new List<T>();
         for (int i = 0; i < t.childCount; i++) {
