@@ -43,6 +43,12 @@ public static class ColorUtils {
 		return Color.Lerp(ColorUtils.Random(), target, weight);
 	}
 
+	public static Color Random (Color target, float weight, float alpha) {
+		Color c = Color.Lerp(ColorUtils.Random(), target, weight);
+		c.a = alpha;
+		return c;
+	}
+
 	public static Color HSVtoRGB (Vector4 hsv) {
 		float chroma = hsv.z * hsv.y;
 		float h = 6 * hsv.x;
