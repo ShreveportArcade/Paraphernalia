@@ -27,18 +27,22 @@ public class ProjectileLauncher : MonoBehaviour {
 	}
 
 	void Reload () {
-		if (transform.childCount == 0 && Time.time - launchTime > launchDelay) {
+		Projectile[] projectiles = transform.GetChildComponents<Projectile>();
+		if (projectiles.Length == 0 && Time.time - launchTime > launchDelay) {
 			Projectile projectile = GetNextProjectile();
 			projectile.Ready(transform);
 		}
 	}
 
-	public void Shoot (Vector3 direction, Vector3 parentVelocity = default(Vector3)) {
-		if (transform.childCount == 1) {
+	public bool Shoot (Vector3 direction, Vector3 parentVelocity = default(Vector3)) {
+		Projectile[] projectiles = transform.GetChildComponents<Projectile>();
+		if (projectiles.Length > 0) {
 			launchTime = Time.time;
-			Projectile projectile = transform.GetChild(0).gameObject.GetComponent<Projectile>() as Projectile;
+			Projectile projectile = projectiles[0];
 			projectile.Fire(Vector2.up, parentVelocity);
+			return true;
 		}
+		return false;
 	}
 
 	void Update () {
