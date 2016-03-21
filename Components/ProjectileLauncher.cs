@@ -7,7 +7,8 @@ public class ProjectileLauncher : MonoBehaviour {
 
 	public Projectile projectilePrefab;
 	public float launchDelay = 1.5f;
-	
+	public bool showProjectileOnReady = true;
+
 	private float launchTime;
 	private List<Projectile> projectilePool = new List<Projectile>();
 
@@ -26,11 +27,11 @@ public class ProjectileLauncher : MonoBehaviour {
 		return projectile;
 	}
 
-	void Reload () {
+	void Ready () {
 		Projectile[] projectiles = transform.GetChildComponents<Projectile>();
 		if (projectiles.Length == 0 && Time.time - launchTime > launchDelay) {
 			Projectile projectile = GetNextProjectile();
-			projectile.Ready(transform);
+			projectile.Ready(transform, showProjectileOnReady);
 		}
 	}
 
@@ -39,13 +40,13 @@ public class ProjectileLauncher : MonoBehaviour {
 		if (projectiles.Length > 0) {
 			launchTime = Time.time;
 			Projectile projectile = projectiles[0];
-			projectile.Fire(Vector2.up, parentVelocity);
+			projectile.Fire(direction, parentVelocity);
 			return true;
 		}
 		return false;
 	}
 
 	void Update () {
-		Reload();
+		Ready();
 	}
 }

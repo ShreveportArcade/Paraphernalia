@@ -26,12 +26,16 @@ public class Projectile : MonoBehaviour {
 		rigidbody2D = GetComponent<Rigidbody2D>();
 	}
 
-	public void Ready (Transform parent) {
+	public void Ready (Transform parent, bool activate = true) {
 		StopCoroutine("LifeCycleCoroutine");
-		gameObject.SetActive(true);
+		gameObject.SetActive(activate);
 		transform.parent = parent;
 		transform.position = parent.position;
 		GetComponent<Rigidbody2D>().velocity = Vector3.zero;
+		Collider2D[] colliders = GetComponentsInChildren<Collider2D>();
+		foreach (Collider2D collider in colliders) {
+			collider.enabled = false;
+		}
 	}
 
 	public void Fire (Vector3 direction, Vector3 gunVelocity = default(Vector3)) {
@@ -43,6 +47,10 @@ public class Projectile : MonoBehaviour {
 		if (particles) particles.Play();
 		StopCoroutine("LifeCycleCoroutine");
 		StartCoroutine("LifeCycleCoroutine");
+		Collider2D[] colliders = GetComponentsInChildren<Collider2D>();
+		foreach (Collider2D collider in colliders) {
+			collider.enabled = true;
+		}
 	}
 
 	IEnumerator LifeCycleCoroutine () {
