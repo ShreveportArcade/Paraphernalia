@@ -30,6 +30,7 @@ public class Projectile : MonoBehaviour {
 		StopCoroutine("LifeCycleCoroutine");
 		gameObject.SetActive(activate);
 		transform.parent = parent;
+		transform.localScale = Vector3.one;
 		transform.position = parent.position;
 		GetComponent<Rigidbody2D>().velocity = Vector3.zero;
 		Collider2D[] colliders = GetComponentsInChildren<Collider2D>();

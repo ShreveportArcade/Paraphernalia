@@ -1,5 +1,5 @@
 // A collection of workflow scripts from http://wiki.unity3d.com/index.php/Scripts/Editor
-// Shortcut keys and Undo functionality added by Nolan Baker
+// Shortcut keys, Undo functionality, and RectTransform compatibility added by Nolan Baker
 	
 using UnityEngine;
 using UnityEditor;
@@ -9,7 +9,7 @@ using Paraphernalia.Extensions;
 public class Workflow : Editor {
  
 	// From: http://wiki.unity3d.com/index.php/AddChild
-	// Author: Neil Carter (NCarter)
+	// Original Author: Neil Carter (NCarter)
 	[MenuItem ("GameObject/Add Child &c")]
 	static void AddChild() {
 		Transform[] transforms = Selection.GetTransforms(SelectionMode.TopLevel | SelectionMode.OnlyUserModifiable);
@@ -19,12 +19,16 @@ public class Workflow : Editor {
 			Undo.RegisterCreatedObjectUndo(newChild, "create child");
 			newChild.transform.parent = transform;
 			newChild.transform.localPosition = Vector3.zero;
+			if (transform is RectTransform) {
+				RectTransform r = newChild.AddComponent<RectTransform>();
+				r.anchorMin = Vector2.zero;
+				r.anchorMax = Vector2.one;
+			}
 		}
 	}
 
 	// From: http://wiki.unity3d.com/index.php/AddParent
-	// Author: Neil Carter (NCarter)
-	// added center param - Nolan Baker
+	// Original Author: Neil Carter (NCarter)
 	static void AddParent(Vector3 center) {
 		Transform[] transforms = Selection.GetTransforms(SelectionMode.TopLevel | SelectionMode.OnlyUserModifiable);
  		if (transforms.Length == 0) return;
@@ -35,9 +39,26 @@ public class Workflow : Editor {
 		newParentTransform.position = center;
 		Undo.SetTransformParent(newParentTransform, transforms[0].parent, "sets parent of created obj");
  
-		foreach (Transform t in transforms) {
-			 Undo.SetTransformParent(t, newParentTransform, "sets parent of selected");
+ 		int rects = 0;
+		foreach (Transform t in transforms) { 
+			if (t is RectTransform) rects++;
 		}
+
+		if (transforms.Length == rects) {
+			RectTransform r = newParent.AddComponent<RectTransform>();
+			r.localScale = Vector3.one;
+			r.anchorMin = Vector2.zero;
+			r.anchorMax = Vector2.one;
+			r.offsetMin = Vector2.zero;
+			r.offsetMax = Vector2.zero;
+			r.localPosition = Vector3.zero;
+			newParentTransform = r as Transform;
+		}
+
+		foreach (Transform t in transforms) { 
+			Undo.SetTransformParent(t, newParentTransform, "sets parent of selected");
+		}
+
 	}
 
 	[MenuItem ("GameObject/Add Parent at Origin %g")]
@@ -53,7 +74,7 @@ public class Workflow : Editor {
 	}
  
 	// From: http://wiki.unity3d.com/index.php/InvertSelection
-	// Author: Mift (mift)
+	// Original Author: Mift (mift)
 	[MenuItem ("Edit/Invert Selection &i")]
 	static void InvertSelection() { 
 		List< GameObject > oldSelection = new List< GameObject >();
@@ -93,7 +114,7 @@ public class Workflow : Editor {
 	}
 
 	// From: http://wiki.unity3d.com/index.php/MoveToOrigin
-	// Author: Matthew Miner (matthew@matthewminer.com)
+	// Original Author: Matthew Miner (matthew@matthewminer.com)
 	[MenuItem ("GameObject/Move To Origin &m")]
 	static void MenuMoveToOrigin () {
 		foreach (Transform t in Selection.transforms) {
