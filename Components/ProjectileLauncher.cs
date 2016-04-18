@@ -8,6 +8,7 @@ public class ProjectileLauncher : MonoBehaviour {
 	public Projectile projectilePrefab;
 	public float launchDelay = 1.5f;
 	public bool showProjectileOnReady = true;
+	public float kickbackForce = 1f;
 
 	private float launchTime;
 	private List<Projectile> projectilePool = new List<Projectile>();
