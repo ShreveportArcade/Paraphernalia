@@ -127,9 +127,10 @@ class Polygon {
 		int len = path.Length;
 		List<Vector2> newPath = new List<Vector2>();
 
-		Vector2 prev = path[len-2];
-		Vector2 curr = path[len-1];
-		Vector2 next = path[0];
+		Vector2 prev = path[len-1];
+		Vector2 curr = path[0];
+		Vector2 next = path[1];
+
 		
 		Vector2 currDir = (prev - curr).normalized;
 		Vector2 nextDir = (next - curr).normalized;
@@ -137,7 +138,7 @@ class Polygon {
 		Vector2 prevOut = currDir.GetPerpendicular();
 		Vector2 currOut = nextDir.GetPerpendicular();
 		
-		for (int i = 0; i < len; i++) {
+		for (int i = 1; i < len + 1; i++) {
 			prev = curr;
 			curr = next;
 			next = path[(i+1)%len];
