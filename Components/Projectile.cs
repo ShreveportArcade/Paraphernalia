@@ -10,6 +10,7 @@ public class Projectile : MonoBehaviour {
 	public float speed = 5;
 	public float lifetime = 3;
 	public float size = 1;
+	public bool orientToVelocity = true;
 	[Range(0,1)] public float pursuitDamping = 0.1f;
 	[Range(0,1)] public float gunVelocityDamping = 0.1f;
 	public ParticleSystem particles;
@@ -42,7 +43,7 @@ public class Projectile : MonoBehaviour {
 	public void Fire (Vector3 direction, Vector3 gunVelocity = default(Vector3)) {
 		transform.parent = null;
 		AudioManager.PlayEffect(onFireAudioClipName, transform, Random.Range(0.7f, 1), Random.Range(0.95f, 1.05f));
-		transform.up = direction;
+		if (orientToVelocity) transform.up = direction;
 		gameObject.SetActive(true);
 		GetComponent<Rigidbody2D>().velocity = direction.normalized * speed + gunVelocity * (1 - gunVelocityDamping);
 		if (particles) particles.Play();
