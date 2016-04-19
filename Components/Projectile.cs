@@ -43,7 +43,7 @@ public class Projectile : MonoBehaviour {
 	public void Fire (Vector3 direction, Vector3 gunVelocity = default(Vector3)) {
 		transform.parent = null;
 		AudioManager.PlayEffect(onFireAudioClipName, transform, Random.Range(0.7f, 1), Random.Range(0.95f, 1.05f));
-		if (orientToVelocity) transform.up = direction;
+		if (orientToVelocity) transform.right = direction;
 		gameObject.SetActive(true);
 		GetComponent<Rigidbody2D>().velocity = direction.normalized * speed + gunVelocity * (1 - gunVelocityDamping);
 		if (particles) particles.Play();

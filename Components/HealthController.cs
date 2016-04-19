@@ -1,11 +1,15 @@
 ﻿using UnityEngine;
 using System.Collections;
 using Paraphernalia.Components;
+using Paraphernalia.Utils;
 
 public class HealthController : MonoBehaviour {
 
 	public delegate void OnHealthChanged(float health, float prevHealth, float maxHealth);
 	public event OnHealthChanged onHealthChanged = delegate {};
+
+	public delegate void OnAnyHealthChanged(HealthController healthController, float health, float prevHealth, float maxHealth);
+	public static event OnAnyHealthChanged onAnyHealthChanged = delegate {};
 
 	public delegate void OnAnyLifeChangeEvent(HealthController controller);
 	public static event OnAnyLifeChangeEvent onAnyDeath = delegate {};
@@ -15,6 +19,8 @@ public class HealthController : MonoBehaviour {
 	public event OnLifeChangeEvent onResurection = delegate {};
 
 	public AudioClip deathSound;
+	public string particlesName;
+	public bool disableOnDeath = false;
 
 	public float maxHealth = 3;
 	private float _health = 3;
@@ -23,18 +29,29 @@ public class HealthController : MonoBehaviour {
 			return _health;
 		}
 		set {
-			if (value <= 0 && _health > 0) {
+			float prevHealth = _health;
+			_health = value;
+			if (_health > maxHealth) {
+				_health = maxHealth;
+			}
+			else if (_health < 0) {
+				_health = 0;
+			}
+
+			if (_health == 0 && prevHealth > 0) {
 				if (deathSound != null) AudioManager.PlayEffect(deathSound);
+				if (!string.IsNullOrEmpty(particlesName)) ParticleManager.Play(particlesName, transform.position);
+				if (disableOnDeath) gameObject.SetActive(false);
 				onAnyDeath(this);
 				onDeath();
 			}
-			else if (value > 0 && _health == 0) {
+			else if (_health > 0 && prevHealth == 0) {
 				onResurection();
 			}
 			
-			if (_health != value) {
-				onHealthChanged(value, _health, maxHealth);
-				_health = value;
+			if (prevHealth != _health) {
+				onHealthChanged(_health, prevHealth, maxHealth);
+				onAnyHealthChanged(this, _health, prevHealth, maxHealth);
 			}
 		}
 	}
@@ -47,7 +64,7 @@ public class HealthController : MonoBehaviour {
 		health = maxHealth;
 	}
 
-	public void TakeDamage(float damage) {
+	public void TakeDamage(float damage, bool allowRecovery = true) {
 		health -= damage;
 	}
 }
