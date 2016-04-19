@@ -150,7 +150,7 @@ public class CameraController : MonoBehaviour {
 
 	void OnDrawGizmos() {
         Gizmos.color = Color.white;
-        Gizmos.DrawWireCube(bounds.center, bounds.extents);
+        Gizmos.DrawWireCube(bounds.center, bounds.size);
     }
 }
 }

@@ -24,8 +24,8 @@ public static class CameraExtensions {
 
 	public static Vector3 GetBoundedPos (this Camera camera, Bounds bounds) {
 		Vector3 pos = camera.transform.position;
-		Vector3 topRightDiff = camera.ViewportToWorldPoint(new Vector3(1, 1, 0)) - bounds.max * 0.5f;
-		Vector3 bottomLeftDiff = camera.ViewportToWorldPoint(new Vector3(0, 0, 0)) - bounds.min * 0.5f;
+		Vector3 topRightDiff = camera.ViewportToWorldPoint(new Vector3(1, 1, 0)) - bounds.max;
+		Vector3 bottomLeftDiff = camera.ViewportToWorldPoint(new Vector3(0, 0, 0)) - bounds.min;
 		
 		if (topRightDiff.x > 0) pos.x -= topRightDiff.x;
 		else if (bottomLeftDiff.x < 0) pos.x -= bottomLeftDiff.x;
