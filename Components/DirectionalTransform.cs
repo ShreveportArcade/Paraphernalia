@@ -25,7 +25,7 @@ public class DirectionalTransform : DirectionalComponent {
 	}
 
 	void OnDrawGizmos () {
-		Gizmos.matrix = transform.localToWorldMatrix;
+		Gizmos.matrix = transform.parent.localToWorldMatrix;
 		Gizmos.color = Color.red;
 		Gizmos.DrawLine(leftPosition, rightPosition);
 		Gizmos.color = Color.green;

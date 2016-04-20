@@ -24,13 +24,18 @@ public static class CameraExtensions {
 
 	public static Vector3 GetBoundedPos (this Camera camera, Bounds bounds) {
 		Vector3 pos = camera.transform.position;
-		Vector3 topRightDiff = camera.ViewportToWorldPoint(new Vector3(1, 1, 0)) - bounds.max;
-		Vector3 bottomLeftDiff = camera.ViewportToWorldPoint(new Vector3(0, 0, 0)) - bounds.min;
+		Vector3 topRight = camera.ViewportToWorldPoint(new Vector3(1, 1, 0));
+		Vector3 bottomLeft = camera.ViewportToWorldPoint(new Vector3(0, 0, 0));
+		Vector3 topRightDiff = topRight - bounds.max;
+		Vector3 bottomLeftDiff = bottomLeft - bounds.min;
+		Vector3 size = topRight - bottomLeft;
 		
-		if (topRightDiff.x > 0) pos.x -= topRightDiff.x;
+		if (size.x > bounds.size.x) pos.x = bounds.center.x;
+		else if (topRightDiff.x > 0) pos.x -= topRightDiff.x;
 		else if (bottomLeftDiff.x < 0) pos.x -= bottomLeftDiff.x;
 
-		if (topRightDiff.y > 0) pos.y -= topRightDiff.y;
+		if (size.y > bounds.size.y) pos.y = bounds.center.y;
+		else if (topRightDiff.y > 0) pos.y -= topRightDiff.y;
 		else if (bottomLeftDiff.y < 0) pos.y -= bottomLeftDiff.y;
 
 		pos.z = camera.transform.position.z;
