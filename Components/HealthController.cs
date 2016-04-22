@@ -16,13 +16,17 @@ public class HealthController : MonoBehaviour {
 
 	public delegate void OnLifeChangeEvent();
 	public event OnLifeChangeEvent onDeath = delegate {};
+	public event OnLifeChangeEvent onDestruction = delegate {};
 	public event OnLifeChangeEvent onResurection = delegate {};
 
-	public AudioClip deathSound;
-	public string particlesName;
-	public bool disableOnDeath = false;
+	public string damageSoundName;
+	public string deathSoundName;
+	public string destructionSoundName;
+	public string deathParticlesName;
+	public string destructionParticlesName;
 
 	public float maxHealth = 3;
+	public float destructionHealth = -1;
 	private float _health = 3;
 	public float health {
 		get {
@@ -34,19 +38,25 @@ public class HealthController : MonoBehaviour {
 			if (_health > maxHealth) {
 				_health = maxHealth;
 			}
-			else if (_health < 0) {
-				_health = 0;
-			}
 
-			if (_health == 0 && prevHealth > 0) {
-				if (deathSound != null) AudioManager.PlayEffect(deathSound);
-				if (!string.IsNullOrEmpty(particlesName)) ParticleManager.Play(particlesName, transform.position);
-				if (disableOnDeath) gameObject.SetActive(false);
+			if (_health <= 0 && prevHealth > 0) {
+				AudioManager.PlayVariedEffect(deathSoundName);
+				ParticleManager.Play(deathParticlesName, transform);
 				onAnyDeath(this);
 				onDeath();
 			}
-			else if (_health > 0 && prevHealth == 0) {
+			else if (_health <= destructionHealth && prevHealth > destructionHealth) {
+				AudioManager.PlayVariedEffect(destructionSoundName);
+				ParticleManager.Play(destructionParticlesName, transform.position);
+				gameObject.SetActive(false);
+				onDestruction();
+			}
+			else if (_health > 0 && prevHealth <= 0) {
+				AudioManager.PlayVariedEffect(deathSoundName);
 				onResurection();
+			}
+			else if (_health < prevHealth) {
+				AudioManager.PlayVariedEffect(damageSoundName);
 			}
 			
 			if (prevHealth != _health) {

@@ -57,6 +57,10 @@ public class ParticleManager : MonoBehaviour {
 		}
 	}
 
+	public static void Play(string name, Transform t) {
+		Play(name, t.position, Vector3.up, 1, null, t);
+	}
+
 	public static void Play(string name, Vector3 position, Color? color = null) {
 		Play(name, position, Vector3.up, color);
 	}
@@ -65,14 +69,14 @@ public class ParticleManager : MonoBehaviour {
 		Play(name, position, normal, 1, color);
 	}
 
-	public static void Play(string name, Vector3 position, Vector3 normal, float size, Color? color = null) {
+	public static void Play(string name, Vector3 position, Vector3 normal, float size, Color? color = null, Transform t = null) {
 		if (instance == null || !instance.currentIndices.ContainsKey(name)) return;
 		int index = instance.currentIndices[name];
 		ParticleSystem particleSystem = instance.pools[name][index];
+		if (t != null) particleSystem.transform.parent = t;
 		particleSystem.transform.position = position;
 		particleSystem.transform.up = normal;
-		// particleSystem.transform.localScale = Vector3.one * size; // This didn't work.
-		ParticleSystem prefab = instance.prefabs[name]; // THIS IS PROBABLY DUMB AND EXPENSIVE
+		ParticleSystem prefab = instance.prefabs[name];
 		ScaleParticleSystem(particleSystem, prefab, size);
 		if (color != null) particleSystem.startColor = color.Value;
 		particleSystem.Play();

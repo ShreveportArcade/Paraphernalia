@@ -42,6 +42,7 @@ public class CameraController : MonoBehaviour {
 	public float moveStartDist = 1f;
 	public Vector3 velocityAdjustment = new Vector2(0.2f, 0);
 	public bool bounded = false;
+	public GameObject boundsObject;
 	public Bounds bounds;
 	public Interpolate.EaseType easeType = Interpolate.EaseType.InOutQuad;
 
@@ -116,7 +117,10 @@ public class CameraController : MonoBehaviour {
 			transform.position = targetPosition;
 		}
 
-		if (bounded) transform.position = camera.GetBoundedPos(bounds);
+		if (bounded) {
+			if (boundsObject) bounds = boundsObject.RendererBounds();
+			transform.position = camera.GetBoundedPos(bounds);
+		}
 	}
 
 	public static void AddZone(CameraZone zone) {
