@@ -3,19 +3,48 @@ using System.Collections;
 
 public abstract class DirectionalComponent : MonoBehaviour {
 
-	public void SetDirection (Vector2 dir) {
-		if (Mathf.Abs(dir.x) > Mathf.Abs(dir.y)) {
-			if (dir.x < 0) SetLeft();
-			else SetRight();
-		}
-		else {
-			if (dir.y < 0) SetDown();
-			else SetUp();
+	private Vector2 _direction = Vector2.down;
+	public Vector2 direction {
+		get { return _direction; }
+		set {
+			if (Vector2.Angle(_direction, value) > 45) {
+				if (Mathf.Abs(value.x) > Mathf.Abs(value.y)) {
+					if (value.x < 0) {
+						_direction = Vector2.left;
+						SetLeft();
+					}
+					else {
+						_direction = Vector2.right;
+						SetRight();
+					}
+				}
+				else {
+					if (value.y < 0) {
+						_direction = Vector2.down;
+						SetDown();
+					}
+					else {
+						_direction = Vector2.up;
+						SetUp();
+					}
+				}
+			}
 		}
 	}
 
-	protected abstract void SetLeft();
-	protected abstract void SetRight();
-	protected abstract void SetUp();
-	protected abstract void SetDown();	
+	[ContextMenu("Look Left")]
+	protected virtual void SetLeft () {
+	}
+
+	[ContextMenu("Look Right")]
+	protected virtual void SetRight () {	}
+
+	[ContextMenu("Look Up")]
+	protected virtual void SetUp () {
+	}
+
+	[ContextMenu("Look Down")]
+	protected virtual void SetDown () {
+	}	
+
 }
