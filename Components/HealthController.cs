@@ -24,6 +24,7 @@ public class HealthController : MonoBehaviour {
 	public string destructionSoundName;
 	public string deathParticlesName;
 	public string destructionParticlesName;
+	public string destructionSpawnName;
 
 	public float maxHealth = 3;
 	public float destructionHealth = -1;
@@ -48,6 +49,11 @@ public class HealthController : MonoBehaviour {
 			else if (_health <= destructionHealth && prevHealth > destructionHealth) {
 				AudioManager.PlayVariedEffect(destructionSoundName);
 				ParticleManager.Play(destructionParticlesName, transform.position);
+				GameObject destructionSpawn = Spawner.Spawn(destructionSpawnName);
+				if (destructionSpawn != null) {
+					destructionSpawn.transform.position = transform.position;
+					destructionSpawn.transform.rotation = transform.rotation;
+				}
 				gameObject.SetActive(false);
 				onDestruction();
 			}
