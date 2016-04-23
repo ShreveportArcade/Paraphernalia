@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (C) 2015 Nolan Baker
+Copyright (C) 2016 Nolan Baker
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
 documentation files (the "Software"), to deal in the Software without restriction, including without limitation 
@@ -19,47 +19,21 @@ DEALINGS IN THE SOFTWARE.
 using UnityEngine;
 using System.Collections;
 
-[ExecuteInEditMode]
-[RequireComponent(typeof(SpriteRenderer))]
-public class VerticalSpriteOrdering : MonoBehaviour {
+[RequireComponent(typeof(Renderer))]
+public class VerticalRendererOrdering : VerticalOrdering {
 
-	public float orderMultiplier = 100;
-	public float orderOffset = 0;
-	public bool isStatic = true;
-
-	[SerializeField, HideInInspector]private SpriteRenderer _spriteRenderer;
-	public SpriteRenderer spriteRenderer {
+	[SerializeField, HideInInspector]private Renderer _renderer;
+	public Renderer renderer {
 		get {
-			if (_spriteRenderer == null) {
-				_spriteRenderer = GetComponent<SpriteRenderer>();
+			if (_renderer == null) {
+				_renderer = GetComponent<Renderer>();
 			}
-			return _spriteRenderer;
-		}
-	}
-	
-	void Start () {
-		UpdateSortOrder();
-	}
-
-	#if UNITY_EDITOR
-	void Update () {
-		if (!Application.isPlaying) UpdateSortOrder();
-	}
-	#endif
-
-	void OnEnable () {
-		if (!isStatic) StartCoroutine("SortCoroutine");
-	}
-
-	IEnumerator SortCoroutine () {
-		while (enabled && !isStatic) {
-			UpdateSortOrder();
-			yield return new WaitForEndOfFrame();
+			return _renderer;
 		}
 	}
 
 	[ContextMenu("Update Sort Order")]
-	public void UpdateSortOrder () {
-		spriteRenderer.sortingOrder = (int)(-transform.position.y * orderMultiplier + orderOffset);
+	protected override void UpdateSortOrder () {
+		renderer.sortingOrder = order;
 	}
 }

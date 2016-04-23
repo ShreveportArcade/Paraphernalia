@@ -5,6 +5,8 @@ using System.Collections.Generic;
 [RequireComponent(typeof(SpriteRenderer))]
 public class DirectionalAnimator : DirectionalComponent {
 
+	public bool useRightForLeft = false;
+
 	[System.Serializable]
 	public class DirectionalAnimationClip {
 		public string name;
@@ -78,6 +80,7 @@ public class DirectionalAnimator : DirectionalComponent {
 	}
 
 	IEnumerator AnimateCoroutine () {
+		yield return new WaitForSeconds(Random.Range(0, currentClip.frameInterval));
 		while (enabled) {
 			if (currentClip.currentSprites == null) {
 				yield return new WaitForEndOfFrame();
@@ -92,8 +95,17 @@ public class DirectionalAnimator : DirectionalComponent {
 
 	[ContextMenu("Look Left")]
 	protected override void SetLeft () {
-		foreach (DirectionalAnimationClip clip in animationClips) {
-			clip.currentSprites = clip.leftSprites;
+		if (useRightForLeft) {
+			spriteRenderer.flipX = true;
+			foreach (DirectionalAnimationClip clip in animationClips) {
+				clip.currentSprites = clip.rightSprites;
+			}
+		}
+		else {
+			spriteRenderer.flipX = false;
+			foreach (DirectionalAnimationClip clip in animationClips) {
+				clip.currentSprites = clip.leftSprites;
+			}
 		}
 	}
 

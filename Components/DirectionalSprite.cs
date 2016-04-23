@@ -9,6 +9,8 @@ public class DirectionalSprite : DirectionalComponent {
 	public Sprite upSprite;
 	public Sprite downSprite;
 
+	public bool useRightForLeft = false;
+
 	private SpriteRenderer _spriteRenderer;
 	public SpriteRenderer spriteRenderer {
 		get {
@@ -21,21 +23,31 @@ public class DirectionalSprite : DirectionalComponent {
 
 	[ContextMenu("Look Left")]
 	protected override void SetLeft () {
-		spriteRenderer.sprite = leftSprite;
+		if (useRightForLeft) {
+			spriteRenderer.flipX = true;
+			spriteRenderer.sprite = rightSprite;
+		}
+		else {
+			spriteRenderer.flipX = false;
+			spriteRenderer.sprite = leftSprite;
+		}
 	}
 
 	[ContextMenu("Look Right")]
 	protected override void SetRight () {
+		spriteRenderer.flipX = false;
 		spriteRenderer.sprite = rightSprite;
 	}
 
 	[ContextMenu("Look Up")]
 	protected override void SetUp () {
+		spriteRenderer.flipX = false;
 		spriteRenderer.sprite = upSprite;
 	}
 
 	[ContextMenu("Look Down")]
 	protected override void SetDown () {
+		spriteRenderer.flipX = false;
 		spriteRenderer.sprite = downSprite;
 	}
 }
