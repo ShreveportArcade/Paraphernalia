@@ -41,21 +41,18 @@ public class HealthController : MonoBehaviour {
 			}
 
 			if (_health <= 0 && prevHealth > 0) {
-				AudioManager.PlayVariedEffect(deathSoundName);
-				ParticleManager.Play(deathParticlesName, transform);
+				if (_health <= destructionHealth && prevHealth > destructionHealth) {
+					PlayDestruction();
+				}
+				else {
+					AudioManager.PlayVariedEffect(deathSoundName);
+					ParticleManager.Play(deathParticlesName, transform);
+				}
 				onAnyDeath(this);
 				onDeath();
 			}
 			else if (_health <= destructionHealth && prevHealth > destructionHealth) {
-				AudioManager.PlayVariedEffect(destructionSoundName);
-				ParticleManager.Play(destructionParticlesName, transform.position);
-				GameObject destructionSpawn = Spawner.Spawn(destructionSpawnName);
-				if (destructionSpawn != null) {
-					destructionSpawn.transform.position = transform.position;
-					destructionSpawn.transform.rotation = transform.rotation;
-				}
-				gameObject.SetActive(false);
-				onDestruction();
+				PlayDestruction();
 			}
 			else if (_health > 0 && prevHealth <= 0) {
 				AudioManager.PlayVariedEffect(deathSoundName);
@@ -70,6 +67,18 @@ public class HealthController : MonoBehaviour {
 				onAnyHealthChanged(this, _health, prevHealth, maxHealth);
 			}
 		}
+	}
+
+	void PlayDestruction () {
+		AudioManager.PlayVariedEffect(destructionSoundName);
+		ParticleManager.Play(destructionParticlesName, transform.position);
+		GameObject destructionSpawn = Spawner.Spawn(destructionSpawnName);
+		if (destructionSpawn != null) {
+			destructionSpawn.transform.position = transform.position;
+			destructionSpawn.transform.rotation = transform.rotation;
+		}
+		gameObject.SetActive(false);
+		onDestruction();
 	}
 
 	public bool isDead {
