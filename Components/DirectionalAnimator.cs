@@ -111,6 +111,7 @@ public class DirectionalAnimator : DirectionalComponent {
 
 	[ContextMenu("Look Right")]
 	protected override void SetRight () {	
+		spriteRenderer.flipX = false;
 		foreach (DirectionalAnimationClip clip in animationClips) {
 			clip.currentSprites = clip.rightSprites;
 		}
@@ -118,6 +119,7 @@ public class DirectionalAnimator : DirectionalComponent {
 
 	[ContextMenu("Look Up")]
 	protected override void SetUp () {
+		spriteRenderer.flipX = false;
 		foreach (DirectionalAnimationClip clip in animationClips) {
 			clip.currentSprites = clip.upSprites;
 		}
@@ -125,6 +127,7 @@ public class DirectionalAnimator : DirectionalComponent {
 
 	[ContextMenu("Look Down")]
 	protected override void SetDown () {
+		spriteRenderer.flipX = false;
 		foreach (DirectionalAnimationClip clip in animationClips) {
 			clip.currentSprites = clip.downSprites;
 		}
