@@ -28,7 +28,7 @@ public class HealthController : MonoBehaviour {
 
 	public float maxHealth = 3;
 	public float destructionHealth = -1;
-	private float _health = 3;
+	private float _health;
 	public float health {
 		get {
 			return _health;
@@ -86,7 +86,7 @@ public class HealthController : MonoBehaviour {
 	}
 	
 	void Start() {
-		health = maxHealth;
+		_health = maxHealth;
 	}
 
 	public void TakeDamage(float damage, bool allowRecovery = true) {
