@@ -9,6 +9,7 @@ public class SpawnOnDeath : MonoBehaviour {
 	public class Spawnable {
 		public string name;
 		public float weight;
+		public int maxSpawnCount;
 	}
 	public Spawnable[] spawnables;
 
@@ -39,8 +40,10 @@ public class SpawnOnDeath : MonoBehaviour {
 		foreach (Spawnable spawnable in spawnables) {
 			sum += spawnable.weight;
 			if (rand < sum) {
-				GameObject go = Spawner.Spawn(spawnable.name);
-				go.transform.position = transform.position;
+				for (int i = 0; i < Random.Range(1, spawnable.maxSpawnCount); i++) {
+					GameObject go = Spawner.Spawn(spawnable.name);
+					go.transform.position = transform.position + (Vector3)Random.insideUnitCircle;
+				}
 				break;
 			}
 		}
