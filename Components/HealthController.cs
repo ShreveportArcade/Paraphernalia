@@ -93,11 +93,10 @@ public class HealthController : MonoBehaviour {
 		health -= damage;
 	}
 
-    public void Heal(float heal, bool allowRecovery = true)
+    public bool Heal(float heal, bool allowRecovery = true)
     {
-        if (health < maxHealth)
-        {
-            health += heal;
-        }
+        if (health >= maxHealth) return false;
+        health += heal;
+        return true;
     }
 }
