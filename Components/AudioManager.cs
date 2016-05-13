@@ -109,7 +109,8 @@ public class AudioManager : MonoBehaviour {
 		if (string.IsNullOrEmpty(name)) return;
 		AudioClip clip = instance.clips.Find(c => c.name == name);
 		AudioMixerGroup mixer = instance.mixers.Find(m => m.name == mixerName);
-		PlayEffect(clip, t, volume, pitch);
+		if (mixer == null) mixer = instance.defaultSFXMixer;
+		PlayEffect(clip, mixer, t, volume, pitch);
 	}
 
 	public static void PlayEffect(AudioClip clip, AudioMixerGroup mixer = null, Transform t = null, float volume = 1, float pitch = 1) {
