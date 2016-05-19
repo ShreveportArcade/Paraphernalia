@@ -114,6 +114,9 @@ public class AudioManager : MonoBehaviour {
 	}
 
 	public static void PlayEffect(AudioClip clip, AudioMixerGroup mixer = null, Transform t = null, float volume = 1, float pitch = 1) {
+		#if UNITY_EDITOR
+		if (!Application.isPlaying) return;
+		#endif
 		if (clip == null) return;
 		int id = clip.GetInstanceID();
 		if (instance.lastPlayed.ContainsKey(id) && 
