@@ -1,4 +1,4 @@
-/*
+﻿/*
 Copyright (C) 2016 Nolan Baker
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
@@ -19,24 +19,28 @@ DEALINGS IN THE SOFTWARE.
 using UnityEditor;
 using UnityEngine;
 
-[CustomEditor(typeof(MonoScript))]
-class MonoScriptEditor : Editor {
+[CanEditMultipleObjects]
+[CustomEditor(typeof(MeshFilter))]
+class MeshFilterEditor : Editor {
 
-	static bool showCode = false;
+	private int triCount = 0;
+	private int targetCount = -1;
 
 	public override void OnInspectorGUI () {
-		if (target == null || !(target is MonoScript)) return;
-		MonoScript script = target as MonoScript;
-		System.Type t = script.GetClass();
-		if (t == null) return;
-		if (!(t.IsSubclassOf(typeof(Editor)) || t.IsSubclassOf(typeof(EditorWindow)))) {
-			if (t.IsSubclassOf(typeof(ScriptableObject)) && GUILayout.Button("Create Asset"))
-				ScriptableObjectUtility.CreateAsset(t);
+		
+		if (targets == null || targets.Length < 2) {
+			MeshFilter filter = target as MeshFilter;
+			triCount = filter.sharedMesh.triangles.Length / 3;
+		}
+		else if (targetCount != targets.Length) {
+			targetCount = targets.Length;
+			for (int i = 0; i < targetCount; i++) {
+				MeshFilter filter = targets[i] as MeshFilter;
+				triCount += filter.sharedMesh.triangles.Length / 3;
+			}
 		}
 
-		showCode = EditorGUILayout.Foldout(showCode, "Code");
-		if (showCode) {
-			EditorGUILayout.TextArea(script.text);
-		}
+		EditorGUILayout.LabelField("Triangles: " + triCount);
+		base.OnInspectorGUI();
 	}
 }
