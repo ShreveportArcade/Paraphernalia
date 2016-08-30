@@ -38,11 +38,7 @@ public class ListLayoutGroup : LayoutGroup {
             return Mathf.CeilToInt(parent.rect.height / (height + spacing)) + 1;
         }
     }
-
-    public void OnMoved (Vector2 v) {
-        SetDirty();
-    }
-
+    
     public override void CalculateLayoutInputHorizontal () {
         base.CalculateLayoutInputHorizontal();
     }
