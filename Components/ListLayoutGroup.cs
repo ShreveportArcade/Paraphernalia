@@ -35,7 +35,7 @@ public class ListLayoutGroup : LayoutGroup {
         get {
             if (transform.parent == null) return 1;
             RectTransform parent = transform.parent.GetComponent<RectTransform>();
-            return Mathf.CeilToInt(parent.rect.height / (height + spacing)) + 1;
+            return Mathf.CeilToInt(parent.rect.height / (height + spacing));
         }
     }
     
