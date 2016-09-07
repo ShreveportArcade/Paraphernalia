@@ -50,7 +50,7 @@ public class ListLayoutGroup : LayoutGroup {
 
     public override void SetLayoutVertical () {
         if (rectChildren.Count == 0) return;
-        for (int i = firstVisible; i < Mathf.Min(firstVisible + visibleCount, rows); i++) {
+        for (int i = Mathf.Max(0, firstVisible); i < Mathf.Min(firstVisible + visibleCount, rows); i++) {
             float y = padding.vertical + (height + spacing) * i;
             int child = i % rectChildren.Count;
             SetChildAlongAxis(rectChildren[child], 1, y, height);
