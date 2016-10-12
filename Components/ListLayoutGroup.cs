@@ -38,20 +38,40 @@ public class ListLayoutGroup : LayoutGroup {
             return Mathf.CeilToInt(parent.rect.height / (height + spacing));
         }
     }
+
+    private float unusedHeight {
+        get {
+            RectTransform rect = transform as RectTransform;
+            float space = padding.vertical + height * rows + spacing * (rows - 1);
+            float unused = rect.rect.height - space;
+            return unused;
+        }
+    }
     
     public override void CalculateLayoutInputHorizontal () {
         base.CalculateLayoutInputHorizontal();
     }
 
     public override void CalculateLayoutInputVertical () {
-        float space = padding.vertical + (height + spacing) * rows;
+        float space = padding.vertical + height * rows + spacing * (rows - 1);
         SetLayoutInputForAxis(space, space, -1, 1);
     }
 
     public override void SetLayoutVertical () {
         if (rectChildren.Count == 0) return;
+        float offset = 0;
+        if (childAlignment == TextAnchor.MiddleLeft || 
+            childAlignment == TextAnchor.MiddleCenter ||
+            childAlignment == TextAnchor.MiddleRight) {
+            offset = unusedHeight * 0.5f;
+        }
+        else if (childAlignment == TextAnchor.LowerLeft || 
+            childAlignment == TextAnchor.LowerCenter ||
+            childAlignment == TextAnchor.LowerRight) {
+            offset = unusedHeight;
+        }
         for (int i = Mathf.Max(0, firstVisible); i < Mathf.Min(firstVisible + visibleCount, rows); i++) {
-            float y = padding.vertical + (height + spacing) * i;
+            float y = offset + padding.vertical + (height + spacing) * i;
             int child = i % rectChildren.Count;
             SetChildAlongAxis(rectChildren[child], 1, y, height);
             onRowUpdate(i, child);
