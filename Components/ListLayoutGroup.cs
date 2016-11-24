@@ -80,9 +80,9 @@ public class ListLayoutGroup : LayoutGroup {
 
     public override void SetLayoutHorizontal () {
         if (rectChildren.Count == 0) return;
-        float width = rectTransform.rect.size.x;
+        float width = rectTransform.rect.size.x - padding.horizontal;
         for (int i = 0; i < rectChildren.Count; i++) {
-            SetChildAlongAxis(rectChildren[i], 0, padding.horizontal, width);
+            SetChildAlongAxis(rectChildren[i], 0, padding.left, width);
         }
     }
 }
