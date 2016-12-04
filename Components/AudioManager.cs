@@ -134,6 +134,9 @@ public class AudioManager : MonoBehaviour {
 		source.minDistance = minDist;
 		source.maxDistance = maxDist;
 		source.outputAudioMixerGroup = mixer;
+		source.spatialBlend = spatialBlend;
+		source.minDistance = minDistance;
+		source.maxDistance = maxDistance;
 		source.Play();
 		instance.currentSFXSource = (instance.currentSFXSource + 1) % instance.sfxSourcesCount;
 	}
