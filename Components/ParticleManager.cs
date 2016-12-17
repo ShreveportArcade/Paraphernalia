@@ -57,20 +57,24 @@ public class ParticleManager : MonoBehaviour {
 		}
 	}
 
-	public static void Play(string name, Transform t) {
-		Play(name, t.position, Vector3.up, 1, null, t);
+	public static ParticleSystem Play(string name, Transform t) {
+		return Play(name, t.position, Vector3.up, 1, null, t);
 	}
 
-	public static void Play(string name, Vector3 position, Color? color = null) {
-		Play(name, position, Vector3.up, color);
+	public static ParticleSystem Play(string name, Transform t, Color color) {
+		return Play(name, t.position, Vector3.up, 1, color, t);
 	}
 
-	public static void Play(string name, Vector3 position, Vector3 normal, Color? color = null) {
-		Play(name, position, normal, 1, color);
+	public static ParticleSystem Play(string name, Vector3 position, Color? color = null) {
+		return Play(name, position, Vector3.up, color);
 	}
 
-	public static void Play(string name, Vector3 position, Vector3 normal, float size, Color? color = null, Transform t = null) {
-		if (instance == null || !instance.currentIndices.ContainsKey(name)) return;
+	public static ParticleSystem Play(string name, Vector3 position, Vector3 normal, Color? color = null) {
+		return Play(name, position, normal, 1, color);
+	}
+
+	public static ParticleSystem Play(string name, Vector3 position, Vector3 normal, float size, Color? color = null, Transform t = null) {
+		if (instance == null || !instance.currentIndices.ContainsKey(name)) return null;
 		int index = instance.currentIndices[name];
 		ParticleSystem particleSystem = instance.pools[name][index];
 		if (t != null) particleSystem.transform.parent = t;
@@ -82,6 +86,7 @@ public class ParticleManager : MonoBehaviour {
 		particleSystem.Play();
 		index = (index + 1) % instance.poolSize;
 		instance.currentIndices[name] = index;
+		return particleSystem;
 	}
 
 	public static void ScaleParticleSystem(ParticleSystem s, ParticleSystem p, float size) {

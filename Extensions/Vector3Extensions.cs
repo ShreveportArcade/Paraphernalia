@@ -79,6 +79,19 @@ public static class Vector3Extensions {
 		return nonColinear.ToArray();
 	}
 
+	public static Vector3[] RemoveOverlapping (this Vector3[] path, float minDist = 0.1f) {
+		List<Vector3> nonOverlapping = new List<Vector3>(path);
+		float distSq = 0;
+		for (int i = 0; i < path.Length; i++) {
+			distSq = (path[i] - path[(i+1)%path.Length]).sqrMagnitude;
+			if (distSq < minDist) {
+				nonOverlapping.Remove(path[i]);
+			}
+		}
+
+		return nonOverlapping.ToArray();
+	}
+
 	public static float Winding (this Vector3[] path) {
 		float ang = 0;
         for (int i = 1; i < path.Length - 1; i++) {

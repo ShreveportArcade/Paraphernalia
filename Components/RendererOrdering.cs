@@ -1,4 +1,4 @@
-/*
+﻿/*
 Copyright (C) 2016 Nolan Baker
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
@@ -16,27 +16,39 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 DEALINGS IN THE SOFTWARE.
 */
 
-using UnityEditor;
 using UnityEngine;
+using System.Collections;
 
-[CustomEditor(typeof(MonoScript))]
-class MonoScriptEditor : Editor {
+[ExecuteInEditMode]
+[RequireComponent(typeof(Renderer))]
+public class RendererOrdering : MonoBehaviour {
 
-	static bool showCode = false;
+	public int order = 0;
 
-	public override void OnInspectorGUI () {
-		if (target == null || !(target is MonoScript)) return;
-		MonoScript script = target as MonoScript;
-		System.Type t = script.GetClass();
-		if (t == null) return;
-		if (!(t.IsSubclassOf(typeof(Editor)) || t.IsSubclassOf(typeof(EditorWindow)))) {
-			if (t.IsSubclassOf(typeof(ScriptableObject)) && GUILayout.Button("Create Asset"))
-				ScriptableObjectUtility.CreateAsset(t);
-		}
-
-		showCode = EditorGUILayout.Foldout(showCode, "Code");
-		if (showCode) {
-			EditorGUILayout.TextArea(script.text);
+	[SerializeField, HideInInspector]private Renderer _renderer;
+	public Renderer renderer {
+		get {
+			if (_renderer == null) {
+				_renderer = GetComponent<Renderer>();
+			}
+			return _renderer;
 		}
 	}
+
+	[ContextMenu("Update Sort Order")]
+	public void UpdateSortOrder () {
+		renderer.sortingOrder = order;
+	}
+
+	void OnEnable () {
+		UpdateSortOrder();
+	}
+
+	#if UNITY_EDITOR
+	void Update () {
+		if (!Application.isPlaying) {
+			UpdateSortOrder();
+		}
+	}
+	#endif
 }
