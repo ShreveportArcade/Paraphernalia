@@ -168,6 +168,7 @@ public class AudioManager : MonoBehaviour {
 	}
 
 	public static void CrossfadeMusic(AudioClip clip, float fadeDuration) {
+		if (clip == null) return;
 		AudioSource currentSource = instance.musicSources[instance.currentMusicSource];
 		AudioSource nextSource = instance.musicSources[(instance.currentMusicSource + 1) % 2];
 		if (currentSource.clip == clip || nextSource.clip == clip) return;
