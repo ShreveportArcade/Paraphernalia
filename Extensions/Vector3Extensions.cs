@@ -171,5 +171,13 @@ public static class Vector3Extensions {
 
 		return v;
 	}
+
+	public static Vector3 Lerp3 (this Vector3 a, Vector3 b, Vector3 t) {
+		return new Vector3 (
+				Mathf.Lerp(a.x, b.x, t.x),
+				Mathf.Lerp(a.y, b.y, t.y),
+				Mathf.Lerp(a.z, b.z, t.z)
+			);
+	}
 }
 }

@@ -6,6 +6,7 @@ public class CameraZone : MonoBehaviour {
 
 	public AudioClip music;
 	public Vector3 offset = new Vector3(0,0,-150);
+	public Vector3 axisLock = Vector3.one;
 	public float transitionTime = 1;
 	public MonoBehaviour[] behavioursToActivate;
 
