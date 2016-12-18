@@ -52,6 +52,12 @@ public class AudioManager : MonoBehaviour {
 		}
 	}
 
+	public static AudioSource currentSource {
+		get {
+			return instance.musicSources[instance.currentMusicSource];
+		}
+	}
+
 	public float minPlayInterval = 0.01f;
 	private Dictionary<int, float> lastPlayed = new Dictionary<int, float>();
 
@@ -142,7 +148,6 @@ public class AudioManager : MonoBehaviour {
 	}
 
 	public static void PlayMusic (AudioClip clip) {
-		AudioSource currentSource = instance.musicSources[instance.currentMusicSource];
 		if (currentSource.clip == clip) return;
 		currentSource.clip = clip;
 		currentSource.Play();
@@ -153,23 +158,19 @@ public class AudioManager : MonoBehaviour {
 	}
 
 	public static void PauseMusic () {
-		AudioSource currentSource = instance.musicSources[instance.currentMusicSource];
 		if (currentSource != null) currentSource.Pause();
 	}
 
 	public static void ResumeMusic () {
-		AudioSource currentSource = instance.musicSources[instance.currentMusicSource];
 		if (currentSource != null) currentSource.UnPause();
 	}
 
 	public static void StopMusic () {
-		AudioSource currentSource = instance.musicSources[instance.currentMusicSource];
 		if (currentSource != null) currentSource.Stop();
 	}
 
 	public static void CrossfadeMusic(AudioClip clip, float fadeDuration) {
-		if (clip == null) return;
-		AudioSource currentSource = instance.musicSources[instance.currentMusicSource];
+		if (clip == null || instance.musicSources == null) return;
 		AudioSource nextSource = instance.musicSources[(instance.currentMusicSource + 1) % 2];
 		if (currentSource.clip == clip || nextSource.clip == clip) return;
 		instance.StopCoroutine("CrossfadeMusicCoroutine");
