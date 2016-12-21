@@ -7,6 +7,7 @@ public class Damage : MonoBehaviour {
 	public float damage = 1;
 	public float multiplier = 1;
 	public bool disableOnCollision = false;
+
 	public bool affectAncestor = false;
 
 	protected virtual float GetDamage() {

@@ -28,7 +28,7 @@ public class HealthController : MonoBehaviour {
 
 	public float maxHealth = 3;
 	public float destructionHealth = -1;
-	private float _health = 3;
+	private float _health;
 	public float health {
 		get {
 			return _health;
@@ -41,15 +41,15 @@ public class HealthController : MonoBehaviour {
 			}
 
 			if (_health <= 0 && prevHealth > 0) {
-				if (_health <= destructionHealth && prevHealth > destructionHealth) {
+                onAnyDeath(this);
+                onDeath();
+                if (_health <= destructionHealth && prevHealth > destructionHealth) {
 					PlayDestruction();
 				}
 				else {
 					AudioManager.PlayVariedEffect(deathSoundName);
 					ParticleManager.Play(deathParticlesName, transform);
 				}
-				onAnyDeath(this);
-				onDeath();
 			}
 			else if (_health <= destructionHealth && prevHealth > destructionHealth) {
 				PlayDestruction();
@@ -86,10 +86,17 @@ public class HealthController : MonoBehaviour {
 	}
 	
 	void Start() {
-		health = maxHealth;
+		_health = maxHealth;
 	}
 
 	public void TakeDamage(float damage, bool allowRecovery = true) {
 		health -= damage;
 	}
+
+    public bool Heal(float heal, bool allowRecovery = true)
+    {
+        if (health >= maxHealth) return false;
+        health += heal;
+        return true;
+    }
 }
