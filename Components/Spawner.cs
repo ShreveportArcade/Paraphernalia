@@ -38,6 +38,7 @@ public class Spawner : MonoBehaviour {
 		GameObject g = pool.Find((i) => !i.activeSelf);
 		if (g == null) {
 			g = instance.prefabsDict[name].Instantiate() as GameObject;
+			pool.Add(g);
 		}
 		
 		g.SetActive(true);
