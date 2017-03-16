@@ -46,6 +46,8 @@ public class CameraController : MonoBehaviour {
 	public Bounds bounds;
 	public Interpolate.EaseType easeType = Interpolate.EaseType.InOutQuad;
 
+	private bool transitioning = false;
+
 	void Awake () {
 		if (_instance == null) { 
 			_instance = this;
@@ -55,6 +57,10 @@ public class CameraController : MonoBehaviour {
 			Debug.LogWarning("Instance of CameraController already exists. Destroying duplicate.");
 			GameObjectUtils.Destroy(gameObject);
 		}
+	}
+
+	void Start () {
+		if (instance.defaultMusic != null) AudioManager.CrossfadeMusic(instance.defaultMusic, 0.5f);
 	}
 
 	void LateUpdate () {
@@ -74,7 +80,7 @@ public class CameraController : MonoBehaviour {
 		foreach (Collider2D collider in colliders) {
 			CameraZone zone = collider.gameObject.GetComponent<CameraZone>();
 			if (zone != null) {
-				transform.position = zone.position;
+				transform.position = zone.position.Lerp3(transform.position, zone.axisLock);
 				return;
 			}
 		}
@@ -88,7 +94,7 @@ public class CameraController : MonoBehaviour {
 			if (!Application.isPlaying) SetPosition();
 			else {
 			#endif
-				LerpToTarget();
+				if (!transitioning) transform.position = LerpToTarget();
 			#if UNITY_EDITOR
 			}
 			#endif
@@ -102,9 +108,10 @@ public class CameraController : MonoBehaviour {
 		}
 	}
 
-	void LerpToTarget () {
-		if (cameraZones.Count > 0) return;
-
+	Vector3 LerpToTarget () {
+		Vector3 desiredPosition = transform.position;
+		CameraZone zone = (cameraZones.Count > 0) ? cameraZones[cameraZones.Count - 1] : null;
+		
 		Rigidbody2D r = target.GetComponent<Rigidbody2D>();
 		Vector2 v = (r == null)? Vector2.zero: Vector2.Scale(r.velocity, (Vector2)velocityAdjustment);
 		float d = Vector3.Distance(target.position, transform.position + offset);
@@ -114,13 +121,11 @@ public class CameraController : MonoBehaviour {
 				target.position + offset + (Vector3)v - Vector3.forward * v.magnitude * velocityAdjustment.z,
 				Time.deltaTime * speed
 			);
-			transform.position = targetPosition;
+			if (zone == null) desiredPosition = targetPosition;
+			else desiredPosition = zone.position.Lerp3(targetPosition, zone.axisLock);
 		}
 
-		if (bounded) {
-			if (boundsObject) bounds = boundsObject.RendererBounds();
-			transform.position = camera.GetBoundedPos(bounds);
-		}
+		return desiredPosition;
 	}
 
 	public static void AddZone(CameraZone zone) {
@@ -139,6 +144,7 @@ public class CameraController : MonoBehaviour {
 	}
 
 	IEnumerator TransitionToZoneCoroutine () {
+		transitioning = true;
 		CameraZone zone = cameraZones[cameraZones.Count - 1];
 		if (zone.music != null) AudioManager.CrossfadeMusic(zone.music, zone.transitionTime);
 		Vector3 startPos = transform.position;
@@ -146,10 +152,11 @@ public class CameraController : MonoBehaviour {
 		while (t < zone.transitionTime) {
 			t += Time.deltaTime;
 			float frac = t / zone.transitionTime;
-			transform.position = Vector3.Lerp(startPos, zone.position, frac);
+			transform.position = Vector3.Lerp(startPos, zone.position.Lerp3(transform.position, zone.axisLock), frac);
 			yield return new WaitForEndOfFrame();
 		}
-		transform.position = zone.position;
+		transform.position = zone.position.Lerp3(LerpToTarget(), zone.axisLock);
+		transitioning = false;
 	}
 
 	void OnDrawGizmos() {

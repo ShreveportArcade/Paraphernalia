@@ -15,6 +15,17 @@ public class Follower : MonoBehaviour {
 		}
 	}
 
+	public static Transform _player;
+	public static Transform player {
+		get {
+			if (_player == null) {
+				GameObject gameObject = GameObject.FindWithTag("Player");
+				if (gameObject != null) _player = gameObject.transform;
+			}
+			return _player;
+		}
+	}
+
 	public Vector3 position {
 		get {
 			if (target != null) return target.position;

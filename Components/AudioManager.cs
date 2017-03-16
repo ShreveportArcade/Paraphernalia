@@ -52,6 +52,12 @@ public class AudioManager : MonoBehaviour {
 		}
 	}
 
+	public static AudioSource currentSource {
+		get {
+			return instance.musicSources[instance.currentMusicSource];
+		}
+	}
+
 	public float minPlayInterval = 0.01f;
 	private Dictionary<int, float> lastPlayed = new Dictionary<int, float>();
 
@@ -105,7 +111,7 @@ public class AudioManager : MonoBehaviour {
 		PlayEffect(clip, instance.defaultSFXMixer, t, volume, pitch);
 	}
 
-	public static void PlayEffect(string name, string mixerName, Transform t = null, float volume = 1, float pitch = 1) {
+	public static void PlayEffect(string name, string mixerName, Transform t = null, float volume = 1, float pitch = 1, float pan = 0, float spatialBlend = 0, float minDist = 1, float maxDist = 100) {
 		if (string.IsNullOrEmpty(name)) return;
 		AudioClip clip = instance.clips.Find(c => c.name == name);
 		AudioMixerGroup mixer = instance.mixers.Find(m => m.name == mixerName);
@@ -113,7 +119,7 @@ public class AudioManager : MonoBehaviour {
 		PlayEffect(clip, mixer, t, volume, pitch);
 	}
 
-	public static void PlayEffect(AudioClip clip, AudioMixerGroup mixer = null, Transform t = null, float volume = 1, float pitch = 1) {
+	public static void PlayEffect(AudioClip clip, AudioMixerGroup mixer = null, Transform t = null, float volume = 1, float pitch = 1, float pan = 0, float spatialBlend = 0, float minDist = 1, float maxDist = 100) {
 		#if UNITY_EDITOR
 		if (!Application.isPlaying) return;
 		#endif
@@ -129,13 +135,19 @@ public class AudioManager : MonoBehaviour {
 		source.pitch = pitch;
 		source.clip = clip;
 		source.volume = volume;
+		source.spatialBlend = spatialBlend;
+		source.panStereo = pan;
+		source.minDistance = minDist;
+		source.maxDistance = maxDist;
 		source.outputAudioMixerGroup = mixer;
+		source.spatialBlend = spatialBlend;
+		source.minDistance = minDist;
+		source.maxDistance = maxDist;
 		source.Play();
 		instance.currentSFXSource = (instance.currentSFXSource + 1) % instance.sfxSourcesCount;
 	}
 
 	public static void PlayMusic (AudioClip clip) {
-		AudioSource currentSource = instance.musicSources[instance.currentMusicSource];
 		if (currentSource.clip == clip) return;
 		currentSource.clip = clip;
 		currentSource.Play();
@@ -146,24 +158,21 @@ public class AudioManager : MonoBehaviour {
 	}
 
 	public static void PauseMusic () {
-		AudioSource currentSource = instance.musicSources[instance.currentMusicSource];
 		if (currentSource != null) currentSource.Pause();
 	}
 
 	public static void ResumeMusic () {
-		AudioSource currentSource = instance.musicSources[instance.currentMusicSource];
 		if (currentSource != null) currentSource.UnPause();
 	}
 
 	public static void StopMusic () {
-		AudioSource currentSource = instance.musicSources[instance.currentMusicSource];
 		if (currentSource != null) currentSource.Stop();
 	}
 
 	public static void CrossfadeMusic(AudioClip clip, float fadeDuration) {
-		AudioSource currentSource = instance.musicSources[instance.currentMusicSource];
+		if (clip == null || instance.musicSources == null) return;
 		AudioSource nextSource = instance.musicSources[(instance.currentMusicSource + 1) % 2];
-		if (currentSource.clip == clip || nextSource.clip == clip) return;
+		if (currentSource.clip == clip) return;
 		instance.StopCoroutine("CrossfadeMusicCoroutine");
 		nextSource.clip = clip;
 		instance.StartCoroutine("CrossfadeMusicCoroutine", fadeDuration);

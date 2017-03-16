@@ -34,11 +34,9 @@ public class PinToViewport : MonoBehaviour {
 
 	[ContextMenu("Pin")]
 	void Pin () {
-		Vector3 p = transform.position;
-		float z = cam.transform.InverseTransformPoint(p).z;
-		Vector3 v = cam.ViewportToWorldPoint(new Vector3(x, 0.5f, z));
-		p.x = v.x;
-		transform.position = p;
+		Vector3 p = cam.WorldToViewportPoint(transform.position);
+		p.x = x;
+		transform.position = cam.ViewportToWorldPoint(p);
 	}
 
 	void Update () {
