@@ -1,5 +1,4 @@
-// Unity built-in shader source. Copyright (c) 2016 Unity Technologies. MIT license (see license.txt)
-// added triplanar support - Nolan Baker
+// Triplanar Terrain Shader - (c)2017 Nolan Baker. MIT License
 
 Shader "Terrain/Triplanar" {
 	Properties {
@@ -60,6 +59,32 @@ Shader "Terrain/Triplanar" {
 			INTERNAL_DATA
 		};
 
+		void splat (inout float3 color, inout float3 normal, float2 uv, half4 splat_control, float weight) {
+			float2 uv0 = uv * _Scale.x;
+			float2 uv1 = uv * _Scale.y;
+			float2 uv2 = uv * _Scale.z;
+			float2 uv3 = uv * _Scale.w;
+			
+			float4 splat0 = tex2D(_Splat0, uv0);
+			float4 splat1 = tex2D(_Splat1, uv1);
+			float4 splat2 = tex2D(_Splat2, uv2);
+			float4 splat3 = tex2D(_Splat3, uv3);
+
+			float thick0 = splat0.a * splat_control.x;
+			float thick1 = splat1.a * splat_control.y;
+			float thick2 = splat2.a * splat_control.z;
+			float thick3 = splat3.a * splat_control.w;
+
+		    float ma = max(max(thick0, thick1), max(thick2, thick3)) - _Depth;
+		    float b0 = max(thick0 - ma, 0.0005);
+		    float b1 = max(thick1 - ma, 0.0005);
+		    float b2 = max(thick2 - ma, 0.0005);
+		    float b3 = max(thick3 - ma, 0.0005);
+
+		    color = (splat0.rgb * b0 + splat1.rgb * b1 + splat2.rgb * b2 + splat3.rgb * b3) / (b0 + b1 + b2 + b3);
+			normal = UnpackNormal((tex2D (_Normal0, uv0) * b0 + tex2D (_Normal1, uv1) * b1 + tex2D (_Normal2, uv2) * b2 + tex2D (_Normal3, uv3) * b3) / (b0 + b1 + b2 + b3)) * weight;
+		}
+
 		void vert(inout appdata_full v, out Input o) {
 			UNITY_INITIALIZE_OUTPUT(Input, o);
 		    o.tc_Control = TRANSFORM_TEX(v.texcoord, _Control);
@@ -80,75 +105,14 @@ Shader "Terrain/Triplanar" {
 			float3 n = WorldNormalVector(IN, o.Normal);
 			float3 projNormal = saturate(pow(n * 1.4, 4));
 
-		// CALCULATE X
-			float2 uv = IN.worldPos.zy;
-			float2 uv0 = uv * _Scale.x;
-			float2 uv1 = uv * _Scale.y;
-			float2 uv2 = uv * _Scale.z;
-			float2 uv3 = uv * _Scale.w;
-			
-			float4 splat0 = tex2D(_Splat0, uv0);
-			float4 splat1 = tex2D(_Splat1, uv1);
-			float4 splat2 = tex2D(_Splat2, uv2);
-			float4 splat3 = tex2D(_Splat3, uv3);
+			float3 colorX, colorY, colorZ, normalX, normalY, normalZ;
+			splat(colorX, normalX, IN.worldPos.zy, splat_control, abs(n.x));
+			splat(colorY, normalY, IN.worldPos.xz, splat_control, abs(n.y));
+			splat(colorZ, normalZ, IN.worldPos.xy, splat_control, abs(n.z));
 
-		    float ma = max(max(splat0.a * splat_control.r, splat1.a * splat_control.g), max(splat2.a * splat_control.b, splat3.a * splat_control.a)) - _Depth;
-		    float b0 = max(splat0.a * splat_control.r - ma, 0.0005);
-		    float b1 = max(splat1.a * splat_control.g - ma, 0.0005);
-		    float b2 = max(splat2.a * splat_control.b - ma, 0.0005);
-		    float b3 = max(splat3.a * splat_control.a - ma, 0.0005);
-
-		    fixed3 albedoX = (splat0.rgb * b0 + splat1.rgb * b1 + splat2.rgb * b2 + splat3.rgb * b3) / (b0 + b1 + b2 + b3);
-			float3 normalX = UnpackNormal((tex2D (_Normal0, uv0) * b0 + tex2D (_Normal1, uv1) * b1 + tex2D (_Normal2, uv2) * b2 + tex2D (_Normal3, uv3) * b3) / (b0 + b1 + b2 + b3)) * abs(n.x);
-
-		// CALCULATE Y
-			uv = IN.worldPos.xz;
-			uv0 = uv0 = uv * _Scale.x;
-			uv1 = uv1 = uv * _Scale.y;
-			uv2 = uv2 = uv * _Scale.z;
-			uv3 = uv3 = uv * _Scale.w;
-			
-			splat0 = tex2D(_Splat0, uv0);
-			splat1 = tex2D(_Splat1, uv1);
-			splat2 = tex2D(_Splat2, uv2);
-			splat3 = tex2D(_Splat3, uv3);
-			
-			ma = max(max(splat0.a * splat_control.r, splat1.a * splat_control.g), max(splat2.a * splat_control.b, splat3.a * splat_control.a)) - _Depth;
-		    b0 = max(splat0.a * splat_control.r - ma, 0.0005);
-		    b1 = max(splat1.a * splat_control.g - ma, 0.0005);
-		    b2 = max(splat2.a * splat_control.b - ma, 0.0005);
-		    b3 = max(splat3.a * splat_control.a - ma, 0.0005);
-
-		    fixed3 albedoY = (splat0.rgb * b0 + splat1.rgb * b1 + splat2.rgb * b2 + splat3.rgb * b3) / (b0 + b1 + b2 + b3);
-			float3 normalY = UnpackNormal((tex2D (_Normal0, uv0) * b0 + tex2D (_Normal1, uv1) * b1 + tex2D (_Normal2, uv2) * b2 + tex2D (_Normal3, uv3) * b3) / (b0 + b1 + b2 + b3)) * abs(n.y);
-
-		// CALCULATE Z
-			uv = IN.worldPos.xy;
-			uv.x *= -1;
-			uv0 = uv0 = uv * _Scale.x;
-			uv1 = uv1 = uv * _Scale.y;
-			uv2 = uv2 = uv * _Scale.z;
-			uv3 = uv3 = uv * _Scale.w;
-			
-			splat0 = tex2D(_Splat0, uv0);
-			splat1 = tex2D(_Splat1, uv1);
-			splat2 = tex2D(_Splat2, uv2);
-			splat3 = tex2D(_Splat3, uv3);
-
-			ma = max(max(splat0.a * splat_control.r, splat1.a * splat_control.g), max(splat2.a * splat_control.b, splat3.a * splat_control.a)) - _Depth;
-		    b0 = max(splat0.a * splat_control.r - ma, 0.0005);
-		    b1 = max(splat1.a * splat_control.g - ma, 0.0005);
-		    b2 = max(splat2.a * splat_control.b - ma, 0.0005);
-		    b3 = max(splat3.a * splat_control.a - ma, 0.0005);
-
-		    fixed3 albedoZ = (splat0.rgb * b0 + splat1.rgb * b1 + splat2.rgb * b2 + splat3.rgb * b3) / (b0 + b1 + b2 + b3);
-			float3 normalZ = UnpackNormal((tex2D (_Normal0, uv0) * b0 + tex2D (_Normal1, uv1) * b1 + tex2D (_Normal2, uv2) * b2 + tex2D (_Normal3, uv3) * b3) / (b0 + b1 + b2 + b3)) * abs(n.y);
-			normalZ.x *= -1;
-
-		// COMBINE
-		    o.Albedo = albedoZ;
-			o.Albedo = lerp(o.Albedo, albedoY, projNormal.y);
-			o.Albedo = lerp(o.Albedo, albedoX, projNormal.x);
+		    o.Albedo = colorZ;
+			o.Albedo = lerp(o.Albedo, colorY, projNormal.y);
+			o.Albedo = lerp(o.Albedo, colorX, projNormal.x);
 
 		    float3 normal = normalZ;
 			normal = lerp(normal, normalY, projNormal.y);
