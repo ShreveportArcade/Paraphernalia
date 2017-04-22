@@ -23,7 +23,7 @@ using System.Collections;
 public class VerticalRendererOrdering : VerticalOrdering {
 
 	[SerializeField, HideInInspector]private Renderer _renderer;
-	public Renderer renderer {
+	new public Renderer renderer {
 		get {
 			if (_renderer == null) {
 				_renderer = GetComponent<Renderer>();

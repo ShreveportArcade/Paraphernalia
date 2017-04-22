@@ -26,7 +26,7 @@ public class SortingLayer : MonoBehaviour {
 	[SortingLayer] public string sortingLayerName = "Default";
 
 	[SerializeField, HideInInspector]private Renderer _renderer;
-	public Renderer renderer {
+	new public Renderer renderer {
 		get {
 			if (_renderer == null) {
 				_renderer = GetComponent<Renderer>();

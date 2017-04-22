@@ -1,3 +1,5 @@
+// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
 Shader "Flow" {
 	Properties {
 		_MainTex ("Sprite Texture", 2D) = "white" {}
@@ -47,7 +49,7 @@ Shader "Flow" {
 
 			v2f vert(appdata_t IN) {
 				v2f OUT;
-				OUT.vertex = mul(UNITY_MATRIX_MVP, IN.vertex);
+				OUT.vertex = UnityObjectToClipPos(IN.vertex);
 				OUT.texcoord = TRANSFORM_TEX(IN.texcoord, _MainTex);;
 				OUT.color = IN.color;
 				#ifdef PIXELSNAP_ON

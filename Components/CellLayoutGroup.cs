@@ -34,7 +34,6 @@ public class CellLayoutGroup : LayoutGroup {
 
         float width = (rectTransform.rect.width - padding.horizontal - spacing.x * (columns - 1)) / (float)columns;
         for (int i = 0; i < rectChildren.Count; i++) {
-            int index = i % (rows * columns);
             float x = padding.left + (width + spacing.x) * (i % columns);
             CellLayoutElement cell = rectChildren[i].gameObject.GetComponent<CellLayoutElement>();
             if (cell == null) SetChildAlongAxis(rectChildren[i], 0, x, width);

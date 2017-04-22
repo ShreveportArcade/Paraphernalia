@@ -59,7 +59,7 @@ class CubemapTools : Editor {
 	        TextureImporter importer = (TextureImporter)TextureImporter.GetAtPath(assetPath);
 	        importer.maxTextureSize = 2048;
 	        importer.isReadable = true;
-	        importer.textureFormat = TextureImporterFormat.AutomaticTruecolor;
+	        importer.textureCompression = TextureImporterCompression.Uncompressed;
 	           
 	        AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate);
 			
