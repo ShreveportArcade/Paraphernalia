@@ -3,7 +3,7 @@
 Shader "Terrain/Triplanar" {
 	Properties {
 		_Scale ("Texture Scales", Vector) = (1,1,1,1)
-		_Depth ("Depth", Range(0.0, 1.0)) = 0.2
+		_Depth ("Depth", Range(0.00001, 1.0)) = 0.2
 
 		// set by terrain engine
 		[HideInInspector] _Control ("Control (RGBA)", 2D) = "red" {}
