@@ -84,7 +84,10 @@ public class CameraController : MonoBehaviour {
 				return;
 			}
 		}
-		if (bounded) transform.position = camera.GetBoundedPos(bounds);
+		if (bounded) {
+			if (boundsObject) bounds = boundsObject.RendererBounds();
+			transform.position = camera.GetBoundedPos(bounds);
+		}
 	}
 
 	void UpdatePosition () {
@@ -123,6 +126,11 @@ public class CameraController : MonoBehaviour {
 			);
 			if (zone == null) desiredPosition = targetPosition;
 			else desiredPosition = zone.position.Lerp3(targetPosition, zone.axisLock);
+		}
+
+		if (bounded) {
+			if (boundsObject) bounds = boundsObject.RendererBounds();
+			desiredPosition = camera.GetBoundedPos(bounds, desiredPosition);
 		}
 
 		return desiredPosition;

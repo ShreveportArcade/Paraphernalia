@@ -169,6 +169,20 @@ public class AudioManager : MonoBehaviour {
 		if (currentSource != null) currentSource.Stop();
 	}
 
+	public static void FadeOutMusic (float fadeDuration) {
+		instance.StartCoroutine("FadeOutMusicCoroutine", fadeDuration);
+	}
+
+	IEnumerator FadeOutMusicCoroutine (float fadeDuration) {
+		AudioSource source = musicSources[currentMusicSource];
+		
+		for (float t = 0; t < fadeDuration; t += Time.deltaTime) {
+			float frac = t / fadeDuration;
+			source.volume = (1 - frac);
+			yield return new WaitForEndOfFrame();
+		}
+	}
+
 	public static void CrossfadeMusic(AudioClip clip, float fadeDuration) {
 		if (clip == null || instance.musicSources == null) return;
 		AudioSource nextSource = instance.musicSources[(instance.currentMusicSource + 1) % 2];
