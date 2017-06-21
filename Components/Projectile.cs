@@ -44,7 +44,7 @@ public class Projectile : MonoBehaviour {
 	}
 
 	public void Fire (Vector3 direction, Vector3 gunVelocity = default(Vector3)) {
-		transform.parent = null;
+		transform.parent = Spawner.root;
 		AudioManager.PlayEffect(onFireAudioClipName, audioMixerName, transform, Random.Range(0.7f, 1), Random.Range(0.95f, 1.05f));
 		ParticleManager.Play(onFireParticleSystemName, transform.position, direction, size * size);
 		if (orientToVelocity) transform.right = direction;

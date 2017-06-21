@@ -5,32 +5,20 @@ using Paraphernalia.Extensions;
 
 public class ProjectileLauncher : MonoBehaviour {
 
-	public Projectile projectilePrefab;
+	public string projectileName;
 	public float launchDelay = 1.5f;
 	public bool showProjectileOnReady = true;
 	public float kickbackForce = 1f;
 	public int initialPoolSize = 10;
 
 	private float launchTime;
-	private List<Projectile> projectilePool = new List<Projectile>();
 
 	void Awake () {
 		launchTime = -launchDelay;
-		for (int i = 0; i < initialPoolSize; i++) {
-			Projectile projectile = projectilePrefab.Instantiate() as Projectile;
-			projectile.gameObject.SetActive(false);
-			projectilePool.Add(projectile);
-		}
 	}
 
 	Projectile GetNextProjectile () {
-		Projectile projectile = projectilePool.Find((p) => !p.gameObject.activeSelf);
-		
-		if (projectile == null) {
-			projectile = projectilePrefab.Instantiate() as Projectile;
-			projectilePool.Add(projectile);
-		}
-		
+		Projectile projectile = Spawner.Spawn(projectileName).GetComponent<Projectile>();
 		return projectile;
 	}
 
