@@ -90,6 +90,11 @@ public class CameraController : MonoBehaviour {
 		}
 	}
 
+	public static void SetOffset(Vector3 offset) {
+		instance.offset = offset;
+		instance.SetPosition();
+	}
+
 	void UpdatePosition () {
 		if (target != null && camera != null) {
 
