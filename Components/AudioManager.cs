@@ -68,9 +68,10 @@ public class AudioManager : MonoBehaviour {
 			CreateSFXPool();
 			CreateMusicPool();
 			if (autoStartMusic) PlayMusic();
+
+			if (!mixers.Contains(musicMixer)) mixers.Add(musicMixer);
 		}
 		else if (_instance != this) {
-			Debug.LogWarning("AudioManager already initialized, destroying duplicate");
 			GameObject.Destroy(this);
 		}
 	}
@@ -126,10 +127,10 @@ public class AudioManager : MonoBehaviour {
 		if (clip == null) return;
 		int id = clip.GetInstanceID();
 		if (instance.lastPlayed.ContainsKey(id) && 
-			Time.time - instance.lastPlayed[id] < instance.minPlayInterval) {
+			Time.realtimeSinceStartup - instance.lastPlayed[id] < instance.minPlayInterval) {
 			return;
 		}
-		instance.lastPlayed[id] = Time.time;
+		instance.lastPlayed[id] = Time.realtimeSinceStartup;
 		AudioSource source = instance.sfxSources[instance.currentSFXSource];
 		if (t != null) source.gameObject.transform.position = t.position;
 		source.pitch = pitch;
@@ -181,6 +182,9 @@ public class AudioManager : MonoBehaviour {
 			source.volume = (1 - frac);
 			yield return new WaitForEndOfFrame();
 		}
+
+		source.volume = 0;
+		source.Stop();
 	}
 
 	public static void CrossfadeMusic(AudioClip clip, float fadeDuration) {
