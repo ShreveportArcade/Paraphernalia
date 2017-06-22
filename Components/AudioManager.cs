@@ -31,7 +31,7 @@ public class AudioManager : MonoBehaviour {
 	public AudioMixerGroup musicMixer;
 	public AudioMixerGroup defaultSFXMixer;
 
-	[Range(0,10)] public int sfxSourcesCount = 5;
+	[Range(0,20)] public int sfxSourcesCount = 5;
 	private int currentSFXSource = 0;
 	private AudioSource[] sfxSources;
 
@@ -72,6 +72,9 @@ public class AudioManager : MonoBehaviour {
 			if (!mixers.Contains(musicMixer)) mixers.Add(musicMixer);
 		}
 		else if (_instance != this) {
+			if (autoStartMusic) {
+				CrossfadeMusic(music, 0.3f);
+			}
 			GameObject.Destroy(this);
 		}
 	}
@@ -132,6 +135,14 @@ public class AudioManager : MonoBehaviour {
 		}
 		instance.lastPlayed[id] = Time.realtimeSinceStartup;
 		AudioSource source = instance.sfxSources[instance.currentSFXSource];
+		if (source.isPlaying) {
+			for (int i = 0; i < instance.sfxSourcesCount; i++) {
+				instance.currentSFXSource = (instance.currentSFXSource + 1) % instance.sfxSourcesCount;
+				source = instance.sfxSources[instance.currentSFXSource];
+				if (!source.isPlaying) break;
+			}
+		}
+
 		if (t != null) source.gameObject.transform.position = t.position;
 		source.pitch = pitch;
 		source.clip = clip;
@@ -146,6 +157,12 @@ public class AudioManager : MonoBehaviour {
 		source.maxDistance = maxDist;
 		source.Play();
 		instance.currentSFXSource = (instance.currentSFXSource + 1) % instance.sfxSourcesCount;
+	}
+
+	public static void StopEffects() {
+		foreach (AudioSource source in instance.sfxSources) {
+			source.Stop();
+		}
 	}
 
 	public static void PlayMusic (AudioClip clip) {

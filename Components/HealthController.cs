@@ -27,7 +27,19 @@ public class HealthController : MonoBehaviour {
 	public string destructionParticlesName;
 	public string destructionSpawnName;
 
-	public float maxHealth = 3;
+	public float _maxHealth = 3;
+	public float maxHealth {
+		get { return _maxHealth; }
+		set {
+			if (value != _maxHealth) {
+				float prevMax = _maxHealth;
+				_maxHealth = value;
+				float diff = _maxHealth - prevMax;
+				if (health < _maxHealth) health += diff;
+				else if (health > _maxHealth) health = maxHealth;
+			}
+		}
+	}
 	public float destructionHealth = -1;
 	private float _health = -1;
 	public float health {
