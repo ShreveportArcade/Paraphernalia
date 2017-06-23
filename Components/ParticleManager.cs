@@ -30,7 +30,7 @@ public class ParticleManager : MonoBehaviour {
 	public static ParticleManager instance;
 
 	private Dictionary<string, ParticleSystem> prefabs = new Dictionary<string, ParticleSystem>();
-	private Dictionary<string, ParticleSystem[]> pools = new Dictionary<string, ParticleSystem[]>();
+	private Dictionary<string, List<ParticleSystem>> pools = new Dictionary<string, List<ParticleSystem>>();
 	private Dictionary<string, int> currentIndices = new Dictionary<string, int>();
 
 	void Awake () {
@@ -46,13 +46,13 @@ public class ParticleManager : MonoBehaviour {
 	void CreateParticleSystemPool () {
 		for (int prefabIndex = 0; prefabIndex < particlePrefabs.Length; prefabIndex++) {
 			string name = particlePrefabs[prefabIndex].name;
-			pools[name] = new ParticleSystem[poolSize];
+			pools[name] = new List<ParticleSystem>();
 			currentIndices[name] = 0;
 			prefabs[name] = particlePrefabs[prefabIndex];
 			for (int poolIndex = 0; poolIndex < poolSize; poolIndex++) {
 				ParticleSystem particleSystem = particlePrefabs[prefabIndex].Instantiate() as ParticleSystem;
 				particleSystem.transform.parent = transform;
-				pools[name][poolIndex] = particleSystem;
+				pools[name].Add(particleSystem);
 			}
 		}
 	}
@@ -76,7 +76,9 @@ public class ParticleManager : MonoBehaviour {
 	public static ParticleSystem Play(string name, Vector3 position, Vector3 normal, float size, Color? color = null, Transform t = null) {
 		if (instance == null || !instance.currentIndices.ContainsKey(name)) return null;
 		int index = instance.currentIndices[name];
-		ParticleSystem particleSystem = instance.pools[name][index];
+		List<ParticleSystem> pool = instance.pools[name];
+		pool.RemoveAll((i) => i == null);
+		ParticleSystem particleSystem = pool[index];
 		if (t != null) particleSystem.transform.parent = t;
 		particleSystem.transform.position = position;
 		particleSystem.transform.localScale = Vector3.one * size;
