@@ -70,9 +70,7 @@ public class Projectile : MonoBehaviour {
 	}
 
 	void OnTriggerEnter2D (Collider2D collider) {
-		// there has to be a more accurate way to do get a contact point with triggers
-		Vector3 point = (transform.position + collider.transform.position) * 0.5f;
-		OnHit(point, (transform.position - collider.transform.position).normalized);
+		OnHit(transform.position, (transform.position - collider.transform.position).normalized);
 	}
 
 	void OnCollisionEnter2D (Collision2D collision) {
