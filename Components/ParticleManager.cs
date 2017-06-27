@@ -75,9 +75,9 @@ public class ParticleManager : MonoBehaviour {
 
 	public static ParticleSystem Play(string name, Vector3 position, Vector3 normal, float size, Color? color = null, Transform t = null) {
 		if (instance == null || !instance.currentIndices.ContainsKey(name)) return null;
-		int index = instance.currentIndices[name];
 		List<ParticleSystem> pool = instance.pools[name];
 		pool.RemoveAll((i) => i == null);
+		int index = instance.currentIndices[name];
 		ParticleSystem particleSystem = pool[index];
 		if (t != null) particleSystem.transform.parent = t;
 		particleSystem.transform.position = position;
