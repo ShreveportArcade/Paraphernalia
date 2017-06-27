@@ -57,6 +57,14 @@ public class ParticleManager : MonoBehaviour {
 		}
 	}
 
+	void RefreshPool(string name) {
+		for (int poolIndex = pools[name].Count; poolIndex < poolSize; poolIndex++) {
+			ParticleSystem particleSystem = prefabs[name].Instantiate() as ParticleSystem;
+			particleSystem.transform.parent = transform;
+			pools[name].Add(particleSystem);
+		}
+	}
+
 	public static ParticleSystem Play(string name, Transform t) {
 		return Play(name, t.position, Vector3.up, 1, null, t);
 	}
@@ -78,6 +86,8 @@ public class ParticleManager : MonoBehaviour {
 		List<ParticleSystem> pool = instance.pools[name];
 		pool.RemoveAll((i) => i == null);
 		int index = instance.currentIndices[name];
+		if (index >= pool.Count) instance.RefreshPool(name);
+		
 		ParticleSystem particleSystem = pool[index];
 		if (t != null) particleSystem.transform.parent = t;
 		particleSystem.transform.position = position;
