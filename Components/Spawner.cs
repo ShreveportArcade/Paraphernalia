@@ -31,7 +31,7 @@ public class Spawner : MonoBehaviour {
 		}
 	}
 
-	public static GameObject Spawn(string name) {
+	public static GameObject Spawn(string name, bool active = true) {
 		if (instance == null || 
 			string.IsNullOrEmpty(name) ||
 			!instance.poolsDict.ContainsKey(name) ||
@@ -46,11 +46,11 @@ public class Spawner : MonoBehaviour {
 		GameObject g = pool.Find((i) => !i.activeSelf);
 		if (g == null) {
 			g = instance.prefabsDict[name].Instantiate() as GameObject;
-			g.transform.parent = instance.transform;
+			g.transform.SetParent(instance.transform);
 			pool.Add(g);
 		}
 		
-		g.SetActive(true);
+		g.SetActive(active);
 		
 		return g;
 	}
