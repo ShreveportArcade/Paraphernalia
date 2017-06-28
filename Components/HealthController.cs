@@ -104,6 +104,7 @@ public class HealthController : MonoBehaviour {
 	}
 
 	public void TakeDamage(float damage, bool allowRecovery = true) {
+		if (!enabled) return;
 		health -= damage;
 	}
 }
