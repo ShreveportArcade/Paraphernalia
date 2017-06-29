@@ -53,9 +53,11 @@ public class AudioManager : MonoBehaviour {
 	}
 
 	public static AudioSource currentSource {
-		get {
-			return instance.musicSources[instance.currentMusicSource];
-		}
+		get { return instance.musicSources[instance.currentMusicSource]; }
+	}
+
+	public static AudioClip currentMusic {
+		get { return currentSource.clip; }
 	}
 
 	public float minPlayInterval = 0.01f;
@@ -194,7 +196,7 @@ public class AudioManager : MonoBehaviour {
 	IEnumerator FadeOutMusicCoroutine (float fadeDuration) {
 		AudioSource source = musicSources[currentMusicSource];
 		
-		for (float t = 0; t < fadeDuration; t += Time.deltaTime) {
+		for (float t = 0; t < fadeDuration; t += Time.unscaledDeltaTime) {
 			float frac = t / fadeDuration;
 			source.volume = (1 - frac);
 			yield return new WaitForEndOfFrame();
@@ -204,13 +206,17 @@ public class AudioManager : MonoBehaviour {
 		source.Stop();
 	}
 
-	public static void CrossfadeMusic(AudioClip clip, float fadeDuration) {
+	static Coroutine crossfadeCoroutine;
+	public static void CrossfadeMusic(AudioClip clip, float fadeDuration, bool looped = true) {
 		if (clip == null || instance.musicSources == null) return;
 		AudioSource nextSource = instance.musicSources[(instance.currentMusicSource + 1) % 2];
 		if (currentSource.clip == clip) return;
-		instance.StopCoroutine("CrossfadeMusicCoroutine");
+		if (crossfadeCoroutine != null) instance.StopCoroutine(crossfadeCoroutine);
 		nextSource.clip = clip;
-		instance.StartCoroutine("CrossfadeMusicCoroutine", fadeDuration);
+		nextSource.loop = looped;
+		crossfadeCoroutine = instance.StartCoroutine(
+			instance.CrossfadeMusicCoroutine(fadeDuration)
+		);
 	}
 
 	IEnumerator CrossfadeMusicCoroutine(float fadeDuration) {
@@ -218,13 +224,13 @@ public class AudioManager : MonoBehaviour {
 		currentMusicSource = (currentMusicSource + 1) % 2;
 		AudioSource sourceB = musicSources[currentMusicSource];
 		sourceB.Play();
-
+		
 		float t = 0;
 		while (t < fadeDuration) {
 			float frac = t / fadeDuration;
 			sourceA.volume = (1 - frac);
 			sourceB.volume = frac;
-			t += Time.deltaTime;
+			t += Time.unscaledDeltaTime;
 			yield return new WaitForEndOfFrame();
 		}
 		
