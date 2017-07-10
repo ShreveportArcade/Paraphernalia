@@ -60,7 +60,7 @@ public class CameraController : MonoBehaviour {
 	}
 
 	void Start () {
-		if (instance.defaultMusic != null) AudioManager.CrossfadeMusic(instance.defaultMusic, 0.5f);
+		if (instance.defaultMusic != null && Application.isPlaying) AudioManager.CrossfadeMusic(instance.defaultMusic, 0.5f);
 	}
 
 	void LateUpdate () {
