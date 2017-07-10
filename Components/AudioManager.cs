@@ -238,5 +238,26 @@ public class AudioManager : MonoBehaviour {
 		sourceA.Stop();
 		sourceB.volume = 1;
 	}
+
+	static Coroutine fadeVolumeCoroutine;
+	public static void FadeMusicVolume(float volume, float fadeDuration) {
+		if (fadeVolumeCoroutine != null) instance.StopCoroutine(fadeVolumeCoroutine);
+		fadeVolumeCoroutine = instance.StartCoroutine(
+			instance.FadeMusicVolumeCoroutine(volume, fadeDuration)
+		);
+	}
+
+	IEnumerator FadeMusicVolumeCoroutine(float volume, float fadeDuration) {
+		AudioSource source = musicSources[currentMusicSource];
+		float startVolume = source.volume;
+
+		float t = 0;
+		while (t < fadeDuration) {
+			float frac = t / fadeDuration;
+			source.volume = Mathf.Lerp(startVolume, volume, frac);
+			t += Time.unscaledDeltaTime;
+			yield return new WaitForEndOfFrame();
+		}
+	}
 }
 }
