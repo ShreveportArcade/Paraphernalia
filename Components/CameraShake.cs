@@ -23,6 +23,11 @@ public class CameraShake : MonoBehaviour {
 		s.Shake();
 	}
 
+	public static void MainCameraShake (float magnitude, float duration) {
+		CameraShake s = Camera.main.gameObject.GetOrAddComponent<CameraShake>();
+		s.Shake(magnitude, duration);
+	}
+
 	[ContextMenu("Shake")]
 	public void Shake () {
 		StopCoroutine("ShakeCoroutine");
