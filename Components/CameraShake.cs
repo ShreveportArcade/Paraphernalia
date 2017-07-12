@@ -47,7 +47,7 @@ public class CameraShake : MonoBehaviour {
 			float m = magnitude * (1 - t / duration);
 			transform.localPosition = (Random.insideUnitSphere * m).ClipToExtents(extents);
 			yield return new WaitForEndOfFrame();
-			t += Time.deltaTime;
+			t += Time.unscaledDeltaTime;
 		}
 		transform.localPosition = Vector3.zero;
 	}
