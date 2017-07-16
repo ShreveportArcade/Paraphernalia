@@ -72,7 +72,8 @@ public class CameraController : MonoBehaviour {
 	}
 
 	void SetPosition () {
-		GameObject go = GameObject.FindWithTag("Player");
+		GameObject go = GameObject.FindWithTag(targetTag);
+		if (go == null) return;
 		Collider2D[] colliders = Physics2D.OverlapPointAll(go.transform.position);
 
 		if (target == null) target = go.transform;
