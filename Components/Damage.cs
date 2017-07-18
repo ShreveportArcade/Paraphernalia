@@ -31,6 +31,6 @@ public class Damage : MonoBehaviour {
 		if (ignoreTags.Contains(collision.gameObject.tag)) return;
 		HealthController h = collision.gameObject.GetComponent<HealthController>();
 		if (h == null && affectAncestor) h = collision.gameObject.GetAncestorComponent<HealthController>();
-		if (h != null) h.TakeDamage(GetDamage(collision.relativeVelocity, collision.contacts[0].normal));
+		if (h != null && h.enabled) h.TakeDamage(GetDamage(collision.relativeVelocity, collision.contacts[0].normal));
 	}		
 }
