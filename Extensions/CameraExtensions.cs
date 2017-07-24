@@ -22,10 +22,12 @@ using System.Collections;
 namespace Paraphernalia.Extensions {
 public static class CameraExtensions {
 
-	public static Vector3 GetBoundedPos (this Camera camera, Bounds bounds) {
+	public static Vector3 GetBoundedPos (this Camera camera, Bounds bounds, Vector3? position = null) {
 		Vector3 pos = camera.transform.position;
-		Vector3 topRight = camera.ViewportToWorldPoint(new Vector3(1, 1, 0));
-		Vector3 bottomLeft = camera.ViewportToWorldPoint(new Vector3(0, 0, 0));
+		if (position != null) pos = position.Value;
+		
+		Vector3 topRight = camera.ViewportToWorldPoint(new Vector3(1, 1, -pos.z));
+		Vector3 bottomLeft = camera.ViewportToWorldPoint(new Vector3(0, 0, -pos.z));
 		Vector3 topRightDiff = topRight - bounds.max;
 		Vector3 bottomLeftDiff = bottomLeft - bounds.min;
 		Vector3 size = topRight - bottomLeft;

@@ -6,6 +6,12 @@ using Paraphernalia.Extensions;
 public class Spawner : MonoBehaviour {
 
 	public static Spawner instance;
+	public static Transform root {
+		get {
+			if (instance == null) return null;
+			return instance.gameObject.transform;
+		}
+	}
 
 	public GameObject[] prefabs;
 
@@ -25,7 +31,7 @@ public class Spawner : MonoBehaviour {
 		}
 	}
 
-	public static GameObject Spawn(string name) {
+	public static GameObject Spawn(string name, bool active = true) {
 		if (instance == null || 
 			string.IsNullOrEmpty(name) ||
 			!instance.poolsDict.ContainsKey(name) ||
@@ -34,13 +40,17 @@ public class Spawner : MonoBehaviour {
 			return null;
 		}
 
+
 		List<GameObject> pool = instance.poolsDict[name];
+		pool.RemoveAll((i) => i == null);
 		GameObject g = pool.Find((i) => !i.activeSelf);
 		if (g == null) {
 			g = instance.prefabsDict[name].Instantiate() as GameObject;
+			g.transform.SetParent(instance.transform);
+			pool.Add(g);
 		}
 		
-		g.SetActive(true);
+		g.SetActive(active);
 		
 		return g;
 	}

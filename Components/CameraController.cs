@@ -60,7 +60,7 @@ public class CameraController : MonoBehaviour {
 	}
 
 	void Start () {
-		if (instance.defaultMusic != null) AudioManager.CrossfadeMusic(instance.defaultMusic, 0.5f);
+		if (instance.defaultMusic != null && Application.isPlaying) AudioManager.CrossfadeMusic(instance.defaultMusic, 0.5f);
 	}
 
 	void LateUpdate () {
@@ -72,7 +72,8 @@ public class CameraController : MonoBehaviour {
 	}
 
 	void SetPosition () {
-		GameObject go = GameObject.FindWithTag("Player");
+		GameObject go = GameObject.FindWithTag(targetTag);
+		if (go == null) return;
 		Collider2D[] colliders = Physics2D.OverlapPointAll(go.transform.position);
 
 		if (target == null) target = go.transform;
@@ -84,7 +85,15 @@ public class CameraController : MonoBehaviour {
 				return;
 			}
 		}
-		if (bounded) transform.position = camera.GetBoundedPos(bounds);
+		if (bounded) {
+			if (boundsObject) bounds = boundsObject.RendererBounds();
+			transform.position = camera.GetBoundedPos(bounds);
+		}
+	}
+
+	public static void SetOffset(Vector3 offset) {
+		instance.offset = offset;
+		instance.SetPosition();
 	}
 
 	void UpdatePosition () {
@@ -123,6 +132,11 @@ public class CameraController : MonoBehaviour {
 			);
 			if (zone == null) desiredPosition = targetPosition;
 			else desiredPosition = zone.position.Lerp3(targetPosition, zone.axisLock);
+		}
+
+		if (bounded) {
+			if (boundsObject) bounds = boundsObject.RendererBounds();
+			desiredPosition = camera.GetBoundedPos(bounds, desiredPosition);
 		}
 
 		return desiredPosition;

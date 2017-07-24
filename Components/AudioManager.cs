@@ -31,7 +31,7 @@ public class AudioManager : MonoBehaviour {
 	public AudioMixerGroup musicMixer;
 	public AudioMixerGroup defaultSFXMixer;
 
-	[Range(0,10)] public int sfxSourcesCount = 5;
+	[Range(0,20)] public int sfxSourcesCount = 5;
 	private int currentSFXSource = 0;
 	private AudioSource[] sfxSources;
 
@@ -53,9 +53,11 @@ public class AudioManager : MonoBehaviour {
 	}
 
 	public static AudioSource currentSource {
-		get {
-			return instance.musicSources[instance.currentMusicSource];
-		}
+		get { return instance.musicSources[instance.currentMusicSource]; }
+	}
+
+	public static AudioClip currentMusic {
+		get { return currentSource.clip; }
 	}
 
 	public float minPlayInterval = 0.01f;
@@ -68,9 +70,13 @@ public class AudioManager : MonoBehaviour {
 			CreateSFXPool();
 			CreateMusicPool();
 			if (autoStartMusic) PlayMusic();
+
+			if (!mixers.Contains(musicMixer)) mixers.Add(musicMixer);
 		}
 		else if (_instance != this) {
-			Debug.LogWarning("AudioManager already initialized, destroying duplicate");
+			if (autoStartMusic) {
+				CrossfadeMusic(music, 0.3f);
+			}
 			GameObject.Destroy(this);
 		}
 	}
@@ -126,11 +132,19 @@ public class AudioManager : MonoBehaviour {
 		if (clip == null) return;
 		int id = clip.GetInstanceID();
 		if (instance.lastPlayed.ContainsKey(id) && 
-			Time.time - instance.lastPlayed[id] < instance.minPlayInterval) {
+			Time.realtimeSinceStartup - instance.lastPlayed[id] < instance.minPlayInterval) {
 			return;
 		}
-		instance.lastPlayed[id] = Time.time;
+		instance.lastPlayed[id] = Time.realtimeSinceStartup;
 		AudioSource source = instance.sfxSources[instance.currentSFXSource];
+		if (source.isPlaying) {
+			for (int i = 0; i < instance.sfxSourcesCount; i++) {
+				instance.currentSFXSource = (instance.currentSFXSource + 1) % instance.sfxSourcesCount;
+				source = instance.sfxSources[instance.currentSFXSource];
+				if (!source.isPlaying) break;
+			}
+		}
+
 		if (t != null) source.gameObject.transform.position = t.position;
 		source.pitch = pitch;
 		source.clip = clip;
@@ -145,6 +159,12 @@ public class AudioManager : MonoBehaviour {
 		source.maxDistance = maxDist;
 		source.Play();
 		instance.currentSFXSource = (instance.currentSFXSource + 1) % instance.sfxSourcesCount;
+	}
+
+	public static void StopEffects() {
+		foreach (AudioSource source in instance.sfxSources) {
+			source.Stop();
+		}
 	}
 
 	public static void PlayMusic (AudioClip clip) {
@@ -169,13 +189,37 @@ public class AudioManager : MonoBehaviour {
 		if (currentSource != null) currentSource.Stop();
 	}
 
-	public static void CrossfadeMusic(AudioClip clip, float fadeDuration) {
+	public static void FadeOutMusic (float fadeDuration) {
+		instance.StartCoroutine("FadeOutMusicCoroutine", fadeDuration);
+	}
+
+	IEnumerator FadeOutMusicCoroutine (float fadeDuration) {
+		AudioSource source = musicSources[currentMusicSource];
+		
+		for (float t = 0; t < fadeDuration; t += Time.unscaledDeltaTime) {
+			float frac = t / fadeDuration;
+			source.volume = (1 - frac);
+			yield return new WaitForEndOfFrame();
+		}
+
+		source.volume = 0;
+		source.Stop();
+	}
+
+	static Coroutine crossfadeCoroutine;
+	public static void CrossfadeMusic(AudioClip clip, float fadeDuration, bool looped = true) {
 		if (clip == null || instance.musicSources == null) return;
 		AudioSource nextSource = instance.musicSources[(instance.currentMusicSource + 1) % 2];
-		if (currentSource.clip == clip) return;
-		instance.StopCoroutine("CrossfadeMusicCoroutine");
+		if (currentSource.clip == clip) {
+			FadeMusicVolume(1, fadeDuration);
+			return;
+		}
+		if (crossfadeCoroutine != null) instance.StopCoroutine(crossfadeCoroutine);
 		nextSource.clip = clip;
-		instance.StartCoroutine("CrossfadeMusicCoroutine", fadeDuration);
+		nextSource.loop = looped;
+		crossfadeCoroutine = instance.StartCoroutine(
+			instance.CrossfadeMusicCoroutine(fadeDuration)
+		);
 	}
 
 	IEnumerator CrossfadeMusicCoroutine(float fadeDuration) {
@@ -183,19 +227,42 @@ public class AudioManager : MonoBehaviour {
 		currentMusicSource = (currentMusicSource + 1) % 2;
 		AudioSource sourceB = musicSources[currentMusicSource];
 		sourceB.Play();
-
+		
 		float t = 0;
 		while (t < fadeDuration) {
 			float frac = t / fadeDuration;
 			sourceA.volume = (1 - frac);
 			sourceB.volume = frac;
-			t += Time.deltaTime;
+			t += Time.unscaledDeltaTime;
 			yield return new WaitForEndOfFrame();
 		}
 		
 		sourceA.volume = 0;
 		sourceA.Stop();
 		sourceB.volume = 1;
+	}
+
+	static Coroutine fadeVolumeCoroutine;
+	public static void FadeMusicVolume(float volume, float fadeDuration) {
+		if (fadeVolumeCoroutine != null) instance.StopCoroutine(fadeVolumeCoroutine);
+		fadeVolumeCoroutine = instance.StartCoroutine(
+			instance.FadeMusicVolumeCoroutine(volume, fadeDuration)
+		);
+	}
+
+	IEnumerator FadeMusicVolumeCoroutine(float volume, float fadeDuration) {
+		AudioSource source = musicSources[currentMusicSource];
+		if (!source.isPlaying) source.Play();
+
+		float startVolume = source.volume;
+
+		float t = 0;
+		while (t < fadeDuration) {
+			float frac = t / fadeDuration;
+			source.volume = Mathf.Lerp(startVolume, volume, frac);
+			t += Time.unscaledDeltaTime;
+			yield return new WaitForEndOfFrame();
+		}
 	}
 }
 }

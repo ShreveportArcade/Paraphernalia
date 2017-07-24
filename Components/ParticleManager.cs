@@ -30,7 +30,7 @@ public class ParticleManager : MonoBehaviour {
 	public static ParticleManager instance;
 
 	private Dictionary<string, ParticleSystem> prefabs = new Dictionary<string, ParticleSystem>();
-	private Dictionary<string, ParticleSystem[]> pools = new Dictionary<string, ParticleSystem[]>();
+	private Dictionary<string, List<ParticleSystem>> pools = new Dictionary<string, List<ParticleSystem>>();
 	private Dictionary<string, int> currentIndices = new Dictionary<string, int>();
 
 	void Awake () {
@@ -46,14 +46,22 @@ public class ParticleManager : MonoBehaviour {
 	void CreateParticleSystemPool () {
 		for (int prefabIndex = 0; prefabIndex < particlePrefabs.Length; prefabIndex++) {
 			string name = particlePrefabs[prefabIndex].name;
-			pools[name] = new ParticleSystem[poolSize];
+			pools[name] = new List<ParticleSystem>();
 			currentIndices[name] = 0;
 			prefabs[name] = particlePrefabs[prefabIndex];
 			for (int poolIndex = 0; poolIndex < poolSize; poolIndex++) {
 				ParticleSystem particleSystem = particlePrefabs[prefabIndex].Instantiate() as ParticleSystem;
 				particleSystem.transform.parent = transform;
-				pools[name][poolIndex] = particleSystem;
+				pools[name].Add(particleSystem);
 			}
+		}
+	}
+
+	void RefreshPool(string name) {
+		for (int poolIndex = pools[name].Count; poolIndex < poolSize; poolIndex++) {
+			ParticleSystem particleSystem = prefabs[name].Instantiate() as ParticleSystem;
+			particleSystem.transform.parent = transform;
+			pools[name].Add(particleSystem);
 		}
 	}
 
@@ -75,38 +83,23 @@ public class ParticleManager : MonoBehaviour {
 
 	public static ParticleSystem Play(string name, Vector3 position, Vector3 normal, float size, Color? color = null, Transform t = null) {
 		if (instance == null || !instance.currentIndices.ContainsKey(name)) return null;
+		List<ParticleSystem> pool = instance.pools[name];
+		pool.RemoveAll((i) => i == null);
 		int index = instance.currentIndices[name];
-		ParticleSystem particleSystem = instance.pools[name][index];
+		if (index >= pool.Count) instance.RefreshPool(name);
+		
+		ParticleSystem particleSystem = pool[index];
 		if (t != null) particleSystem.transform.parent = t;
 		particleSystem.transform.position = position;
+		particleSystem.transform.localScale = Vector3.one * size;
 		particleSystem.transform.up = normal;
 		ParticleSystem prefab = instance.prefabs[name];
-		ScaleParticleSystem(particleSystem, prefab, size);
-		if (color != null) particleSystem.startColor = color.Value;
+		ParticleSystem.MainModule main = particleSystem.main;
+		if (color != null) main.startColor = color.Value;
 		particleSystem.Play();
 		index = (index + 1) % instance.poolSize;
 		instance.currentIndices[name] = index;
 		return particleSystem;
-	}
-
-	public static void ScaleParticleSystem(ParticleSystem s, ParticleSystem p, float size) {
-		s.startSize = p.startSize * size;
-		s.startSpeed = p.startSpeed * size;
-		for (int i = 0; i < p.transform.childCount; i++) {
-            GameObject pChild = p.transform.GetChild(i).gameObject;
-            ParticleSystem pChildSys = pChild.GetComponent<ParticleSystem>();
-            if (pChildSys == null) continue;
-
-            GameObject sChild = s.transform.GetChild(i).gameObject;
-			ParticleSystem sChildSys = sChild.GetComponent<ParticleSystem>();
-            if (sChildSys == null) {
-            	Debug.LogWarning("ParticleManager: Instance of prefab particle system is no longer like parent.");
-            	continue;
-            }
-            sChildSys.startSize = pChildSys.startSize * size;
-            sChildSys.startSpeed = pChildSys.startSpeed * size;
-        }
-		
 	}
 }
 }

@@ -23,6 +23,11 @@ public class CameraShake : MonoBehaviour {
 		s.Shake();
 	}
 
+	public static void MainCameraShake (float magnitude, float duration) {
+		CameraShake s = Camera.main.gameObject.GetOrAddComponent<CameraShake>();
+		s.Shake(magnitude, duration);
+	}
+
 	[ContextMenu("Shake")]
 	public void Shake () {
 		StopCoroutine("ShakeCoroutine");
@@ -42,7 +47,7 @@ public class CameraShake : MonoBehaviour {
 			float m = magnitude * (1 - t / duration);
 			transform.localPosition = (Random.insideUnitSphere * m).ClipToExtents(extents);
 			yield return new WaitForEndOfFrame();
-			t += Time.deltaTime;
+			t += Time.unscaledDeltaTime;
 		}
 		transform.localPosition = Vector3.zero;
 	}
