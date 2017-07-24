@@ -13,6 +13,7 @@ public class Spawner : MonoBehaviour {
 		}
 	}
 
+	public bool reparentObjects = false;
 	public GameObject[] prefabs;
 
 	private Dictionary<string, GameObject> prefabsDict;
@@ -46,7 +47,7 @@ public class Spawner : MonoBehaviour {
 		GameObject g = pool.Find((i) => !i.activeSelf);
 		if (g == null) {
 			g = instance.prefabsDict[name].Instantiate() as GameObject;
-			g.transform.SetParent(instance.transform);
+			if (instance.reparentObjects) g.transform.SetParent(instance.transform);
 			pool.Add(g);
 		}
 		
