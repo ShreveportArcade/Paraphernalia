@@ -104,4 +104,10 @@ public class Workflow : Editor {
 			Debug.Log("Moving " + t.name + " to origin");
 		}
 	}
+
+	[MenuItem ("Edit/Clear PlayerPrefs")]
+	static void ClearPlayerPrefs () {
+		PlayerPrefs.DeleteAll();
+		PlayerPrefs.Save();
+	}
 }
