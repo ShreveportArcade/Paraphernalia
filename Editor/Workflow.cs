@@ -7,25 +7,6 @@ using System.Collections.Generic;
 using Paraphernalia.Extensions;
 
 public class Workflow : Editor {
- 
-	// From: http://wiki.unity3d.com/index.php/AddChild
-	// Original Author: Neil Carter (NCarter)
-	[MenuItem ("GameObject/Add Child &c")]
-	static void AddChild() {
-		Transform[] transforms = Selection.GetTransforms(SelectionMode.TopLevel | SelectionMode.OnlyUserModifiable);
-		Undo.RecordObjects(transforms, "adds children to selected transforms");
-		foreach(Transform transform in transforms) {
-			GameObject newChild = new GameObject("NewChild");
-			Undo.RegisterCreatedObjectUndo(newChild, "create child");
-			newChild.transform.parent = transform;
-			newChild.transform.localPosition = Vector3.zero;
-			if (transform is RectTransform) {
-				RectTransform r = newChild.AddComponent<RectTransform>();
-				r.anchorMin = Vector2.zero;
-				r.anchorMax = Vector2.one;
-			}
-		}
-	}
 
 	// From: http://wiki.unity3d.com/index.php/AddParent
 	// Original Author: Neil Carter (NCarter)
