@@ -28,20 +28,21 @@ public class Projectile : MonoBehaviour {
 	public Color onHitColor = Color.white;
 	public Rigidbody2D target;
 	
-	new private Rigidbody2D rigidbody2D;
+	private Rigidbody2D body;
 	private Vector2 startPosition;
 
 	void Awake () {
-		rigidbody2D = GetComponent<Rigidbody2D>();
+		body = GetComponent<Rigidbody2D>();
 	}
 
 	public void Ready (Transform parent, bool activate = true) {
 		StopCoroutine("LifeCycleCoroutine");
 		gameObject.SetActive(activate);
-		transform.parent = parent;
+		transform.SetParent(parent);
 		transform.localScale = Vector3.one;
-		transform.position = parent.position;
-		GetComponent<Rigidbody2D>().velocity = Vector3.zero;
+		transform.localPosition = Vector3.zero;
+		body.velocity = Vector3.zero;
+		body.angularVelocity = 0;
 		Collider2D[] colliders = GetComponentsInChildren<Collider2D>();
 		foreach (Collider2D collider in colliders) {
 			collider.enabled = false;
@@ -50,14 +51,13 @@ public class Projectile : MonoBehaviour {
 
 	public void Fire (Vector3 direction, Vector3 gunVelocity = default(Vector3)) {
 		startPosition = transform.position;
-		transform.parent = Spawner.root;
+		transform.SetParent(Spawner.root);
 		AudioManager.PlayEffect(onFireAudioClipName, audioMixerName, transform, Random.Range(0.7f, 1), Random.Range(0.95f, 1.05f));
 		ParticleManager.Play(onFireParticleSystemName, transform.position, direction, size * size);
 		if (orientToVelocity) transform.right = direction;
 		gameObject.SetActive(true);
-		GetComponent<Rigidbody2D>().velocity = direction.normalized * speed + gunVelocity * (1 - gunVelocityDamping);
+		body.velocity = direction.normalized * speed + gunVelocity * (1 - gunVelocityDamping);
 		if (particles) particles.Play();
-		StopCoroutine("LifeCycleCoroutine");
 		if (lifetime > 0) StartCoroutine("LifeCycleCoroutine");
 		Collider2D[] colliders = GetComponentsInChildren<Collider2D>();
 		foreach (Collider2D collider in colliders) {
@@ -68,7 +68,7 @@ public class Projectile : MonoBehaviour {
 	IEnumerator LifeCycleCoroutine () {
 		yield return new WaitForSeconds(lifetime);
 		ParticleManager.Play(onFinishParticleSystemName, gameObject.RendererBounds().center);
-		gameObject.SetActive(false);
+		Deactivate();
 	}
 
 	void OnTriggerEnter2D (Collider2D collider) {
@@ -85,31 +85,29 @@ public class Projectile : MonoBehaviour {
 	public void OnHit(Vector3 point, Vector3 normal) {
 		AudioManager.PlayEffect(onHitAudioClipName, transform, Random.Range(0.7f, 1), Random.Range(0.95f, 1.05f));
 		ParticleManager.Play(onHitParticleSystemName, point, normal, size * size, onHitColor);
-		if (dieOnHit) {
-			StopCoroutine("LifeCycleCoroutine");
-			gameObject.SetActive(false);
-		}
+		if (dieOnHit) Deactivate();
 		if (shakeCamera) CameraShake.MainCameraShake();
 	}
 
 	void FixedUpdate () {
 		if (target != null && speed > 0) {
-			Vector2 steering = Steering.Seek(rigidbody2D, target.transform.position, speed);
-			rigidbody2D.AddForce(steering * pursuitDamping, ForceMode.VelocityChange);
-			transform.right = rigidbody2D.velocity.normalized;
+			Vector2 steering = Steering.Seek(body, target.transform.position, speed);
+			body.AddForce(steering * pursuitDamping, ForceMode.VelocityChange);
+			transform.right = body.velocity.normalized;
 		}
 
-		Vector2 diff = rigidbody2D.position + rigidbody2D.velocity * Time.fixedDeltaTime - startPosition;
+		Vector2 diff = body.position + body.velocity * Time.fixedDeltaTime - startPosition;
 		if (limitDistance && diff.sqrMagnitude > maxDistance * maxDistance) {
 			transform.position = startPosition + diff.normalized * maxDistance;
-			StopCoroutine("LifeCycleCoroutine");
 			ParticleManager.Play(onFinishParticleSystemName, gameObject.RendererBounds().center);
-			gameObject.SetActive(false);
+			Deactivate();
 		}
 
-		if (dieOffScreen && !gameObject.IsVisible()) {
-			StopCoroutine("LifeCycleCoroutine");
-			gameObject.SetActive(false);
-		}
+		if (dieOffScreen && !gameObject.IsVisible()) Deactivate();
+	}
+
+	void Deactivate () {
+		StopCoroutine("LifeCycleCoroutine");
+		gameObject.SetActive(false);
 	}
 }

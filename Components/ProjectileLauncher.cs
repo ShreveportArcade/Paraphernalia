@@ -10,30 +10,25 @@ public class ProjectileLauncher : MonoBehaviour {
 	public bool showProjectileOnReady = true;
 
 	private float launchTime;
+	private Projectile projectile;
 
 	void Awake () {
 		launchTime = -launchDelay;
 	}
 
-	Projectile GetNextProjectile () {
-		Projectile projectile = Spawner.Spawn(projectileName).GetComponent<Projectile>();
-		return projectile;
-	}
-
 	void Ready () {
-		Projectile[] projectiles = GetComponentsInChildren<Projectile>(true);
-		if (projectiles.Length == 0 && Time.time - launchTime > launchDelay) {
-			Projectile projectile = GetNextProjectile();
+		if ((projectile == null || projectile.transform.parent != transform) 
+			&& Time.time - launchTime > launchDelay) {
+			projectile = Spawner.Spawn(projectileName).GetComponent<Projectile>();
 			projectile.Ready(transform, showProjectileOnReady);
 		}
 	}
 
 	public bool Shoot (Vector3 direction, Vector3 parentVelocity = default(Vector3)) {
-		Projectile[] projectiles = GetComponentsInChildren<Projectile>(true);
-		if (projectiles.Length > 0) {
+		if (projectile != null) {
 			launchTime = Time.time;
-			Projectile projectile = projectiles[0];
 			projectile.Fire(direction, parentVelocity);
+			projectile = null;
 			return true;
 		}
 		return false;
