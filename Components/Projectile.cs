@@ -11,6 +11,8 @@ public class Projectile : MonoBehaviour {
 	public float lifetime = 3;
 	public float size = 1;
 	public bool orientToVelocity = true;
+	public bool dieOffScreen = false;
+	public bool dieOnHit = true;
 	public bool limitDistance = false;
 	public float maxDistance = 4;
 	[Range(0,1)] public float pursuitDamping = 0.1f;
@@ -56,7 +58,7 @@ public class Projectile : MonoBehaviour {
 		GetComponent<Rigidbody2D>().velocity = direction.normalized * speed + gunVelocity * (1 - gunVelocityDamping);
 		if (particles) particles.Play();
 		StopCoroutine("LifeCycleCoroutine");
-		StartCoroutine("LifeCycleCoroutine");
+		if (lifetime > 0) StartCoroutine("LifeCycleCoroutine");
 		Collider2D[] colliders = GetComponentsInChildren<Collider2D>();
 		foreach (Collider2D collider in colliders) {
 			collider.enabled = true;
@@ -81,10 +83,12 @@ public class Projectile : MonoBehaviour {
 	}
 
 	public void OnHit(Vector3 point, Vector3 normal) {
-		StopCoroutine("LifeCycleCoroutine");
 		AudioManager.PlayEffect(onHitAudioClipName, transform, Random.Range(0.7f, 1), Random.Range(0.95f, 1.05f));
 		ParticleManager.Play(onHitParticleSystemName, point, normal, size * size, onHitColor);
-		gameObject.SetActive(false);
+		if (dieOnHit) {
+			StopCoroutine("LifeCycleCoroutine");
+			gameObject.SetActive(false);
+		}
 		if (shakeCamera) CameraShake.MainCameraShake();
 	}
 
@@ -100,6 +104,11 @@ public class Projectile : MonoBehaviour {
 			transform.position = startPosition + diff.normalized * maxDistance;
 			StopCoroutine("LifeCycleCoroutine");
 			ParticleManager.Play(onFinishParticleSystemName, gameObject.RendererBounds().center);
+			gameObject.SetActive(false);
+		}
+
+		if (dieOffScreen && !gameObject.IsVisible()) {
+			StopCoroutine("LifeCycleCoroutine");
 			gameObject.SetActive(false);
 		}
 	}
