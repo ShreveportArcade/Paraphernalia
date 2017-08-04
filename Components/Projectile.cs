@@ -35,9 +35,13 @@ public class Projectile : MonoBehaviour {
 		body = GetComponent<Rigidbody2D>();
 	}
 
-	public void Ready (Transform parent, bool activate = true) {
+	void OnDisable () {
 		StopCoroutine("LifeCycleCoroutine");
-		gameObject.SetActive(activate);
+	}
+
+	public void Ready (Transform parent) {
+		StopCoroutine("LifeCycleCoroutine");
+		gameObject.SetActive(true);
 		transform.SetParent(parent);
 		transform.localScale = Vector3.one;
 		transform.localPosition = Vector3.zero;
@@ -56,6 +60,7 @@ public class Projectile : MonoBehaviour {
 		ParticleManager.Play(onFireParticleSystemName, transform.position, direction, size * size);
 		if (orientToVelocity) transform.right = direction;
 		gameObject.SetActive(true);
+		body.angularVelocity = 0;
 		body.velocity = direction.normalized * speed + gunVelocity * (1 - gunVelocityDamping);
 		if (particles) particles.Play();
 		if (lifetime > 0) StartCoroutine("LifeCycleCoroutine");
@@ -68,7 +73,7 @@ public class Projectile : MonoBehaviour {
 	IEnumerator LifeCycleCoroutine () {
 		yield return new WaitForSeconds(lifetime);
 		ParticleManager.Play(onFinishParticleSystemName, gameObject.RendererBounds().center);
-		Deactivate();
+		gameObject.SetActive(false);
 	}
 
 	void OnTriggerEnter2D (Collider2D collider) {
@@ -85,7 +90,7 @@ public class Projectile : MonoBehaviour {
 	public void OnHit(Vector3 point, Vector3 normal) {
 		AudioManager.PlayEffect(onHitAudioClipName, transform, Random.Range(0.7f, 1), Random.Range(0.95f, 1.05f));
 		ParticleManager.Play(onHitParticleSystemName, point, normal, size * size, onHitColor);
-		if (dieOnHit) Deactivate();
+		if (dieOnHit) gameObject.SetActive(false);
 		if (shakeCamera) CameraShake.MainCameraShake();
 	}
 
@@ -100,14 +105,9 @@ public class Projectile : MonoBehaviour {
 		if (limitDistance && diff.sqrMagnitude > maxDistance * maxDistance) {
 			transform.position = startPosition + diff.normalized * maxDistance;
 			ParticleManager.Play(onFinishParticleSystemName, gameObject.RendererBounds().center);
-			Deactivate();
+			gameObject.SetActive(false);
 		}
 
-		if (dieOffScreen && !gameObject.IsVisible()) Deactivate();
-	}
-
-	void Deactivate () {
-		StopCoroutine("LifeCycleCoroutine");
-		gameObject.SetActive(false);
+		if (dieOffScreen && !gameObject.IsVisible()) gameObject.SetActive(false);
 	}
 }

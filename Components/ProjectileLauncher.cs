@@ -17,16 +17,17 @@ public class ProjectileLauncher : MonoBehaviour {
 	}
 
 	void Ready () {
-		if ((projectile == null || projectile.transform.parent != transform) 
-			&& Time.time - launchTime > launchDelay) {
+		if (showProjectileOnReady && projectile == null && Time.time - launchTime > launchDelay) {
 			projectile = Spawner.Spawn(projectileName).GetComponent<Projectile>();
-			projectile.Ready(transform, showProjectileOnReady);
+			projectile.Ready(transform);
 		}
 	}
 
 	public bool Shoot (Vector3 direction, Vector3 parentVelocity = default(Vector3)) {
-		if (projectile != null) {
+		if (Time.time - launchTime > launchDelay) {
+			if (projectile == null) projectile = Spawner.Spawn(projectileName).GetComponent<Projectile>();
 			launchTime = Time.time;
+			projectile.transform.position = transform.position;
 			projectile.Fire(direction, parentVelocity);
 			projectile = null;
 			return true;
