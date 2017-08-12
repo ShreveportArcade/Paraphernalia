@@ -108,6 +108,21 @@ public static class GameObjectExtensions {
         return null;
     }
 
+    public static T[] GetChildComponents<T> (this GameObject g) where T : Component {
+        return g.transform.GetChildComponents<T>();
+    }
+
+    public static T[] GetChildComponents<T> (this Transform t) where T : Component {
+        List<T> children = new List<T>();
+        for (int i = 0; i < t.childCount; i++) {
+            GameObject child = t.GetChild(i).gameObject;
+            T component = child.GetComponent<T>();
+            if (component != null) children.Add(component);
+        }
+        return children.ToArray();
+    }
+
+
     public static T GetOrAddComponent<T> (this GameObject go) where T : Component {
         T component = go.GetComponent<T>();
         if (component == null) component = go.AddComponent<T>();
