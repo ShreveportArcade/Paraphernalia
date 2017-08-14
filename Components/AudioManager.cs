@@ -26,6 +26,7 @@ public class AudioManager : MonoBehaviour {
 
 	public AudioClip music;
 	public bool autoStartMusic = true;
+	public bool dontDestroyOnLoad = true;
 	public List<AudioClip> clips = new List<AudioClip>();
 	public List<AudioMixerGroup> mixers = new List<AudioMixerGroup>();
 	public AudioMixerGroup musicMixer;
@@ -66,7 +67,7 @@ public class AudioManager : MonoBehaviour {
 	void Awake () {
 		if (_instance == null) {
 			_instance = this;
-			if (_instance.transform.parent == null) DontDestroyOnLoad(_instance.gameObject);
+			if (_instance.transform.parent == null && dontDestroyOnLoad) DontDestroyOnLoad(_instance.gameObject);
 			CreateSFXPool();
 			CreateMusicPool();
 			if (autoStartMusic) PlayMusic();
