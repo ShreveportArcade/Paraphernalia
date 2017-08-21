@@ -1,10 +1,8 @@
-// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
-
 Shader "Flow" {
 	Properties {
 		_MainTex ("Sprite Texture", 2D) = "white" {}
 		[MaterialToggle] PixelSnap ("Pixel snap", Float) = 0
-		_Alpha ("Alpha", Range(0, 1)) = 0.75
+		_Alpha ("Alpha", Range(0, 1)) = 1
 		_FlowMap ("Flow Map", 2D) = "white" {}
     	_Flow ("Flow (X, Y, Cycle Time, Cycle Speed)", Vector) = (1, 1, 0.1, 1)
 	}
