@@ -104,6 +104,11 @@ public class CameraController : MonoBehaviour {
 			else {
 			#endif
 				if (!transitioning) transform.position = LerpToTarget();
+
+				if (bounded) {
+					if (boundsObject) bounds = boundsObject.RendererBounds();
+					transform.position = camera.GetBoundedPos(bounds);
+				}
 			#if UNITY_EDITOR
 			}
 			#endif
@@ -132,11 +137,6 @@ public class CameraController : MonoBehaviour {
 			);
 			if (zone == null) desiredPosition = targetPosition;
 			else desiredPosition = zone.position.Lerp3(targetPosition, zone.axisLock);
-		}
-
-		if (bounded) {
-			if (boundsObject) bounds = boundsObject.RendererBounds();
-			desiredPosition = camera.GetBoundedPos(bounds, desiredPosition);
 		}
 
 		return desiredPosition;
