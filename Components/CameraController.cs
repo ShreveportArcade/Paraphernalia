@@ -45,7 +45,7 @@ public class CameraController : MonoBehaviour {
 	public GameObject boundsObject;
 	public Bounds bounds;
 	public Interpolate.EaseType easeType = Interpolate.EaseType.InOutQuad;
-
+	public bool destroyDuplicates = true;
 	private bool transitioning = false;
 
 	void Awake () {
@@ -53,13 +53,14 @@ public class CameraController : MonoBehaviour {
 			_instance = this;
 			SetPosition();
 		}
-		else {
+		else if (destroyDuplicates) {
 			Debug.LogWarning("Instance of CameraController already exists. Destroying duplicate.");
 			GameObjectUtils.Destroy(gameObject);
 		}
 	}
 
 	void Start () {
+		SetPosition();
 		if (instance.defaultMusic != null && Application.isPlaying) AudioManager.CrossfadeMusic(instance.defaultMusic, 0.5f);
 	}
 
