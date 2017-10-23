@@ -1,4 +1,6 @@
-Shader "Flow" {
+// Sprite Flow Shader - (c)2017 Nolan Baker. MIT License
+
+Shader "Paraphernalia/Flow Sprite" {
 	Properties {
 		_MainTex ("Sprite Texture", 2D) = "white" {}
 		[MaterialToggle] PixelSnap ("Pixel snap", Float) = 0
@@ -20,7 +22,7 @@ Shader "Flow" {
 		Lighting Off
 		ZWrite Off
 		Fog { Mode Off }
-		Blend One OneMinusSrcAlpha
+		Blend SrcAlpha OneMinusSrcAlpha
 
 		Pass {
 			CGPROGRAM
@@ -58,7 +60,6 @@ Shader "Flow" {
 			}
 
 			sampler2D _FlowMap;
-			sampler2D _ScreenTex;
 			float4 _Flow;
 			float _XOffset;
 			float _YOffset;

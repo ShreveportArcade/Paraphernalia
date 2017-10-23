@@ -30,8 +30,9 @@ class MeshFilterEditor : Editor {
 		
 		if (targets == null || targets.Length < 2) {
 			MeshFilter filter = target as MeshFilter;
-			if (filter == null || filter.sharedMesh == null) return;
-			triCount = filter.sharedMesh.triangles.Length / 3;
+			if (filter != null && filter.sharedMesh != null) {
+				triCount = filter.sharedMesh.triangles.Length / 3;
+			}
 		}
 		else if (targetCount != targets.Length) {
 			targetCount = targets.Length;

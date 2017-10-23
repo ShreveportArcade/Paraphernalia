@@ -1,6 +1,6 @@
 // Triplanar Terrain Shader - (c)2017 Nolan Baker. MIT License
 
-Shader "Terrain/Triplanar" {
+Shader "Paraphernalia/Triplanar Terrain" {
 	Properties {
 		_Scale ("Texture Scales", Vector) = (1,1,1,1)
 		_Depth ("Depth", Range(0.00001, 1.0)) = 0.2
