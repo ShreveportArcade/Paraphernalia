@@ -38,7 +38,9 @@ class MeshFilterEditor : Editor {
 			targetCount = targets.Length;
 			for (int i = 0; i < targetCount; i++) {
 				MeshFilter filter = targets[i] as MeshFilter;
-				triCount += filter.sharedMesh.triangles.Length / 3;
+				if (filter != null && filter.sharedMesh != null) {
+					triCount += filter.sharedMesh.triangles.Length / 3;
+				}
 			}
 		}
 
