@@ -13,15 +13,17 @@ public class AspectRatioLayouts : UIBehaviour, ILayoutSelfController {
         public float aspect;
         public Vector2 anchorMin;
         public Vector2 anchorMax;
-        public Vector2 offsetMin;
-        public Vector2 offsetMax;
+        public Vector2 anchoredPosition;
+        public Vector2 pivot;
+        public Vector2 sizeDelta;
 
         public AspectRatioLayout (float aspect, Vector2 anchorMin, Vector2 anchorMax) {
             this.aspect = aspect;
             this.anchorMin = anchorMin;
             this.anchorMax = anchorMax;
-            this.offsetMin = Vector2.zero;
-            this.offsetMax = Vector2.zero;
+            this.pivot = Vector2.zero;
+            this.anchoredPosition = Vector2.zero;
+            this.sizeDelta = Vector2.zero;
         }
     }
 
@@ -83,7 +85,8 @@ public class AspectRatioLayouts : UIBehaviour, ILayoutSelfController {
         }
         rectTransform.anchorMin = closest.anchorMin;
         rectTransform.anchorMax = closest.anchorMax;
-        // rectTransform.offsetMin = closest.offsetMin;
-        // rectTransform.offsetMax = closest.offsetMax;
+        rectTransform.anchoredPosition = closest.anchoredPosition;
+        rectTransform.pivot = closest.pivot;
+        rectTransform.sizeDelta = closest.sizeDelta;
     }
 }
