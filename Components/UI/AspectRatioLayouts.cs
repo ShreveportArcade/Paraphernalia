@@ -6,24 +6,28 @@ using UnityEngine.EventSystems;
 
 [ExecuteInEditMode]
 [RequireComponent(typeof(RectTransform))]
-public class AspectRatioAnchors : UIBehaviour, ILayoutSelfController {
+public class AspectRatioLayouts : UIBehaviour, ILayoutSelfController {
 
     [System.Serializable]
-    public struct AspectRatioAnchor {
+    public struct AspectRatioLayout {
         public float aspect;
-        public Vector2 min;
-        public Vector2 max;
+        public Vector2 anchorMin;
+        public Vector2 anchorMax;
+        public Vector2 offsetMin;
+        public Vector2 offsetMax;
 
-        public AspectRatioAnchor (float aspect, Vector2 min, Vector2 max) {
+        public AspectRatioLayout (float aspect, Vector2 anchorMin, Vector2 anchorMax) {
             this.aspect = aspect;
-            this.min = min;
-            this.max = max;
+            this.anchorMin = anchorMin;
+            this.anchorMax = anchorMax;
+            this.offsetMin = Vector2.zero;
+            this.offsetMax = Vector2.zero;
         }
     }
 
-    public AspectRatioAnchor[] anchors = new AspectRatioAnchor[] {
-        new AspectRatioAnchor(0.5f, Vector2.zero, Vector2.one),
-        new AspectRatioAnchor(2, Vector2.zero, Vector2.one)
+    public AspectRatioLayout[] anchors = new AspectRatioLayout[] {
+        new AspectRatioLayout(0.5f, Vector2.zero, Vector2.one),
+        new AspectRatioLayout(2, Vector2.zero, Vector2.one)
     };
 
     private RectTransform _rectTransform;
@@ -38,39 +42,37 @@ public class AspectRatioAnchors : UIBehaviour, ILayoutSelfController {
 
     #if UNITY_EDITOR
     protected override void OnValidate() {
-        // set anchors from scene view
-        UpdateAnchors();
+        UpdateLayouts();
     }
     #endif
 
     protected override void OnRectTransformDimensionsChange() {
-        // set anchors from scene inspector
-        UpdateAnchors();
+        UpdateLayouts();
     }
 
     public void SetLayoutHorizontal() {
-        UpdateAnchors();
+        UpdateLayouts();
     }
 
     public void SetLayoutVertical() {
-        UpdateAnchors();
+        UpdateLayouts();
     }
 
-    void UpdateAnchors () {
+    void UpdateLayouts () {
         if (transform.parent == null) {
-            Debug.LogWarning("AspectRatioAnchors requires a parent.");
+            Debug.LogWarning("AspectRatioLayouts requires a parent.");
             return;
         }
 
         if (anchors.Length < 2) {
-            Debug.LogWarning("AspectRatioAnchors requires at least two reference anchors.");
+            Debug.LogWarning("AspectRatioLayouts requires at least two reference anchors.");
         }
         
         RectTransform parent = transform.parent as RectTransform;
         Vector2 parentSize = parent.rect.size;
         float aspect = parentSize.x / parentSize.y;
 
-        AspectRatioAnchor closest = anchors[0];
+        AspectRatioLayout closest = anchors[0];
         float closestDist = Mathf.Abs(aspect - closest.aspect);
         for (int i = 1; i < anchors.Length; i++) {
             float dist = Mathf.Abs(anchors[i].aspect - aspect);
@@ -79,7 +81,9 @@ public class AspectRatioAnchors : UIBehaviour, ILayoutSelfController {
                 closestDist = dist;
             }
         }
-        rectTransform.anchorMin = closest.min;
-        rectTransform.anchorMax = closest.max;
+        rectTransform.anchorMin = closest.anchorMin;
+        rectTransform.anchorMax = closest.anchorMax;
+        // rectTransform.offsetMin = closest.offsetMin;
+        // rectTransform.offsetMax = closest.offsetMax;
     }
 }
