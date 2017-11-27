@@ -24,6 +24,7 @@ using UnityEngine;
 class MeshFilterEditor : Editor {
 
 	private int triCount = 0;
+    private int vertCount = 0;
 	private int targetCount = -1;
 
 	public override void OnInspectorGUI () {
@@ -32,6 +33,7 @@ class MeshFilterEditor : Editor {
 			MeshFilter filter = target as MeshFilter;
 			if (filter != null && filter.sharedMesh != null) {
 				triCount = filter.sharedMesh.triangles.Length / 3;
+                vertCount = filter.sharedMesh.vertices.Length;
 			}
 		}
 		else if (targetCount != targets.Length) {
@@ -40,11 +42,13 @@ class MeshFilterEditor : Editor {
 				MeshFilter filter = targets[i] as MeshFilter;
 				if (filter != null && filter.sharedMesh != null) {
 					triCount += filter.sharedMesh.triangles.Length / 3;
+                    vertCount += filter.sharedMesh.vertices.Length;
 				}
 			}
 		}
 
 		EditorGUILayout.LabelField("Triangles: " + triCount);
+		EditorGUILayout.LabelField("Vertices: " + vertCount);
 		base.OnInspectorGUI();
 	}
 }
