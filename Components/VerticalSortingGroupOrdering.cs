@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (C) 2016 Nolan Baker
+Copyright (C) 2017 Nolan Baker
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
 documentation files (the "Software"), to deal in the Software without restriction, including without limitation 
@@ -18,39 +18,23 @@ DEALINGS IN THE SOFTWARE.
 
 using UnityEngine;
 using System.Collections;
+using UnityEngine.Rendering;
 
-[ExecuteInEditMode]
-public class VerticalOrdering : MonoBehaviour {
+[RequireComponent(typeof(SortingGroup))]
+public class VerticalSortingGroupOrdering : VerticalOrdering {
 
-    public Vector3 axis = Vector3.down;
-    public float orderMultiplier = 100;
-    public float orderOffset = 0;
-    public int order {
+    [SerializeField, HideInInspector] private SortingGroup _sortingGroup;
+    public SortingGroup sortingGroup {
         get {
-            return Mathf.RoundToInt(Vector3.Dot(transform.position * orderMultiplier, axis) + orderOffset);
-        }
-    }
-    public bool isStatic = true;
-
-    #if UNITY_EDITOR
-    void Update () {
-        if (!Application.isPlaying) UpdateSortOrder();
-    }
-    #endif
-
-    void OnEnable () {
-        UpdateSortOrder();
-        if (!isStatic) StartCoroutine("SortCoroutine");
-    }
-
-    IEnumerator SortCoroutine () {
-        while (enabled && !isStatic) {
-            UpdateSortOrder();
-            yield return new WaitForEndOfFrame();
+            if (_sortingGroup == null) {
+                _sortingGroup = GetComponent<SortingGroup>();
+            }
+            return _sortingGroup;
         }
     }
 
     [ContextMenu("Update Sort Order")]
-    protected virtual void UpdateSortOrder () {
+    protected override void UpdateSortOrder () {
+        sortingGroup.sortingOrder = order;
     }
 }
