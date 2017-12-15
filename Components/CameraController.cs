@@ -28,7 +28,12 @@ public class CameraController : MonoBehaviour {
 
     private static CameraController _instance;
     public static CameraController instance {
-        get { return _instance; }
+        get { 
+            if (_instance == null) {
+                _instance = FindObjectOfType<CameraController>();
+            }
+            return _instance; 
+        }
     }
 
     public List<CameraZone> cameraZones = new List<CameraZone>();
@@ -53,7 +58,7 @@ public class CameraController : MonoBehaviour {
             _instance = this;
             SetPosition();
         }
-        else if (destroyDuplicates) {
+        else if (_instance != this && destroyDuplicates) {
             Debug.LogWarning("Instance of CameraController already exists. Destroying duplicate.");
             GameObjectUtils.Destroy(gameObject);
         }
