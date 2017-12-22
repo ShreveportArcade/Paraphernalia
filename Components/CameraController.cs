@@ -80,11 +80,22 @@ public class CameraController : MonoBehaviour {
     void SetPosition () {
         GameObject go = GameObject.FindWithTag(targetTag);
         if (go == null) return;
-        Collider2D[] colliders = Physics2D.OverlapPointAll(go.transform.position);
-
+        
         if (target == null) target = go.transform;
         transform.position = target.position + offset;
-        foreach (Collider2D collider in colliders) {
+        
+        Collider2D[] collider2Ds = Physics2D.OverlapPointAll(go.transform.position);
+        foreach (Collider2D collider2D in collider2Ds) {
+            CameraZone zone = collider2D.gameObject.GetComponent<CameraZone>();
+            if (zone != null) {
+                transform.position = zone.position.Lerp3(transform.position, zone.axisLock);
+                return;
+            }
+        }
+
+
+        Collider[] colliders = Physics.OverlapSphere(go.transform.position, 1);
+        foreach (Collider collider in colliders) {
             CameraZone zone = collider.gameObject.GetComponent<CameraZone>();
             if (zone != null) {
                 transform.position = zone.position.Lerp3(transform.position, zone.axisLock);
