@@ -38,8 +38,11 @@ public static class CameraExtensions {
 		else if (topRightDiff.y > 0) pos.y -= topRightDiff.y;
 		else if (bottomLeftDiff.y < 0) pos.y -= bottomLeftDiff.y;
 
-		pos.z = camera.transform.position.z;
-		return pos;
+        pos.z = camera.transform.position.z;
+		if (pos.z > bounds.center.z + bounds.extents.z) pos.z = bounds.center.z + bounds.extents.z;
+        else if (pos.z < bounds.center.z - bounds.extents.z) pos.z = bounds.center.z - bounds.extents.z;
+		
+        return pos;
 	}
 }
 }
