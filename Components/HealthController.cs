@@ -22,6 +22,7 @@ public class HealthController : MonoBehaviour {
 	public string damageSoundName;
 	public string damageParticlesName;
 	public string deathSoundName;
+	public string resurectionSoundName;
 	public string destructionSoundName;
 	public string deathParticlesName;
 	public string destructionParticlesName;
@@ -68,7 +69,7 @@ public class HealthController : MonoBehaviour {
 				PlayDestruction();
 			}
 			else if (_health > 0 && prevHealth <= 0) {
-				AudioManager.PlayVariedEffect(deathSoundName);
+				AudioManager.PlayVariedEffect(resurectionSoundName);
 				onResurection();
 			}
 			else if (_health < prevHealth) {
