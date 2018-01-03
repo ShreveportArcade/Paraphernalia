@@ -17,40 +17,26 @@ public class CameraZone : MonoBehaviour {
     }
 
     void OnTriggerEnter2D(Collider2D collider) {
-        if (collider.gameObject.tag == "Player") {
-            CameraController.AddZone(this);
-            foreach (MonoBehaviour b in behavioursToActivate) {
-                b.enabled = true;
-            }
-        }
+        if (collider.gameObject.tag == "Player") AddRemoveZone(true);
     }
 
     void OnTriggerExit2D(Collider2D collider) {
-        if (collider.gameObject.tag == "Player") {
-            CameraController.RemoveZone(this);
-            foreach (MonoBehaviour b in behavioursToActivate) {
-                b.enabled = false;
-            }
-        }
+        if (collider.gameObject.tag == "Player") AddRemoveZone(false);
     }
 
-
-
     void OnTriggerEnter(Collider collider) {
-        if (collider.gameObject.tag == "Player") {
-            CameraController.AddZone(this);
-            foreach (MonoBehaviour b in behavioursToActivate) {
-                b.enabled = true;
-            }
-        }
+        if (collider.gameObject.tag == "Player") AddRemoveZone(true);
     }
 
     void OnTriggerExit(Collider collider) {
-        if (collider.gameObject.tag == "Player") {
-            CameraController.RemoveZone(this);
-            foreach (MonoBehaviour b in behavioursToActivate) {
-                b.enabled = false;
-            }
+        if (collider.gameObject.tag == "Player") AddRemoveZone(false);
+    }
+
+    void AddRemoveZone (bool add) {
+        if (add) CameraController.AddZone(this);
+        else CameraController.RemoveZone(this);
+        foreach (MonoBehaviour b in behavioursToActivate) {
+            b.enabled = add;
         }
     }
 

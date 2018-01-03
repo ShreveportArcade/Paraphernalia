@@ -176,6 +176,7 @@ public class CameraController : MonoBehaviour {
 
     public static void RemoveZone(CameraZone zone) {
         instance.cameraZones.Remove(zone);
+        instance.transitioning = false;
         instance.StopCoroutine("TransitionToZoneCoroutine");
         if (instance.cameraZones.Count > 0) instance.StartCoroutine("TransitionToZoneCoroutine");
         else if (instance.defaultMusic != null) AudioManager.CrossfadeMusic(instance.defaultMusic, 0.5f);
