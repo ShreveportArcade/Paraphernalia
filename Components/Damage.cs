@@ -10,6 +10,7 @@ public class Damage : MonoBehaviour {
     public float multiplier = 1;
     public bool disableOnCollision = false;
     public bool affectAncestor = false;
+    public bool allowRecovery = true;
     public List<string> ignoreTags = new List<string>();
 
     protected virtual float GetDamage() {
@@ -24,7 +25,7 @@ public class Damage : MonoBehaviour {
     void OnTriggerEnter2D (Collider2D collider) {
         HealthController h = GetHealthController(collider.gameObject);
         if (h != null) {
-            h.TakeDamage(GetDamage());
+            h.TakeDamage(GetDamage(), allowRecovery);
             ApplyForce(collider.gameObject);
         }
     }
@@ -32,7 +33,7 @@ public class Damage : MonoBehaviour {
     void OnCollisionEnter2D (Collision2D collision) {
         HealthController h = GetHealthController(collision.gameObject);
         if (h != null) {
-            h.TakeDamage(GetDamage(collision.relativeVelocity, collision.contacts[0].normal));
+            h.TakeDamage(GetDamage(collision.relativeVelocity, collision.contacts[0].normal), allowRecovery);
             ApplyForce(collision.gameObject);
         }
     }
@@ -40,7 +41,7 @@ public class Damage : MonoBehaviour {
     void OnTriggerEnter (Collider collider) {
         HealthController h = GetHealthController(collider.gameObject);
         if (h != null) {
-            h.TakeDamage(GetDamage());
+            h.TakeDamage(GetDamage(), allowRecovery);
             ApplyForce(collider.gameObject);
         }
     }
@@ -48,7 +49,7 @@ public class Damage : MonoBehaviour {
     void OnCollisionEnter (Collision collision) {
         HealthController h = GetHealthController(collision.gameObject);
         if (h != null) {
-            h.TakeDamage(GetDamage(collision.relativeVelocity, collision.contacts[0].normal));
+            h.TakeDamage(GetDamage(collision.relativeVelocity, collision.contacts[0].normal), allowRecovery);
             ApplyForce(collision.gameObject);
         }
     }
