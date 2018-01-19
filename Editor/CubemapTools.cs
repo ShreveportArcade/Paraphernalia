@@ -134,4 +134,14 @@ class CubemapTools : Editor {
 	static bool ValidateExportFaces1x6 () {
 		return ValidateExportCubemap();
 	}
+
+	[MenuItem ("Assets/Cubemap/Export Separated")]
+	static void ExportSeparated () {
+		ExportCubemap(CubeMappingType.Separated);
+	}
+
+	[MenuItem ("Assets/Cubemap/Export Separated", true)]
+	static bool ValidateExportSeparated () {
+		return ValidateExportCubemap();
+	}
 }

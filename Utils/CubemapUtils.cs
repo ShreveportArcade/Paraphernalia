@@ -27,6 +27,7 @@ public enum CubeMappingType {
 	Faces3x4,
 	Faces6x1,
 	Faces1x6,
+	Separated,
 }
 
 public static class CubemapUtils {

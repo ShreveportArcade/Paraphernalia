@@ -106,6 +106,9 @@ public static class CubemapExtensions {
 			case CubeMappingType.Faces1x6:
 				cubemap.SaveTo1x6PNG(path);
 				break;
+			case CubeMappingType.Separated:
+				cubemap.SaveIndividualFacesPNG(path);
+				break;
 		}
 	}
 
@@ -148,6 +151,45 @@ public static class CubemapExtensions {
 	public static void SaveToSphericalPNG (this Cubemap cubemap, string path) {
 		Texture2D texture2D = cubemap.GetSphericalTexture2D();
 		texture2D.SaveToPNG(path);
+		if (Application.isPlaying) GameObject.Destroy(texture2D);
+		else GameObject.DestroyImmediate(texture2D);
+	}
+
+	public static void SaveIndividualFacesPNG (this Cubemap cubemap, string path) {
+		int w = cubemap.width;
+		int h = cubemap.height;
+		Texture2D texture2D = new Texture2D(w, h, cubemap.format, false);
+
+		path = Path.Combine(Path.GetDirectoryName(path), Path.GetFileNameWithoutExtension(path));
+		
+		texture2D.SetPixels(0, 0, w, h, cubemap.GetPixels(CubemapFace.PositiveX));
+		texture2D.Apply();
+		texture2D.Rotate180();
+		texture2D.SaveToPNG(path + "_PosX.png");
+
+		texture2D.SetPixels(0, 0, w, h, cubemap.GetPixels(CubemapFace.NegativeX));
+		texture2D.Apply();
+		texture2D.Rotate180();
+		texture2D.SaveToPNG(path + "_NegX.png");
+
+		texture2D.SetPixels(0, 0, w, h, cubemap.GetPixels(CubemapFace.PositiveY).Reverse());
+		texture2D.Apply();
+		texture2D.SaveToPNG(path + "_PosY.png");
+
+		texture2D.SetPixels(0, 0, w, h, cubemap.GetPixels(CubemapFace.NegativeY).Reverse());
+		texture2D.Apply();
+		texture2D.SaveToPNG(path + "_NegY.png");
+
+		texture2D.SetPixels(0, 0, w, h, cubemap.GetPixels(CubemapFace.NegativeZ));
+		texture2D.Apply();
+		texture2D.Rotate180();
+		texture2D.SaveToPNG(path + "_NegZ.png");
+
+		texture2D.SetPixels(0, 0, w, h, cubemap.GetPixels(CubemapFace.PositiveZ));
+		texture2D.Apply();
+		texture2D.Rotate180();
+		texture2D.SaveToPNG(path + "_PosZ.png");
+
 		if (Application.isPlaying) GameObject.Destroy(texture2D);
 		else GameObject.DestroyImmediate(texture2D);
 	}

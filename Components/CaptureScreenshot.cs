@@ -23,7 +23,7 @@ public class CaptureScreenshot : MonoBehaviour {
                     System.DateTime.Now.Second.ToString();
             string filename = prefix + id.ToString() + "_" + dateTime + ".png";
             Debug.Log(filename);
-            Application.CaptureScreenshot((Application.dataPath + "/../Screenshots/" + filename), resolutionModifier);
+            ScreenCapture.CaptureScreenshot((Application.dataPath + "/../Screenshots/" + filename), resolutionModifier);
             id++;
         }
     }
