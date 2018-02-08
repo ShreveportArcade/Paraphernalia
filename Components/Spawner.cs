@@ -32,6 +32,17 @@ public class Spawner : MonoBehaviour {
 		}
 	}
 
+	public static GameObject Prefab(string name) {
+		if (instance == null || 
+			string.IsNullOrEmpty(name) ||
+			!instance.prefabsDict.ContainsKey(name)) {
+			
+			return null;
+		}
+
+		return instance.prefabsDict[name];
+	}
+
 	public static GameObject Spawn(string name, bool active = true) {
 		if (instance == null || 
 			string.IsNullOrEmpty(name) ||
@@ -40,7 +51,6 @@ public class Spawner : MonoBehaviour {
 			
 			return null;
 		}
-
 
 		List<GameObject> pool = instance.poolsDict[name];
 		pool.RemoveAll((i) => i == null);
@@ -54,5 +64,32 @@ public class Spawner : MonoBehaviour {
 		g.SetActive(active);
 		
 		return g;
+	}
+
+	public static void DisableAll() {
+		foreach (List<GameObject> pool in instance.poolsDict.Values) {
+			for (int i = pool.Count-1; i >= 0; i--) {
+				GameObject g = pool[i];
+				if (g == null) pool.RemoveAt(i);
+				else g.SetActive(false);
+			}
+		}
+	}
+
+	public static void DisableAll(string name) {
+		if (instance == null || 
+			string.IsNullOrEmpty(name) ||
+			!instance.poolsDict.ContainsKey(name) ||
+			!instance.prefabsDict.ContainsKey(name)) {
+			
+			return;
+		}
+
+		List<GameObject> pool = instance.poolsDict[name];
+		for (int i = pool.Count-1; i >= 0; i--) {
+			GameObject g = pool[i];
+			if (g == null) pool.RemoveAt(i);
+			else g.SetActive(false);
+		}
 	}
 }
