@@ -78,13 +78,14 @@ public class CameraController : MonoBehaviour {
     }
 
     void SetPosition () {
-        GameObject go = GameObject.FindWithTag(targetTag);
-        if (go == null) return;
-        
-        if (target == null) target = go.transform;
+        if (target == null) {
+            GameObject go = GameObject.FindWithTag(targetTag);
+            if (go == null) return;
+            target = go.transform;
+        }
         transform.position = target.position + offset;
         
-        Collider2D[] collider2Ds = Physics2D.OverlapPointAll(go.transform.position);
+        Collider2D[] collider2Ds = Physics2D.OverlapPointAll(target.position);
         foreach (Collider2D collider2D in collider2Ds) {
             CameraZone zone = collider2D.gameObject.GetComponent<CameraZone>();
             if (zone != null) {
@@ -94,7 +95,7 @@ public class CameraController : MonoBehaviour {
         }
 
 
-        Collider[] colliders = Physics.OverlapSphere(go.transform.position, 1);
+        Collider[] colliders = Physics.OverlapSphere(target.position, 1);
         foreach (Collider collider in colliders) {
             CameraZone zone = collider.gameObject.GetComponent<CameraZone>();
             if (zone != null) {
