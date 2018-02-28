@@ -13,10 +13,13 @@ public class ProjectileLauncher : MonoBehaviour {
 	[Range(0,1)] public float accuracy = 1;
 	public int projectilesPerShot = 1;
 	
-	[Tooltip("-1 means no ammo cap")] public int maxAmmo = -1;
+	[Tooltip("-1 = infinite ammo")] public int maxAmmo = -1;
 	private int _ammo;
 	public int ammo {
-		get { return _ammo; }
+		get { 
+            if (maxAmmo < 1) return int.MaxValue;
+            return _ammo; 
+        }
 		set { 
 			if (maxAmmo > 0) _ammo = Mathf.Clamp(value, 0, maxAmmo); 
 			else if (value < 0) _ammo = 0;

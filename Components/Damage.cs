@@ -31,10 +31,10 @@ public class Damage : MonoBehaviour {
     }
 
     void OnCollisionEnter2D (Collision2D collision) {
-        HealthController h = GetHealthController(collision.gameObject);
+        HealthController h = GetHealthController(collision.collider.gameObject);
         if (h != null) {
             h.TakeDamage(GetDamage(collision.relativeVelocity, collision.contacts[0].normal), allowRecovery);
-            ApplyForce(collision.gameObject);
+            ApplyForce(collision.collider.gameObject);
         }
     }
 
@@ -47,10 +47,10 @@ public class Damage : MonoBehaviour {
     }
 
     void OnCollisionEnter (Collision collision) {
-        HealthController h = GetHealthController(collision.gameObject);
+        HealthController h = GetHealthController(collision.collider.gameObject);
         if (h != null) {
             h.TakeDamage(GetDamage(collision.relativeVelocity, collision.contacts[0].normal), allowRecovery);
-            ApplyForce(collision.gameObject);
+            ApplyForce(collision.collider.gameObject);
         }
     }
 
