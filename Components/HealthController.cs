@@ -27,6 +27,7 @@ public class HealthController : MonoBehaviour {
     public string deathParticlesName;
     public string destructionParticlesName;
     public string destructionSpawnName;
+    [Range(0,1)] public int audioSpatialBlend = 0;
 
     public float recoveryTime = 3;
     private bool isRecovering = false;
@@ -65,7 +66,7 @@ public class HealthController : MonoBehaviour {
                     PlayDestruction();
                 }
                 else {
-                    AudioManager.PlayVariedEffect(deathSoundName);
+                    AudioManager.PlayEffect(deathSoundName, null, transform, Random.Range(0.9f,1.1f), Random.Range(0.9f,1.1f), 0, audioSpatialBlend);
                     ParticleManager.Play(deathParticlesName, transform);
                 }
             }
@@ -73,11 +74,11 @@ public class HealthController : MonoBehaviour {
                 PlayDestruction();
             }
             else if (_health > 0 && prevHealth <= 0) {
-                AudioManager.PlayVariedEffect(resurectionSoundName);
+                AudioManager.PlayEffect(resurectionSoundName, null, transform, Random.Range(0.9f,1.1f), Random.Range(0.9f,1.1f), 0, audioSpatialBlend);
                 onResurection();
             }
             else if (_health < prevHealth) {
-                AudioManager.PlayVariedEffect(damageSoundName);
+                AudioManager.PlayEffect(damageSoundName, null, transform, Random.Range(0.9f,1.1f), Random.Range(0.9f,1.1f), 0, audioSpatialBlend);
                 ParticleManager.Play(damageParticlesName, transform);
             }
             
@@ -89,7 +90,7 @@ public class HealthController : MonoBehaviour {
     }
 
     void PlayDestruction () {
-        AudioManager.PlayVariedEffect(destructionSoundName);
+        AudioManager.PlayEffect(destructionSoundName, null, transform, Random.Range(0.9f,1.1f), Random.Range(0.9f,1.1f), 0, audioSpatialBlend);
         ParticleManager.Play(destructionParticlesName, transform.position);
         GameObject destructionSpawn = Spawner.Spawn(destructionSpawnName);
         if (destructionSpawn != null) {

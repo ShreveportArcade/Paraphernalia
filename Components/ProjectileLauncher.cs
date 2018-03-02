@@ -43,6 +43,7 @@ public class ProjectileLauncher : MonoBehaviour {
 	}
 
 	public int Shoot (Vector3 direction, Vector3 parentVelocity = default(Vector3)) {
+        if (!isActiveAndEnabled) return 0;
 		if (Time.time - launchTime > launchDelay) {
 			launchTime = Time.time;
 			int projectileCount = Mathf.Min(ammo, projectilesPerShot);

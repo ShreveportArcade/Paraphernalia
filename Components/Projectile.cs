@@ -17,6 +17,7 @@ public class Projectile : MonoBehaviour {
     [Range(0,1)] public float pursuitDamping = 0.1f;
     [Range(0,1)] public float gunVelocityDamping = 0.1f;
     public ParticleSystem particles;
+    [Range(0,1)]public float audioSpatialBlend = 0;
     public string audioMixerName = "";
     public string onFireAudioClipName = "";
     public string onHitAudioClipName = "";
@@ -24,6 +25,7 @@ public class Projectile : MonoBehaviour {
     public string onFireParticleSystemName = "";
     public string onFinishParticleSystemName = "";
     public string onHitParticleSystemName = "";
+    public string onHitSpawnName = "";
     public Color onHitColor = Color.white;
     public Transform target;
     
@@ -70,7 +72,7 @@ public class Projectile : MonoBehaviour {
         
         startPosition = transform.position;
         transform.SetParent(Spawner.root);
-        AudioManager.PlayEffect(onFireAudioClipName, audioMixerName, transform, Random.Range(0.7f, 1), Random.Range(0.95f, 1.05f));
+        AudioManager.PlayEffect(onFireAudioClipName, audioMixerName, transform, Random.Range(0.7f, 1), Random.Range(0.95f, 1.05f), 0, audioSpatialBlend);
         if (orientToVelocity) transform.right = direction; // TODO: t.forward for RB(3D)
         gameObject.SetActive(true);
         if (particles) particles.Play();
@@ -100,30 +102,34 @@ public class Projectile : MonoBehaviour {
     }
 
     void OnTriggerEnter (Collider collider) {
-        OnHit(transform.position, (transform.position - collider.transform.position).normalized);
+        OnHit(transform.position, (transform.position - collider.transform.position).normalized, collider.gameObject.transform);
     }
 
     void OnCollisionEnter (Collision collision) {
         foreach (ContactPoint contact in collision.contacts) {
-            OnHit(contact.point, contact.normal);
+            OnHit(contact.point, contact.normal, collision.gameObject.transform);
             break;
         }
     }
 
     void OnTriggerEnter2D (Collider2D collider) {
-        OnHit(transform.position, (transform.position - collider.transform.position).normalized);
+        OnHit(transform.position, (transform.position - collider.transform.position).normalized, collider.gameObject.transform);
     }
 
     void OnCollisionEnter2D (Collision2D collision) {
         foreach (ContactPoint2D contact in collision.contacts) {
-            OnHit(contact.point, contact.normal);
+            OnHit(contact.point, contact.normal, collision.gameObject.transform);
             break;
         }
     }
 
-    public void OnHit(Vector3 point, Vector3 normal) {
-        AudioManager.PlayEffect(onHitAudioClipName, transform, Random.Range(0.7f, 1), Random.Range(0.95f, 1.05f));
-        ParticleManager.Play(onHitParticleSystemName, point, normal, size * size, onHitColor);
+    public void OnHit(Vector3 point, Vector3 normal, Transform t) {
+        AudioManager.PlayEffect(onHitAudioClipName, audioMixerName, transform, Random.Range(0.7f, 1), Random.Range(0.95f, 1.05f), 0, audioSpatialBlend);
+        ParticleManager.Play(onHitParticleSystemName, point, normal, size * size, onHitColor, t);
+        GameObject hitSpawn = Spawner.Spawn(onHitSpawnName);
+        hitSpawn.transform.position = point;
+        hitSpawn.transform.up = normal;
+        hitSpawn.transform.parent = t;
         if (dieOnHit) gameObject.SetActive(false);
         if (shakeCamera) CameraShake.MainCameraShake();
     }
