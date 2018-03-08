@@ -174,6 +174,26 @@ public class AudioManager : MonoBehaviour {
 		currentSource.Play();
 	}
 
+    public static void QueueMusic (AudioClip clip) {
+        if (currentSource.clip == clip) return;
+        if (currentSource.clip == null) {
+            currentSource.clip = clip;
+            currentSource.Play();
+            return;
+        }
+        else {
+            instance.StartCoroutine("QueueMusicCoroutine", clip);
+        }
+    }
+
+    IEnumerator QueueMusicCoroutine (AudioClip clip) {
+        currentSource.loop = false;
+        yield return new WaitWhile(() => currentSource.isPlaying );
+        currentSource.clip = clip;
+        currentSource.loop = true;
+        currentSource.Play();
+    }
+
 	public static void PlayMusic () {
 		if (instance.music != null) PlayMusic(instance.music);
 	}
