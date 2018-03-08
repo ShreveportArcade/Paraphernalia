@@ -6,23 +6,32 @@ using Paraphernalia.Extensions;
 public class ProjectileLauncher : MonoBehaviour {
 
 	public string projectileName;
+	
 	public float launchDelay = 1.5f;
 	public bool showProjectileOnReady = true;
 	[Range(0,360)] public float spread = 0;
 	[Range(0,1)] public float accuracy = 1;
 	public int projectilesPerShot = 1;
-	public int maxAmmo = 10;
+	
+	[Tooltip("-1 = infinite ammo")] public int maxAmmo = -1;
 	private int _ammo;
 	public int ammo {
-		get { return _ammo; }
-		set { _ammo = Mathf.Clamp(value, 0, maxAmmo); }
+		get { 
+            if (maxAmmo < 1) return int.MaxValue;
+            return _ammo; 
+        }
+		set { 
+			if (maxAmmo > 0) _ammo = Mathf.Clamp(value, 0, maxAmmo); 
+			else if (value < 0) _ammo = 0;
+			else _ammo = value;	
+		}
 	}
 
 	private float launchTime;
 	private Projectile projectile;
 
 	void Start () {
-		_ammo = maxAmmo;
+		if (maxAmmo > 0) _ammo = maxAmmo;
 		launchTime = -launchDelay;
 	}
 
@@ -34,9 +43,10 @@ public class ProjectileLauncher : MonoBehaviour {
 	}
 
 	public int Shoot (Vector3 direction, Vector3 parentVelocity = default(Vector3)) {
+        if (!isActiveAndEnabled) return 0;
 		if (Time.time - launchTime > launchDelay) {
 			launchTime = Time.time;
-			int projectileCount = (maxAmmo < 0) ? projectilesPerShot : Mathf.Min(ammo, projectilesPerShot);
+			int projectileCount = Mathf.Min(ammo, projectilesPerShot);
 			direction = Quaternion.AngleAxis(-spread * 0.5f, Vector3.forward) * direction;
 			Quaternion rotation = Quaternion.AngleAxis(spread / (float)projectileCount, Vector3.forward);
 			for (int i = 0; i < projectileCount; i++) {
