@@ -112,7 +112,7 @@ public class HealthController : MonoBehaviour {
     public void TakeDamage(float damage, bool allowRecovery = true) {
         if (!enabled || isRecovering) return;
         health -= damage;
-        if (allowRecovery && recoveryTime > 0.001f && gameObject.activeSelf) StartCoroutine("Recover");
+        if (allowRecovery && recoveryTime > 0.001f && gameObject.activeInHierarchy) StartCoroutine("Recover");
     }
 
     IEnumerator Recover () {
