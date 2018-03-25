@@ -36,6 +36,18 @@ public class CameraController : MonoBehaviour {
         }
     }
 
+    private static CameraController[] _instances;
+    public static CameraController[] instances {
+        get { 
+            if (_instances == null || _instances.Length > 0 && _instances[0] == null) {
+                _instances = FindObjectsOfType<CameraController>();
+            }
+            return _instances; 
+        }
+    }
+
+    private static Vector3 center;
+
     public List<CameraZone> cameraZones = new List<CameraZone>();
     public AudioClip defaultMusic;
     public string targetTag = "Player";
@@ -47,11 +59,15 @@ public class CameraController : MonoBehaviour {
     public float moveStartDist = 1f;
     public Vector3 velocityAdjustment = new Vector2(0.2f, 0);
     public bool bounded = false;
+    public float mergeStartDistance = 10;
+    public float mergeDistance = 5;
     public GameObject boundsObject;
     public Bounds bounds;
     public Interpolate.EaseType easeType = Interpolate.EaseType.InOutQuad;
     public bool destroyDuplicates = true;
     private bool transitioning = false;
+    private Vector3 unmergedPosition;
+    private int index;
 
     void Awake () {
         if (_instance == null) { 
@@ -77,6 +93,16 @@ public class CameraController : MonoBehaviour {
         if (useFixedUpdate) UpdatePosition();
     }
 
+    void Update () {
+        if (this != instance) return;
+        center = System.Array.ConvertAll(instances, (i) => i.unmergedPosition).Average();
+        System.Array.Sort(instances);
+        for (int i = 0; i < instances.Length; i++) {
+            CameraController c = instances[i];
+            c.index = i;
+        }
+    }
+
     void SetPosition () {
         if (target == null) {
             GameObject go = GameObject.FindWithTag(targetTag);
@@ -84,12 +110,14 @@ public class CameraController : MonoBehaviour {
             target = go.transform;
         }
         transform.position = target.position + offset;
+        unmergedPosition = transform.position;
         
         Collider2D[] collider2Ds = Physics2D.OverlapPointAll(target.position);
         foreach (Collider2D collider2D in collider2Ds) {
             CameraZone zone = collider2D.gameObject.GetComponent<CameraZone>();
             if (zone != null) {
                 transform.position = zone.position.Lerp3(transform.position, zone.axisLock);
+                unmergedPosition = transform.position;
                 return;
             }
         }
@@ -100,12 +128,14 @@ public class CameraController : MonoBehaviour {
             CameraZone zone = collider.gameObject.GetComponent<CameraZone>();
             if (zone != null) {
                 transform.position = zone.position.Lerp3(transform.position, zone.axisLock);
+                unmergedPosition = transform.position;
                 return;
             }
         }
         if (bounded) {
             if (boundsObject) bounds = boundsObject.RendererBounds();
             transform.position = camera.GetBoundedPos(bounds);
+            unmergedPosition = transform.position;
         }
     }
 
@@ -121,7 +151,19 @@ public class CameraController : MonoBehaviour {
             if (!Application.isPlaying) SetPosition();
             else {
             #endif
-                if (!transitioning) transform.position = LerpToTarget();
+                if (!transitioning) {
+                    unmergedPosition = LerpToTarget();
+                
+                    Vector3 diff = center - unmergedPosition;
+                    float dist = diff.magnitude;
+                    if (dist < mergeStartDistance) {
+                        float t = (mergeStartDistance - dist) / (mergeStartDistance - mergeDistance);
+                        transform.position = Vector3.Lerp(unmergedPosition, center, t);
+                    }
+                    else {
+                        transform.position = unmergedPosition;
+                    }
+                }
 
                 if (bounded) {
                     if (boundsObject) bounds = boundsObject.RendererBounds();
@@ -141,7 +183,7 @@ public class CameraController : MonoBehaviour {
     }
 
     Vector3 LerpToTarget () {
-        Vector3 desiredPosition = transform.position;
+        Vector3 desiredPosition = unmergedPosition;
         CameraZone zone = (cameraZones.Count > 0) ? cameraZones[cameraZones.Count - 1] : null;
         Vector3 v = Vector3.zero;
         
@@ -154,10 +196,10 @@ public class CameraController : MonoBehaviour {
         Rigidbody b = target.GetComponent<Rigidbody>();
         if (b != null) v = Vector3.Scale(b.velocity, velocityAdjustment);
 
-        float d = Vector3.Distance(target.position, transform.position + offset);
+        float d = Vector3.Distance(target.position, unmergedPosition + offset);
         if (d > moveStartDist) {
             Vector3 targetPosition = Vector3.Lerp(
-                transform.position,
+                unmergedPosition,
                 target.position + offset + v,
                 Time.deltaTime * speed
             );
