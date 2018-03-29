@@ -20,7 +20,7 @@ using UnityEngine;
 
 namespace Paraphernalia.Math {
 [System.Serializable]
-class Line2D {
+public class Line2D {
 
 	private float slope;
 	private float intercept;
@@ -66,5 +66,10 @@ class Line2D {
 		float x = (line.intercept - this.intercept) / (this.slope - line.slope);
 		return new Vector2(x, this.slope * x + this.intercept);
 	}
+
+    public override string ToString() {
+        if (vertical) return "vertical, x = " + point.x;
+        return string.Format("y = {0}x + {1}", slope, intercept);
+    }
 }
 }

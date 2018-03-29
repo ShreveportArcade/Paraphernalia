@@ -47,6 +47,10 @@ public class CameraController : MonoBehaviour {
     }
 
     private static Vector3 center;
+    private static Bounds _splitBounds = new Bounds();
+    public static Bounds splitBounds {
+        get { return _splitBounds; }
+    } 
 
     public List<CameraZone> cameraZones = new List<CameraZone>();
     public AudioClip defaultMusic;
@@ -61,13 +65,20 @@ public class CameraController : MonoBehaviour {
     public bool bounded = false;
     public float mergeStartDistance = 10;
     public float mergeDistance = 5;
+    public Vector3 splitOffset = -Vector3.forward;
     public GameObject boundsObject;
     public Bounds bounds;
     public Interpolate.EaseType easeType = Interpolate.EaseType.InOutQuad;
     public bool destroyDuplicates = true;
     private bool transitioning = false;
     private Vector3 unmergedPosition;
-    private int index;
+
+    private float _merge = 0;
+    public float merge {
+        get {
+            return _merge;
+        }
+    }
 
     void Awake () {
         if (_instance == null) { 
@@ -96,11 +107,14 @@ public class CameraController : MonoBehaviour {
     void Update () {
         if (this != instance) return;
         center = System.Array.ConvertAll(instances, (i) => i.unmergedPosition).Average();
-        System.Array.Sort(instances);
-        for (int i = 0; i < instances.Length; i++) {
-            CameraController c = instances[i];
-            c.index = i;
+
+        _splitBounds = new Bounds(instances[0].transform.position, Vector3.one);
+        int len = instances.Length;
+        for (int i = 1; i < len; i++) {
+            Vector3 v = _instances[i].transform.position;
+            _splitBounds.Encapsulate(v);
         }
+        _splitBounds.Expand(1);
     }
 
     void SetPosition () {
@@ -109,7 +123,9 @@ public class CameraController : MonoBehaviour {
             if (go == null) return;
             target = go.transform;
         }
-        transform.position = target.position + offset;
+        Vector3 off = offset;
+        if (instances.Length > 1) off = splitOffset;
+        transform.position = target.position + off;
         unmergedPosition = transform.position;
         
         Collider2D[] collider2Ds = Physics2D.OverlapPointAll(target.position);
@@ -156,11 +172,16 @@ public class CameraController : MonoBehaviour {
                 
                     Vector3 diff = center - unmergedPosition;
                     float dist = diff.magnitude;
-                    if (dist < mergeStartDistance) {
-                        float t = (mergeStartDistance - dist) / (mergeStartDistance - mergeDistance);
-                        transform.position = Vector3.Lerp(unmergedPosition, center, t);
+                    if (dist < mergeDistance) {
+                        _merge = 1;
+                        transform.position = center;
+                    }
+                    else if (dist < mergeStartDistance) {
+                        _merge = (mergeStartDistance - dist) / (mergeStartDistance - mergeDistance);
+                        transform.position = Vector3.Lerp(unmergedPosition, center, _merge);
                     }
                     else {
+                        _merge = 0;
                         transform.position = unmergedPosition;
                     }
                 }
@@ -177,7 +198,7 @@ public class CameraController : MonoBehaviour {
             GameObject g = GameObject.FindWithTag(targetTag);
             if (g!= null) {
                 target = g.transform;
-                transform.position = target.position + offset;
+                SetPosition();
             }
         }
     }
@@ -196,11 +217,15 @@ public class CameraController : MonoBehaviour {
         Rigidbody b = target.GetComponent<Rigidbody>();
         if (b != null) v = Vector3.Scale(b.velocity, velocityAdjustment);
 
-        float d = Vector3.Distance(target.position, unmergedPosition + offset);
+        Vector3 off = offset;
+        if (instances.Length > 1) off = splitOffset;
+        transform.position = target.position + off;
+
+        float d = Vector3.Distance(target.position, unmergedPosition + off);
         if (d > moveStartDist) {
             Vector3 targetPosition = Vector3.Lerp(
                 unmergedPosition,
-                target.position + offset + v,
+                target.position + off + v,
                 Time.deltaTime * speed
             );
             if (zone == null) desiredPosition = targetPosition;
