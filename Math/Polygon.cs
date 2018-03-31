@@ -81,6 +81,7 @@ public class Polygon {
     }
 
     public void UpdateRect () {
+        if (path.Length == 0) return;
         float left = path[0].x;
         float right = path[0].x;
         float bottom = path[0].y;
@@ -184,7 +185,6 @@ public class Polygon {
             lastPoint = path[i];
             lastDot = dot;
         }
-        Debug.Log(newPath.Count);
         SetPath(newPath.ToArray());
     }
 

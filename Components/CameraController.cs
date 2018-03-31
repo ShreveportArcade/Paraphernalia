@@ -108,13 +108,12 @@ public class CameraController : MonoBehaviour {
         if (this != instance) return;
         center = System.Array.ConvertAll(instances, (i) => i.unmergedPosition).Average();
 
-        _splitBounds = new Bounds(instances[0].transform.position, Vector3.one);
+        _splitBounds = new Bounds(instances[0].transform.position, Vector3.zero);
         int len = instances.Length;
         for (int i = 1; i < len; i++) {
             Vector3 v = _instances[i].transform.position;
             _splitBounds.Encapsulate(v);
         }
-        _splitBounds.Expand(1);
     }
 
     void SetPosition () {

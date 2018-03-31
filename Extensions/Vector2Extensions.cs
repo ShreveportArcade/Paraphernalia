@@ -24,18 +24,27 @@ using System.Collections.Generic;
 namespace Paraphernalia.Extensions {
 public static class Vector2Extensions {
 
-	public static Vector2 GetPerpendicular (this Vector2 p) {
-		return new Vector2(-p.y, p.x);
-	}
+    public static Vector2 GetPerpendicular (this Vector2 p) {
+        return new Vector2(-p.y, p.x);
+    }
 
-	public static Vector2 RotatedByDeg (this Vector2 v, float degrees) {
-		return v.RotatedByRad(degrees * Mathf.Deg2Rad);
-	}
+    public static Vector2 RotatedByDeg (this Vector2 v, float degrees) {
+        return v.RotatedByRad(degrees * Mathf.Deg2Rad);
+    }
 
-	public static Vector2 RotatedByRad (this Vector2 v, float radians) {
-		float sin = Mathf.Sin(radians);
-		float cos = Mathf.Cos(radians);
-		return new Vector2(v.x * cos - v.y * sin, v.x * sin + v.y * cos);
-	}
+    public static Vector2 RotatedByRad (this Vector2 v, float radians) {
+        float sin = Mathf.Sin(radians);
+        float cos = Mathf.Cos(radians);
+        return new Vector2(v.x * cos - v.y * sin, v.x * sin + v.y * cos);
+    }
+    
+    public static Vector2 Average (this Vector2[] points) {
+        Vector2 average = points[0];
+        for (int i = 1; i < points.Length; i++) {
+            average += points[i];
+        }
+        average /= (float)points.Length;
+        return average;
+    }
 }
 }
