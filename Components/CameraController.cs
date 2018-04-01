@@ -80,6 +80,15 @@ public class CameraController : MonoBehaviour {
         }
     }
 
+    public static CameraController CameraControllerFromTarget (GameObject target) {
+        foreach (CameraController c in CameraController.instances) {
+            if (target.GetInstanceID() == c.target.gameObject.GetInstanceID()) {
+                return c;
+            }
+        }
+        return null;
+    }
+
     void Awake () {
         if (_instance == null) { 
             _instance = this;
@@ -218,7 +227,7 @@ public class CameraController : MonoBehaviour {
 
         Vector3 off = offset;
         if (instances.Length > 1) off = splitOffset;
-        transform.position = target.position + off;
+        desiredPosition = target.position + off;
 
         float d = Vector3.Distance(target.position, unmergedPosition + off);
         if (d > moveStartDist) {
@@ -234,20 +243,19 @@ public class CameraController : MonoBehaviour {
         return desiredPosition;
     }
 
-    public static void AddZone(CameraZone zone) {
-        if (instance.cameraZones.Contains(zone)) return;
-        instance.cameraZones.Add(zone);
-        instance.StopCoroutine("TransitionToZoneCoroutine");
-        instance.StartCoroutine("TransitionToZoneCoroutine");
+    public void AddZone(CameraZone zone) {
+        if (cameraZones.Contains(zone)) return;
+        cameraZones.Add(zone);
+        StopCoroutine("TransitionToZoneCoroutine");
+        StartCoroutine("TransitionToZoneCoroutine");
     }
 
-    public static void RemoveZone(CameraZone zone) {
-        instance.cameraZones.Remove(zone);
-        instance.transitioning = false;
-        instance.StopCoroutine("TransitionToZoneCoroutine");
-        if (instance.cameraZones.Count > 0) instance.StartCoroutine("TransitionToZoneCoroutine");
-        else if (instance.defaultMusic != null) AudioManager.CrossfadeMusic(instance.defaultMusic, 0.5f);
-        
+    public void RemoveZone(CameraZone zone) {
+        cameraZones.Remove(zone);
+        transitioning = false;
+        StopCoroutine("TransitionToZoneCoroutine");
+        if (cameraZones.Count > 0) StartCoroutine("TransitionToZoneCoroutine");
+        else if (defaultMusic != null) AudioManager.CrossfadeMusic(instance.defaultMusic, 0.5f);
     }
 
     IEnumerator TransitionToZoneCoroutine () {

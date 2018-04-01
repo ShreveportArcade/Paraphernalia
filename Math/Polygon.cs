@@ -168,6 +168,7 @@ public class Polygon {
     }
 
     public void Cut (Vector2 point, Vector2 normal) {
+        if (path.Length <= 1) return;
         normal.Normalize();
         List<Vector2> newPath = new List<Vector2>();
         Line2D cutLine = new Line2D(point, point + normal.GetPerpendicular());
