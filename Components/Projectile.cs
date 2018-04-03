@@ -7,6 +7,7 @@ using Paraphernalia.Components;
 public class Projectile : MonoBehaviour {
 
     public float speed = 5;
+    public float speedVariation = 0;
     public float lifetime = 3;
     public float size = 1;
     public bool orientToVelocity = true;
@@ -79,7 +80,8 @@ public class Projectile : MonoBehaviour {
         if (lifetime > 0) StartCoroutine("LifeCycleCoroutine");
         if (body != null) {
             body.angularVelocity = Vector3.zero;
-            body.velocity = direction.normalized * speed + gunVelocity * (1 - gunVelocityDamping);
+            float s = speed + Random.Range(-speedVariation, speedVariation);
+            body.velocity = direction.normalized * s + gunVelocity * (1 - gunVelocityDamping);
             Collider[] colliders = GetComponentsInChildren<Collider>();
             foreach (Collider collider in colliders) {
                 collider.enabled = true;
@@ -87,7 +89,8 @@ public class Projectile : MonoBehaviour {
         }
         else {
             body2D.angularVelocity = 0;
-            body2D.velocity = direction.normalized * speed + gunVelocity * (1 - gunVelocityDamping);
+            float s = speed + Random.Range(-speedVariation, speedVariation);
+            body2D.velocity = direction.normalized * s + gunVelocity * (1 - gunVelocityDamping);
             Collider2D[] colliders = GetComponentsInChildren<Collider2D>();
             foreach (Collider2D collider in colliders) {
                 collider.enabled = true;

@@ -27,7 +27,7 @@ public class HealthController : MonoBehaviour {
     public string deathParticlesName;
     public string destructionParticlesName;
     public string destructionSpawnName;
-    [Range(0,1)] public int audioSpatialBlend = 0;
+    [Range(0,1)] public float audioSpatialBlend = 0;
 
     public float recoveryTime = 3;
     private bool isRecovering = false;
@@ -77,9 +77,13 @@ public class HealthController : MonoBehaviour {
                 AudioManager.PlayEffect(resurectionSoundName, null, transform, Random.Range(0.9f,1.1f), Random.Range(0.9f,1.1f), 0, audioSpatialBlend);
                 onResurection();
             }
-            else if (_health < prevHealth) {
+            else if (_health < prevHealth && _health > 0) {
                 AudioManager.PlayEffect(damageSoundName, null, transform, Random.Range(0.9f,1.1f), Random.Range(0.9f,1.1f), 0, audioSpatialBlend);
                 ParticleManager.Play(damageParticlesName, transform);
+            }
+            else if (_health < prevHealth && _health <= 0) {
+                // AudioManager.PlayEffect(damageSoundName, null, transform, Random.Range(0.9f,1.1f), Random.Range(0.9f,1.1f), 0, audioSpatialBlend);
+                // ParticleManager.Play(damageParticlesName, transform);
             }
             
             if (prevHealth != _health) {
