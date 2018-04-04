@@ -45,6 +45,10 @@ public class HealthController : MonoBehaviour {
             }
         }
     }
+
+    public float healthPct {
+        get { return Mathf.Clamp01(health / maxHealth); }
+    }
     
     public float destructionHealth = -1;
     private float _health = -1;
