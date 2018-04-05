@@ -32,7 +32,7 @@ public class AudioManager : MonoBehaviour {
     public AudioMixerGroup musicMixer;
     public AudioMixerGroup defaultSFXMixer;
 
-    [Range(0,20)] public int sfxSourcesCount = 5;
+    [Range(0,100)] public int sfxSourcesCount = 5;
     private int currentSFXSource = 0;
     private AudioSource[] sfxSources;
 
