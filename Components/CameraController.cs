@@ -93,16 +93,24 @@ public class CameraController : MonoBehaviour {
         if (_instance == null) { 
             _instance = this;
             SetPosition();
+            AudioListener listener = GetComponent<AudioListener>();
+            if (listener != null) listener.enabled = true;
         }
         else if (_instance != this && destroyDuplicates) {
             Debug.LogWarning("Instance of CameraController already exists. Destroying duplicate.");
             GameObjectUtils.Destroy(gameObject);
         }
+        else if (_instance != this && !destroyDuplicates) {
+            AudioListener listener = GetComponent<AudioListener>();
+            if (listener != null) listener.enabled = false;
+        }
     }
 
-    void Start () {
+    IEnumerator Start () {
         SetPosition();
         if (instance.defaultMusic != null && Application.isPlaying) AudioManager.CrossfadeMusic(instance.defaultMusic, 0.5f);
+        yield return null;
+        SetPosition();
     }
 
     void LateUpdate () {
