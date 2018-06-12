@@ -27,12 +27,16 @@ public class Projectile : MonoBehaviour {
 	public string onHitParticleSystemName = "";
 	public Color onHitColor = Color.white;
 	public Rigidbody2D target;
-	
-	private Rigidbody2D body;
+    public bool is2D = false;
+    
+    private static Camera cam;
+
+    private Rigidbody2D body;
 	private Vector2 startPosition;
 
 	void Awake () {
 		body = GetComponent<Rigidbody2D>();
+        if (cam == null) cam = Camera.main;
 	}
 
 	void OnDisable () {
@@ -56,7 +60,15 @@ public class Projectile : MonoBehaviour {
 	public void Fire (Vector3 direction, Vector3 gunVelocity = default(Vector3)) {
 		startPosition = transform.position;
 		transform.SetParent(Spawner.root);
-		AudioManager.PlayEffect(onFireAudioClipName, audioMixerName, transform, Random.Range(0.7f, 1), Random.Range(0.95f, 1.05f));
+        float pan = 0;
+        float spatialBlend = 1;
+        if (is2D) {
+            float x = cam.WorldToViewportPoint(startPosition).x;
+            pan = x * 2 - 1;
+            spatialBlend = 0;
+            Debug.Log(pan);
+        }
+        AudioManager.PlayEffect(onFireAudioClipName, audioMixerName, transform, Random.Range(0.7f, 1), Random.Range(0.95f, 1.05f), pan, spatialBlend);
 		ParticleManager.Play(onFireParticleSystemName, transform.position, direction, size * size);
 		if (orientToVelocity) transform.right = direction;
 		gameObject.SetActive(true);
@@ -88,7 +100,13 @@ public class Projectile : MonoBehaviour {
 	}
 
 	public void OnHit(Vector3 point, Vector3 normal) {
-		AudioManager.PlayEffect(onHitAudioClipName, transform, Random.Range(0.7f, 1), Random.Range(0.95f, 1.05f));
+        float pan = 0;
+        float spatialBlend = 0;
+        if (is2D) {
+            float x = cam.WorldToViewportPoint(point).x;
+            pan = x * 2 - 1;
+        }
+        AudioManager.PlayEffect(onHitAudioClipName, audioMixerName, transform, Random.Range(0.7f, 1), Random.Range(0.95f, 1.05f), pan, spatialBlend);
 		ParticleManager.Play(onHitParticleSystemName, point, normal, size * size, onHitColor);
 		if (dieOnHit) gameObject.SetActive(false);
 		if (shakeCamera) CameraShake.MainCameraShake();
