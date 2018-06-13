@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Paraphernalia.Extensions;
+using Paraphernalia.Components;
 
 public class Damage : MonoBehaviour {
 
@@ -11,6 +12,7 @@ public class Damage : MonoBehaviour {
     public bool disableOnCollision = false;
     public bool affectAncestor = false;
     public bool allowRecovery = true;
+    public string hitSoundName;
     public List<string> ignoreTags = new List<string>();
 
     protected virtual float GetDamage() {
@@ -26,15 +28,15 @@ public class Damage : MonoBehaviour {
         HealthController h = GetHealthController(collider.gameObject);
         if (h != null) {
             h.TakeDamage(GetDamage(), allowRecovery);
-            ApplyForce(collider.gameObject);
+            HitObject(collider.gameObject);
         }
     }
 
     void OnCollisionEnter2D (Collision2D collision) {
-        HealthController h = GetHealthController(collision.gameObject);
+        HealthController h = GetHealthController(collision.collider.gameObject);
         if (h != null) {
             h.TakeDamage(GetDamage(collision.relativeVelocity, collision.contacts[0].normal), allowRecovery);
-            ApplyForce(collision.gameObject);
+            HitObject(collision.collider.gameObject);
         }
     }
 
@@ -42,15 +44,15 @@ public class Damage : MonoBehaviour {
         HealthController h = GetHealthController(collider.gameObject);
         if (h != null) {
             h.TakeDamage(GetDamage(), allowRecovery);
-            ApplyForce(collider.gameObject);
+            HitObject(collider.gameObject);
         }
     }
 
     void OnCollisionEnter (Collision collision) {
-        HealthController h = GetHealthController(collision.gameObject);
+        HealthController h = GetHealthController(collision.collider.gameObject);
         if (h != null) {
             h.TakeDamage(GetDamage(collision.relativeVelocity, collision.contacts[0].normal), allowRecovery);
-            ApplyForce(collision.gameObject);
+            HitObject(collision.collider.gameObject);
         }
     }
 
@@ -62,8 +64,9 @@ public class Damage : MonoBehaviour {
         return h;
     }
 
-    void ApplyForce (GameObject g) {
+    void HitObject (GameObject g) {
         Rigidbody r = g.GetComponentInParent<Rigidbody>();
         if (r != null) r.AddForce(transform.TransformVector(force), ForceMode.Impulse);
+        AudioManager.PlayVariedEffect(hitSoundName);
     }
 }

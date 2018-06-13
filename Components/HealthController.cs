@@ -20,13 +20,22 @@ public class HealthController : MonoBehaviour {
     public event OnLifeChangeEvent onResurection = delegate {};
 
     public string damageSoundName;
-    public string damageParticlesName;
     public string deathSoundName;
     public string resurectionSoundName;
     public string destructionSoundName;
+
+    public string damageParticlesName;
     public string deathParticlesName;
     public string destructionParticlesName;
+
     public string destructionSpawnName;
+
+    public Animator anim;
+    public string damageTriggerName;
+    public string deathTriggerName;
+    public string resurectionTriggerName;
+
+    [Range(0,1)] public float audioSpatialBlend = 0;
 
     public float recoveryTime = 3;
     private bool isRecovering = false;
@@ -43,6 +52,10 @@ public class HealthController : MonoBehaviour {
                 else if (health > _maxHealth) health = maxHealth;
             }
         }
+    }
+
+    public float healthPct {
+        get { return Mathf.Clamp01(health / maxHealth); }
     }
     
     public float destructionHealth = -1;
@@ -65,20 +78,27 @@ public class HealthController : MonoBehaviour {
                     PlayDestruction();
                 }
                 else {
-                    AudioManager.PlayVariedEffect(deathSoundName);
+                    AudioManager.PlayEffect(deathSoundName, null, transform, Random.Range(0.9f,1.1f), Random.Range(0.9f,1.1f), 0, audioSpatialBlend);
                     ParticleManager.Play(deathParticlesName, transform);
+                    TriggerAnimation(deathTriggerName);
                 }
             }
             else if (_health <= destructionHealth && prevHealth > destructionHealth) {
                 PlayDestruction();
             }
             else if (_health > 0 && prevHealth <= 0) {
-                AudioManager.PlayVariedEffect(resurectionSoundName);
+                AudioManager.PlayEffect(resurectionSoundName, null, transform, Random.Range(0.9f,1.1f), Random.Range(0.9f,1.1f), 0, audioSpatialBlend);
                 onResurection();
+                TriggerAnimation(resurectionTriggerName);
             }
-            else if (_health < prevHealth) {
-                AudioManager.PlayVariedEffect(damageSoundName);
+            else if (_health < prevHealth && _health > 0) {
+                AudioManager.PlayEffect(damageSoundName, null, transform, Random.Range(0.9f,1.1f), Random.Range(0.9f,1.1f), 0, audioSpatialBlend);
                 ParticleManager.Play(damageParticlesName, transform);
+                TriggerAnimation(damageTriggerName);
+            }
+            else if (_health < prevHealth && _health <= 0) {
+                // AudioManager.PlayEffect(damageSoundName, null, transform, Random.Range(0.9f,1.1f), Random.Range(0.9f,1.1f), 0, audioSpatialBlend);
+                // ParticleManager.Play(damageParticlesName, transform);
             }
             
             if (prevHealth != _health) {
@@ -89,7 +109,7 @@ public class HealthController : MonoBehaviour {
     }
 
     void PlayDestruction () {
-        AudioManager.PlayVariedEffect(destructionSoundName);
+        AudioManager.PlayEffect(destructionSoundName, null, transform, Random.Range(0.9f,1.1f), Random.Range(0.9f,1.1f), 0, audioSpatialBlend);
         ParticleManager.Play(destructionParticlesName, transform.position);
         GameObject destructionSpawn = Spawner.Spawn(destructionSpawnName);
         if (destructionSpawn != null) {
@@ -106,17 +126,23 @@ public class HealthController : MonoBehaviour {
     
     void Start() {
         health = maxHealth;
+        if (anim == null) anim = GetComponentInParent<Animator>();
     }
 
     public void TakeDamage(float damage, bool allowRecovery = true) {
         if (!enabled || isRecovering) return;
         health -= damage;
-        if (allowRecovery) StartCoroutine("Recover");
+        if (allowRecovery && recoveryTime > 0.001f && gameObject.activeInHierarchy) StartCoroutine("Recover");
     }
 
     IEnumerator Recover () {
         isRecovering = true;
         yield return new WaitForSeconds(recoveryTime);
         isRecovering = false;
+    }
+
+    void TriggerAnimation(string triggerName) {
+        if (anim == null || string.IsNullOrEmpty(triggerName)) return;
+        anim.SetTrigger(triggerName);
     }
 }

@@ -17,29 +17,31 @@ public class CameraZone : MonoBehaviour {
     }
 
     void OnTriggerEnter2D(Collider2D collider) {
-        if (collider.gameObject.tag == "Player") AddRemoveZone(true);
+        CameraController cam = CameraController.CameraControllerFromTarget(collider.gameObject);
+        if (cam != null) AddRemoveZone(true, cam);
     }
 
     void OnTriggerExit2D(Collider2D collider) {
-        if (collider.gameObject.tag == "Player") AddRemoveZone(false);
+        CameraController cam = CameraController.CameraControllerFromTarget(collider.gameObject);
+        if (cam != null) AddRemoveZone(false, cam);
     }
 
     void OnTriggerEnter(Collider collider) {
-        if (collider.gameObject.tag == "Player") AddRemoveZone(true);
-    }
+    CameraController cam = CameraController.CameraControllerFromTarget(collider.gameObject);
+        if (cam != null) AddRemoveZone(true, cam);    }
 
     void OnTriggerExit(Collider collider) {
-        if (collider.gameObject.tag == "Player") AddRemoveZone(false);
+        CameraController cam = CameraController.CameraControllerFromTarget(collider.gameObject);
+        if (cam != null) AddRemoveZone(false, cam);
     }
 
-    void AddRemoveZone (bool add) {
-        if (add) CameraController.AddZone(this);
-        else CameraController.RemoveZone(this);
+    void AddRemoveZone (bool add, CameraController cam) {
+        if (add) cam.AddZone(this);
+        else cam.RemoveZone(this);
         foreach (MonoBehaviour b in behavioursToActivate) {
             b.enabled = add;
         }
     }
-
 
     void OnDrawGizmos() {
         Gizmos.color = Color.white;

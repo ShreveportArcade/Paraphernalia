@@ -36,6 +36,22 @@ public class CameraController : MonoBehaviour {
         }
     }
 
+    private static CameraController[] _instances;
+    public static CameraController[] instances {
+        get { 
+            if (_instances == null || _instances.Length > 0 && _instances[0] == null) {
+                _instances = FindObjectsOfType<CameraController>();
+            }
+            return _instances; 
+        }
+    }
+
+    private static Vector3 center;
+    private static Bounds _splitBounds = new Bounds();
+    public static Bounds splitBounds {
+        get { return _splitBounds; }
+    } 
+
     public List<CameraZone> cameraZones = new List<CameraZone>();
     public AudioClip defaultMusic;
     public string targetTag = "Player";
@@ -47,26 +63,54 @@ public class CameraController : MonoBehaviour {
     public float moveStartDist = 1f;
     public Vector3 velocityAdjustment = new Vector2(0.2f, 0);
     public bool bounded = false;
+    public float mergeStartDistance = 10;
+    public float mergeDistance = 5;
+    public Vector3 splitOffset = -Vector3.forward;
     public GameObject boundsObject;
     public Bounds bounds;
     public Interpolate.EaseType easeType = Interpolate.EaseType.InOutQuad;
     public bool destroyDuplicates = true;
     private bool transitioning = false;
+    private Vector3 unmergedPosition;
+
+    private float _merge = 0;
+    public float merge {
+        get {
+            return _merge;
+        }
+    }
+
+    public static CameraController CameraControllerFromTarget (GameObject target) {
+        foreach (CameraController c in CameraController.instances) {
+            if (target.GetInstanceID() == c.target.gameObject.GetInstanceID()) {
+                return c;
+            }
+        }
+        return null;
+    }
 
     void Awake () {
         if (_instance == null) { 
             _instance = this;
             SetPosition();
+            AudioListener listener = GetComponent<AudioListener>();
+            if (listener != null) listener.enabled = true;
         }
         else if (_instance != this && destroyDuplicates) {
             Debug.LogWarning("Instance of CameraController already exists. Destroying duplicate.");
             GameObjectUtils.Destroy(gameObject);
         }
+        else if (_instance != this && !destroyDuplicates) {
+            AudioListener listener = GetComponent<AudioListener>();
+            if (listener != null) listener.enabled = false;
+        }
     }
 
-    void Start () {
+    IEnumerator Start () {
         SetPosition();
         if (instance.defaultMusic != null && Application.isPlaying) AudioManager.CrossfadeMusic(instance.defaultMusic, 0.5f);
+        yield return null;
+        SetPosition();
     }
 
     void LateUpdate () {
@@ -77,34 +121,54 @@ public class CameraController : MonoBehaviour {
         if (useFixedUpdate) UpdatePosition();
     }
 
+    void Update () {
+        if (this != instance) return;
+        center = System.Array.ConvertAll(instances, (i) => i.unmergedPosition).Average();
+
+        _splitBounds = new Bounds(instances[0].target.position, Vector3.zero);
+        int len = instances.Length;
+        for (int i = 1; i < len; i++) {
+            Vector3 v = _instances[i].target.position;
+            _splitBounds.Encapsulate(v);
+        }
+        _splitBounds.Expand(0.01f);
+    }
+
     void SetPosition () {
-        GameObject go = GameObject.FindWithTag(targetTag);
-        if (go == null) return;
+        if (target == null) {
+            GameObject go = GameObject.FindWithTag(targetTag);
+            if (go == null) return;
+            target = go.transform;
+        }
+        Vector3 off = offset;
+        if (instances.Length > 1) off = splitOffset;
+        transform.position = target.position + off;
+        unmergedPosition = transform.position;
         
-        if (target == null) target = go.transform;
-        transform.position = target.position + offset;
-        
-        Collider2D[] collider2Ds = Physics2D.OverlapPointAll(go.transform.position);
+        Collider2D[] collider2Ds = Physics2D.OverlapPointAll(target.position);
         foreach (Collider2D collider2D in collider2Ds) {
             CameraZone zone = collider2D.gameObject.GetComponent<CameraZone>();
             if (zone != null) {
                 transform.position = zone.position.Lerp3(transform.position, zone.axisLock);
+                unmergedPosition = transform.position;
                 return;
             }
         }
 
 
-        Collider[] colliders = Physics.OverlapSphere(go.transform.position, 1);
+        Collider[] colliders = Physics.OverlapSphere(target.position, 1);
         foreach (Collider collider in colliders) {
             CameraZone zone = collider.gameObject.GetComponent<CameraZone>();
             if (zone != null) {
                 transform.position = zone.position.Lerp3(transform.position, zone.axisLock);
+                unmergedPosition = transform.position;
                 return;
             }
         }
         if (bounded) {
             if (boundsObject) bounds = boundsObject.RendererBounds();
             transform.position = camera.GetBoundedPos(bounds);
+            unmergedPosition = transform.position;
         }
     }
 
@@ -120,7 +184,24 @@ public class CameraController : MonoBehaviour {
             if (!Application.isPlaying) SetPosition();
             else {
             #endif
-                if (!transitioning) transform.position = LerpToTarget();
+                if (!transitioning) {
+                    unmergedPosition = LerpToTarget();
+                
+                    Vector3 diff = center - unmergedPosition;
+                    float dist = diff.magnitude;
+                    if (dist < mergeDistance) {
+                        _merge = 1;
+                        transform.position = center;
+                    }
+                    else if (dist < mergeStartDistance) {
+                        _merge = (mergeStartDistance - dist) / (mergeStartDistance - mergeDistance);
+                        transform.position = Vector3.Lerp(unmergedPosition, center, _merge);
+                    }
+                    else {
+                        _merge = 0;
+                        transform.position = unmergedPosition;
+                    }
+                }
 
                 if (bounded) {
                     if (boundsObject) bounds = boundsObject.RendererBounds();
@@ -134,13 +215,13 @@ public class CameraController : MonoBehaviour {
             GameObject g = GameObject.FindWithTag(targetTag);
             if (g!= null) {
                 target = g.transform;
-                transform.position = target.position + offset;
+                SetPosition();
             }
         }
     }
 
     Vector3 LerpToTarget () {
-        Vector3 desiredPosition = transform.position;
+        Vector3 desiredPosition = unmergedPosition;
         CameraZone zone = (cameraZones.Count > 0) ? cameraZones[cameraZones.Count - 1] : null;
         Vector3 v = Vector3.zero;
         
@@ -153,11 +234,15 @@ public class CameraController : MonoBehaviour {
         Rigidbody b = target.GetComponent<Rigidbody>();
         if (b != null) v = Vector3.Scale(b.velocity, velocityAdjustment);
 
-        float d = Vector3.Distance(target.position, transform.position + offset);
+        Vector3 off = offset;
+        if (instances.Length > 1) off = splitOffset;
+        desiredPosition = target.position + off;
+
+        float d = Vector3.Distance(target.position, unmergedPosition + off);
         if (d > moveStartDist) {
             Vector3 targetPosition = Vector3.Lerp(
-                transform.position,
-                target.position + offset + v,
+                unmergedPosition,
+                target.position + off + v,
                 Time.deltaTime * speed
             );
             if (zone == null) desiredPosition = targetPosition;
@@ -167,20 +252,19 @@ public class CameraController : MonoBehaviour {
         return desiredPosition;
     }
 
-    public static void AddZone(CameraZone zone) {
-        if (instance.cameraZones.Contains(zone)) return;
-        instance.cameraZones.Add(zone);
-        instance.StopCoroutine("TransitionToZoneCoroutine");
-        instance.StartCoroutine("TransitionToZoneCoroutine");
+    public void AddZone(CameraZone zone) {
+        if (cameraZones.Contains(zone)) return;
+        cameraZones.Add(zone);
+        StopCoroutine("TransitionToZoneCoroutine");
+        StartCoroutine("TransitionToZoneCoroutine");
     }
 
-    public static void RemoveZone(CameraZone zone) {
-        instance.cameraZones.Remove(zone);
-        instance.transitioning = false;
-        instance.StopCoroutine("TransitionToZoneCoroutine");
-        if (instance.cameraZones.Count > 0) instance.StartCoroutine("TransitionToZoneCoroutine");
-        else if (instance.defaultMusic != null) AudioManager.CrossfadeMusic(instance.defaultMusic, 0.5f);
-        
+    public void RemoveZone(CameraZone zone) {
+        cameraZones.Remove(zone);
+        transitioning = false;
+        StopCoroutine("TransitionToZoneCoroutine");
+        if (cameraZones.Count > 0) StartCoroutine("TransitionToZoneCoroutine");
+        else if (defaultMusic != null) AudioManager.CrossfadeMusic(instance.defaultMusic, 0.5f);
     }
 
     IEnumerator TransitionToZoneCoroutine () {

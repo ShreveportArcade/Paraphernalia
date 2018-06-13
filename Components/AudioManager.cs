@@ -32,7 +32,7 @@ public class AudioManager : MonoBehaviour {
     public AudioMixerGroup musicMixer;
     public AudioMixerGroup defaultSFXMixer;
 
-    [Range(0,20)] public int sfxSourcesCount = 5;
+    [Range(0,100)] public int sfxSourcesCount = 5;
     private int currentSFXSource = 0;
     private AudioSource[] sfxSources;
 
@@ -265,6 +265,26 @@ public class AudioManager : MonoBehaviour {
             t += Time.unscaledDeltaTime;
             yield return new WaitForEndOfFrame();
         }
+    }
+
+    public static void QueueMusic (AudioClip clip) {
+        if (currentSource.clip == clip) return;
+        if (currentSource.clip == null) {
+            currentSource.clip = clip;
+            currentSource.Play();
+            return;
+        }
+        else {
+            instance.StartCoroutine("QueueMusicCoroutine", clip);
+        }
+    }
+
+    IEnumerator QueueMusicCoroutine (AudioClip clip) {
+        currentSource.loop = false;
+        yield return new WaitWhile(() => currentSource.isPlaying );
+        currentSource.clip = clip;
+        currentSource.loop = true;
+        currentSource.Play();
     }
 }
 }
