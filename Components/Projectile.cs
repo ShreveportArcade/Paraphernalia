@@ -27,16 +27,22 @@ public class Projectile : MonoBehaviour {
 	public string onHitParticleSystemName = "";
 	public Color onHitColor = Color.white;
 	public Rigidbody2D target;
-    public bool is2D = false;
+    public bool is2DAudio = false;
+    public bool scaleImpactVolume = false;
     
-    private static Camera cam;
+    private static Camera _cam;
+    private static Camera cam {
+        get {
+            if (_cam == null) _cam = Camera.main;
+            return _cam;
+        }
+    }
 
     private Rigidbody2D body;
 	private Vector2 startPosition;
 
 	void Awake () {
 		body = GetComponent<Rigidbody2D>();
-        if (cam == null) cam = Camera.main;
 	}
 
 	void OnDisable () {
@@ -62,11 +68,10 @@ public class Projectile : MonoBehaviour {
 		transform.SetParent(Spawner.root);
         float pan = 0;
         float spatialBlend = 1;
-        if (is2D) {
+        if (is2DAudio) {
             float x = cam.WorldToViewportPoint(startPosition).x;
             pan = x * 2 - 1;
             spatialBlend = 0;
-            Debug.Log(pan);
         }
         AudioManager.PlayEffect(onFireAudioClipName, audioMixerName, transform, Random.Range(0.7f, 1), Random.Range(0.95f, 1.05f), pan, spatialBlend);
 		ParticleManager.Play(onFireParticleSystemName, transform.position, direction, size * size);
@@ -102,11 +107,16 @@ public class Projectile : MonoBehaviour {
 	public void OnHit(Vector3 point, Vector3 normal) {
         float pan = 0;
         float spatialBlend = 0;
-        if (is2D) {
+        if (is2DAudio) {
             float x = cam.WorldToViewportPoint(point).x;
             pan = x * 2 - 1;
         }
-        AudioManager.PlayEffect(onHitAudioClipName, audioMixerName, transform, Random.Range(0.7f, 1), Random.Range(0.95f, 1.05f), pan, spatialBlend);
+        float volume = Random.Range(0.7f, 1);
+        if (scaleImpactVolume) {
+            float scale = body.velocity.magnitude / speed;
+            volume *= scale * scale;
+        }
+        AudioManager.PlayEffect(onHitAudioClipName, audioMixerName, transform, volume, Random.Range(0.95f, 1.05f), pan, spatialBlend);
 		ParticleManager.Play(onHitParticleSystemName, point, normal, size * size, onHitColor);
 		if (dieOnHit) gameObject.SetActive(false);
 		if (shakeCamera) CameraShake.MainCameraShake();
