@@ -171,6 +171,7 @@ public class AudioManager : MonoBehaviour {
 
     public static void PlayMusic (AudioClip clip) {
         if (currentSource.clip == clip) return;
+        instance.musicQueue.Clear();
         currentSource.clip = clip;
         currentSource.Play();
     }
@@ -275,16 +276,21 @@ public class AudioManager : MonoBehaviour {
             return;
         }
         else {
+            instance.StopCoroutine("QueueMusicCoroutine");
             instance.StartCoroutine("QueueMusicCoroutine", clip);
         }
     }
 
+    Queue<AudioClip> musicQueue = new Queue<AudioClip>();
     IEnumerator QueueMusicCoroutine (AudioClip clip) {
+        musicQueue.Enqueue(clip);
         currentSource.loop = false;
-        yield return new WaitWhile(() => currentSource.isPlaying );
-        currentSource.clip = clip;
+        while (musicQueue.Count > 0) {
+            yield return new WaitWhile(() => currentSource.isPlaying );
+            currentSource.clip = musicQueue.Dequeue();
+            currentSource.Play();
+        }
         currentSource.loop = true;
-        currentSource.Play();
     }
 }
 }

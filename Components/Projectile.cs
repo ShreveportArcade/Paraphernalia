@@ -91,7 +91,7 @@ public class Projectile : MonoBehaviour {
         else ParticleManager.Play(onFireParticleSystemName, transform.position, direction, size * size, null, transform.parent);
 
         float pan = 0;
-        if (screenSpacePan) {
+        if (screenSpacePan && cam != null) {
             float x = cam.WorldToViewportPoint(startPosition).x;
             pan = x * 2 - 1;
         }
@@ -155,7 +155,7 @@ public class Projectile : MonoBehaviour {
     public void OnHit(Vector3 point, Vector3 normal, Transform t) {
         float pan = 0;
         float spatialBlend = 0;
-        if (screenSpacePan) {
+        if (screenSpacePan && cam != null) {
             float x = cam.WorldToViewportPoint(point).x;
             pan = x * 2 - 1;
         }
