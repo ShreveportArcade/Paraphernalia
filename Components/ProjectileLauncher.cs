@@ -8,7 +8,7 @@ public class ProjectileLauncher : MonoBehaviour {
     public string projectileName;
     
     public float launchDelay = 1.5f;
-    public bool showProjectileOnReady = true;
+    public bool showProjectileOnReady = false;
     [Range(0,360)] public float spread = 0;
     [Range(0,1)] public float accuracy = 1;
     public int projectilesPerShot = 1;
