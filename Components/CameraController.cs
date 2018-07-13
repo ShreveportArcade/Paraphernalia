@@ -39,7 +39,7 @@ public class CameraController : MonoBehaviour {
     private static CameraController[] _instances;
     public static CameraController[] instances {
         get { 
-            if (_instances == null || _instances.Length > 0 && _instances[0] == null) {
+            if (_instances == null || _instances.Length == 0 || _instances[0] == null) {
                 _instances = FindObjectsOfType<CameraController>();
             }
             return _instances; 
@@ -67,6 +67,7 @@ public class CameraController : MonoBehaviour {
     public float mergeDistance = 5;
     public Vector3 splitOffset = -Vector3.forward;
     public GameObject boundsObject;
+    public bool useBoundsObjectZ = false;
     public Bounds bounds;
     public Interpolate.EaseType easeType = Interpolate.EaseType.InOutQuad;
     public bool destroyDuplicates = true;
@@ -122,7 +123,7 @@ public class CameraController : MonoBehaviour {
     }
 
     void Update () {
-        if (this != instance) return;
+        if (this != instance || instances[0].target == null) return;
         center = System.Array.ConvertAll(instances, (i) => i.unmergedPosition).Average();
 
         _splitBounds = new Bounds(instances[0].target.position, Vector3.zero);
@@ -166,10 +167,21 @@ public class CameraController : MonoBehaviour {
             }
         }
         if (bounded) {
-            if (boundsObject) bounds = boundsObject.RendererBounds();
-            transform.position = camera.GetBoundedPos(bounds);
+            BoundPosition();
             unmergedPosition = transform.position;
         }
+    }
+
+    void BoundPosition () {
+        if (boundsObject) {
+            bounds = boundsObject.RendererBounds(); //TODO: don't do this every frame
+            if (!useBoundsObjectZ) {
+                Vector3 ext = bounds.extents;
+                ext.z = Mathf.Infinity;
+                bounds.extents = ext;
+            }
+        }
+        transform.position = camera.GetBoundedPos(bounds);
     }
 
     public static void SetOffset(Vector3 offset) {
@@ -203,10 +215,7 @@ public class CameraController : MonoBehaviour {
                     }
                 }
 
-                if (bounded) {
-                    if (boundsObject) bounds = boundsObject.RendererBounds();
-                    transform.position = camera.GetBoundedPos(bounds);
-                }
+                BoundPosition();
             #if UNITY_EDITOR
             }
             #endif
