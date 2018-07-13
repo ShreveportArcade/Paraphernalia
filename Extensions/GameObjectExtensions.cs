@@ -142,13 +142,19 @@ public static class GameObjectExtensions {
         }
     }
 
-    public static Bounds RendererBounds (this GameObject go) {
-        Renderer[] renderers = go.GetComponentsInChildren<Renderer>();
-        if (renderers.Length == 0) {
+    public static Bounds RendererBounds (this GameObject go, bool ignoreParticles = true) {
+        List<Renderer> renderers = new List<Renderer>();
+        go.GetComponentsInChildren<Renderer>(renderers);
+
+        if (ignoreParticles) {
+            renderers.RemoveAll((r) => r is ParticleSystemRenderer);
+        }
+
+        if (renderers.Count == 0) {
             return new Bounds(go.transform.position, Vector3.one * 0.01f);
         }
         Bounds b = renderers[0].bounds;
-        for (int i = 1; i < renderers.Length; i++) {
+        for (int i = renderers.Count-1; i > 0; i--) {
             b.Encapsulate(renderers[i].bounds);
         }
 

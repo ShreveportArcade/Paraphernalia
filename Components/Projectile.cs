@@ -195,7 +195,9 @@ public class Projectile : MonoBehaviour {
         if (body2D != null) diff = body2D.position + body2D.velocity * Time.fixedDeltaTime - (Vector2)startPosition;
         if (limitDistance && diff.sqrMagnitude > maxDistance * maxDistance) {
             transform.position = startPosition + diff.normalized * maxDistance;
-            ParticleManager.Play(onFinishParticleSystemName, gameObject.transform.position);
+
+            Renderer[] renderers = gameObject.GetComponentsInChildren<Renderer>();
+            ParticleManager.Play(onFinishParticleSystemName, gameObject.RendererBounds().center);
             gameObject.SetActive(false);
         }
 
