@@ -7,6 +7,7 @@ using Paraphernalia.Components;
 public class Damage : MonoBehaviour {
 
     public Vector3 force;
+    public float outwardForce;
     public float damage = 1;
     public float multiplier = 1;
     public bool disableOnCollision = false;
@@ -65,8 +66,13 @@ public class Damage : MonoBehaviour {
     }
 
     void HitObject (GameObject g) {
+        Vector3 dir = (g.transform.position - transform.position);
         Rigidbody r = g.GetComponentInParent<Rigidbody>();
-        if (r != null) r.AddForce(transform.TransformVector(force), ForceMode.Impulse);
+        if (r != null) r.AddForce(transform.TransformVector(force) + dir * outwardForce, ForceMode.Impulse);
+        else {
+            Rigidbody2D r2D = g.GetComponentInParent<Rigidbody2D>();
+            if (r2D != null) r2D.AddForce(transform.TransformVector(force) + dir * outwardForce, ForceMode.Impulse);
+        }
         AudioManager.PlayVariedEffect(hitSoundName);
     }
 }
