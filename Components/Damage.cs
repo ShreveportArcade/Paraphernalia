@@ -66,12 +66,13 @@ public class Damage : MonoBehaviour {
     }
 
     void HitObject (GameObject g) {
-        Vector3 dir = (g.transform.position - transform.position);
+        Vector3 dir = (g.RendererBounds().center - gameObject.RendererBounds().center);
+        Vector3 f = transform.TransformVector(force) + dir * outwardForce;
         Rigidbody r = g.GetComponentInParent<Rigidbody>();
-        if (r != null) r.AddForce(transform.TransformVector(force) + dir * outwardForce, ForceMode.Impulse);
+        if (r != null) r.AddForce(f, ForceMode.Impulse);
         else {
             Rigidbody2D r2D = g.GetComponentInParent<Rigidbody2D>();
-            if (r2D != null) r2D.AddForce(transform.TransformVector(force) + dir * outwardForce, ForceMode.Impulse);
+            if (r2D != null) r2D.AddForce(f, ForceMode.Impulse);
         }
         AudioManager.PlayVariedEffect(hitSoundName);
     }
