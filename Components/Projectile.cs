@@ -196,7 +196,6 @@ public class Projectile : MonoBehaviour {
         if (limitDistance && diff.sqrMagnitude > maxDistance * maxDistance) {
             transform.position = startPosition + diff.normalized * maxDistance;
 
-            Renderer[] renderers = gameObject.GetComponentsInChildren<Renderer>();
             ParticleManager.Play(onFinishParticleSystemName, gameObject.RendererBounds().center);
             gameObject.SetActive(false);
         }
