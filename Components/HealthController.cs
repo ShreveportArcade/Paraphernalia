@@ -38,7 +38,10 @@ public class HealthController : MonoBehaviour {
     [Range(0,1)] public float audioSpatialBlend = 0;
 
     public float recoveryTime = 3;
-    private bool isRecovering = false;
+    private bool _isRecovering = false;
+    public bool isRecovering {
+        get { return _isRecovering; }
+    }
 
     public float _maxHealth = 3;
     public float maxHealth {
@@ -131,14 +134,14 @@ public class HealthController : MonoBehaviour {
 
     public void TakeDamage(float damage, bool allowRecovery = true) {
         if (!enabled || isRecovering) return;
-        health -= damage;
         if (allowRecovery && recoveryTime > 0.001f && gameObject.activeInHierarchy) StartCoroutine("Recover");
+        health -= damage;
     }
 
     IEnumerator Recover () {
-        isRecovering = true;
+        _isRecovering = true;
         yield return new WaitForSeconds(recoveryTime);
-        isRecovering = false;
+        _isRecovering = false;
     }
 
     void TriggerAnimation(string triggerName) {
