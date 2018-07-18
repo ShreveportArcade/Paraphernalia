@@ -36,7 +36,9 @@ public class Damage : MonoBehaviour {
     void OnCollisionEnter2D (Collision2D collision) {
         HealthController h = GetHealthController(collision.collider.gameObject);
         if (h != null) {
-            h.TakeDamage(GetDamage(collision.relativeVelocity, collision.contacts[0].normal), allowRecovery);
+            Vector3 norm = Vector3.up;
+            if (collision.contacts.Length > 0) norm = collision.contacts[0].normal;
+            h.TakeDamage(GetDamage(collision.relativeVelocity, norm), allowRecovery);
             HitObject(collision.collider.gameObject);
         }
     }
