@@ -232,6 +232,7 @@ public class CameraController : MonoBehaviour {
     Vector3 LerpToTarget () {
         Vector3 desiredPosition = unmergedPosition;
         CameraZone zone = (cameraZones.Count > 0) ? cameraZones[cameraZones.Count - 1] : null;
+        if (zone != null) desiredPosition = zone.position.Lerp3(desiredPosition, zone.axisLock);
         Vector3 v = Vector3.zero;
         
         Rigidbody2D r = target.GetComponent<Rigidbody2D>();
@@ -245,9 +246,8 @@ public class CameraController : MonoBehaviour {
 
         Vector3 off = offset;
         if (instances.Length > 1) off = splitOffset;
-        desiredPosition = target.position + off;
 
-        float d = Vector3.Distance(target.position, unmergedPosition + off);
+        float d = Vector3.Distance(target.position, unmergedPosition + off + v);
         if (d > moveStartDist) {
             Vector3 targetPosition = Vector3.Lerp(
                 unmergedPosition,
@@ -257,7 +257,6 @@ public class CameraController : MonoBehaviour {
             if (zone == null) desiredPosition = targetPosition;
             else desiredPosition = zone.position.Lerp3(targetPosition, zone.axisLock);
         }
-
         return desiredPosition;
     }
 
@@ -286,9 +285,11 @@ public class CameraController : MonoBehaviour {
             t += Time.deltaTime;
             float frac = t / zone.transitionTime;
             transform.position = Vector3.Lerp(startPos, zone.position.Lerp3(transform.position, zone.axisLock), frac);
+            unmergedPosition = transform.position;
             yield return new WaitForEndOfFrame();
         }
-        transform.position = zone.position.Lerp3(LerpToTarget(), zone.axisLock);
+        transform.position = zone.position.Lerp3(transform.position, zone.axisLock);
+        unmergedPosition = transform.position;
         transitioning = false;
     }
 

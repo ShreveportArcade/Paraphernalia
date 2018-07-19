@@ -45,7 +45,8 @@ public class CameraZone : MonoBehaviour {
 
     void OnDrawGizmos() {
         Gizmos.color = Color.white;
-        Gizmos.DrawSphere(position, 0.5f);
+        Gizmos.DrawLine(position + Vector3.up, position - Vector3.up);
+        Gizmos.DrawLine(position + Vector3.right, position - Vector3.right);
     }
 }
 }
