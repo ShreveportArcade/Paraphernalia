@@ -152,10 +152,9 @@ public class CameraController : MonoBehaviour {
             if (zone != null) {
                 transform.position = zone.position.Lerp3(transform.position, zone.axisLock);
                 unmergedPosition = transform.position;
-                return;
+                break;
             }
         }
-
 
         Collider[] colliders = Physics.OverlapSphere(target.position, 1);
         foreach (Collider collider in colliders) {
@@ -163,9 +162,10 @@ public class CameraController : MonoBehaviour {
             if (zone != null) {
                 transform.position = zone.position.Lerp3(transform.position, zone.axisLock);
                 unmergedPosition = transform.position;
-                return;
+                break;
             }
         }
+
         if (bounded) {
             BoundPosition();
             unmergedPosition = transform.position;
