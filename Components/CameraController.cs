@@ -282,7 +282,8 @@ public class CameraController : MonoBehaviour {
         Vector3 startPos = transform.position;
         float t = 0;
         while (t < zone.transitionTime) {
-            t += Time.deltaTime;
+            if (zone.useUnscaledTime) t += Time.unscaledDeltaTime;
+            else t += Time.deltaTime;
             float frac = t / zone.transitionTime;
             transform.position = Vector3.Lerp(startPos, zone.position.Lerp3(transform.position, zone.axisLock), frac);
             unmergedPosition = transform.position;
