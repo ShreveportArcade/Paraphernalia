@@ -7,12 +7,6 @@ public class Spawner : MonoBehaviour {
 
     public static Spawner instance;
     public static List<Spawner> instances = new List<Spawner>();
-    public static Transform root {
-        get {
-            if (instance == null) return null;
-            return instance.gameObject.transform;
-        }
-    }
 
     public bool reparentObjects = true;
     public GameObject[] prefabs;
@@ -31,6 +25,10 @@ public class Spawner : MonoBehaviour {
             poolsDict[prefab.name] = new List<GameObject>();
             prefabsDict[prefab.name] = prefab;
         }
+    }
+
+    void OnDestroy () {
+        instances.Remove(this);
     }
 
     public static GameObject Prefab (string name) {

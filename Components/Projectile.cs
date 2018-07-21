@@ -98,7 +98,6 @@ public class Projectile : MonoBehaviour {
         AudioManager.PlayEffect(onFireAudioClipName, audioMixerName, transform, Random.Range(0.7f, 1), Random.Range(0.95f, 1.05f), pan, audioSpatialBlend);
 
         startPosition = transform.position;
-        transform.SetParent(Spawner.root);
         if (orientToVelocity) transform.right = direction; // TODO: t.forward for RB(3D)
         gameObject.SetActive(true);
         if (particles) particles.Play();
@@ -170,7 +169,7 @@ public class Projectile : MonoBehaviour {
             GameObject hitSpawn = Spawner.Spawn(onHitSpawnName);
             hitSpawn.transform.position = point;
             hitSpawn.transform.up = normal;
-            hitSpawn.transform.parent = t;
+            hitSpawn.transform.SetParent(t);
         }
         if (dieOnHit) gameObject.SetActive(false);
         if (shakeCamera) CameraShake.MainCameraShake();

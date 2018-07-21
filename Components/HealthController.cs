@@ -100,8 +100,8 @@ public class HealthController : MonoBehaviour {
                 TriggerAnimation(damageTriggerName);
             }
             else if (_health < prevHealth && _health <= 0) {
-                // AudioManager.PlayEffect(damageSoundName, null, transform, Random.Range(0.9f,1.1f), Random.Range(0.9f,1.1f), 0, audioSpatialBlend);
-                // ParticleManager.Play(damageParticlesName, transform);
+                AudioManager.PlayEffect(damageSoundName, null, transform, Random.Range(0.9f,1.1f), Random.Range(0.9f,1.1f), 0, audioSpatialBlend);
+                ParticleManager.Play(damageParticlesName, transform);
             }
             
             if (prevHealth != _health) {
@@ -130,6 +130,10 @@ public class HealthController : MonoBehaviour {
     void Start() {
         health = maxHealth;
         if (anim == null) anim = GetComponentInParent<Animator>();
+    }
+
+    void OnEnable () {
+        _isRecovering = false;
     }
 
     public void TakeDamage(float damage, bool allowRecovery = true) {
