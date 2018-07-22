@@ -72,7 +72,7 @@ public class CameraController : MonoBehaviour {
     public Interpolate.EaseType easeType = Interpolate.EaseType.InOutQuad;
     public bool destroyDuplicates = true;
     private bool transitioning = false;
-    private Vector3 unmergedPosition;
+    private Vector3 rawPosition;
 
     private float _merge = 0;
     public float merge {
@@ -89,6 +89,25 @@ public class CameraController : MonoBehaviour {
         }
         return null;
     }
+
+    Vector3 targetPosition {
+        get {
+            Vector3 v = Vector3.zero;
+            Rigidbody2D r = target.GetComponent<Rigidbody2D>();
+            if (r != null) {
+                v = Vector3.Scale(r.velocity, velocityAdjustment);
+                v = v - Vector3.forward * v.magnitude * velocityAdjustment.z;
+            }
+
+            Rigidbody b = target.GetComponent<Rigidbody>();
+            if (b != null) v = Vector3.Scale(b.velocity, velocityAdjustment);
+
+            Vector3 off = offset;
+            if (instances.Length > 1) off = splitOffset;
+
+            return target.position + off + v;
+        }
+    } 
 
     void Awake () {
         if (_instance == null) { 
@@ -124,7 +143,7 @@ public class CameraController : MonoBehaviour {
 
     void Update () {
         if (this != instance || instances[0].target == null) return;
-        center = System.Array.ConvertAll(instances, (i) => i.unmergedPosition).Average();
+        center = System.Array.ConvertAll(instances, (i) => i.rawPosition).Average();
 
         _splitBounds = new Bounds(instances[0].target.position, Vector3.zero);
         int len = instances.Length;
@@ -144,14 +163,13 @@ public class CameraController : MonoBehaviour {
         Vector3 off = offset;
         if (instances.Length > 1) off = splitOffset;
         transform.position = target.position + off;
-        unmergedPosition = transform.position;
+        rawPosition = transform.position;
         
         Collider2D[] collider2Ds = Physics2D.OverlapPointAll(target.position);
         foreach (Collider2D collider2D in collider2Ds) {
             CameraZone zone = collider2D.gameObject.GetComponent<CameraZone>();
             if (zone != null) {
                 transform.position = zone.position.Lerp3(transform.position, zone.axisLock);
-                unmergedPosition = transform.position;
                 break;
             }
         }
@@ -161,15 +179,11 @@ public class CameraController : MonoBehaviour {
             CameraZone zone = collider.gameObject.GetComponent<CameraZone>();
             if (zone != null) {
                 transform.position = zone.position.Lerp3(transform.position, zone.axisLock);
-                unmergedPosition = transform.position;
                 break;
             }
         }
 
-        if (bounded) {
-            BoundPosition();
-            unmergedPosition = transform.position;
-        }
+        if (bounded) BoundPosition();
     }
 
     void BoundPosition () {
@@ -197,25 +211,28 @@ public class CameraController : MonoBehaviour {
             else {
             #endif
                 if (!transitioning) {
-                    unmergedPosition = LerpToTarget();
-                
-                    Vector3 diff = center - unmergedPosition;
+                    LerpToTarget();
+
+                    Vector3 mergedPosition = rawPosition;
+                    Vector3 diff = center - rawPosition;
                     float dist = diff.magnitude;
                     if (dist < mergeDistance) {
                         _merge = 1;
-                        transform.position = center;
+                        mergedPosition = center;
                     }
                     else if (dist < mergeStartDistance) {
                         _merge = (mergeStartDistance - dist) / (mergeStartDistance - mergeDistance);
-                        transform.position = Vector3.Lerp(unmergedPosition, center, _merge);
+                        mergedPosition = Vector3.Lerp(rawPosition, center, _merge);
                     }
-                    else {
-                        _merge = 0;
-                        transform.position = unmergedPosition;
-                    }
+                    else _merge = 0;
+
+                    CameraZone zone = (cameraZones.Count > 0) ? cameraZones[cameraZones.Count - 1] : null;
+                    if (zone != null) mergedPosition = zone.position.Lerp3(mergedPosition, zone.axisLock);
+                    
+                    transform.position = mergedPosition;
                 }
 
-                BoundPosition();
+                if (bounded) BoundPosition();
             #if UNITY_EDITOR
             }
             #endif
@@ -229,35 +246,11 @@ public class CameraController : MonoBehaviour {
         }
     }
 
-    Vector3 LerpToTarget () {
-        Vector3 desiredPosition = unmergedPosition;
-        CameraZone zone = (cameraZones.Count > 0) ? cameraZones[cameraZones.Count - 1] : null;
-        if (zone != null) desiredPosition = zone.position.Lerp3(desiredPosition, zone.axisLock);
-        Vector3 v = Vector3.zero;
-        
-        Rigidbody2D r = target.GetComponent<Rigidbody2D>();
-        if (r != null) {
-            v = Vector3.Scale(r.velocity, velocityAdjustment);
-            v = v - Vector3.forward * v.magnitude * velocityAdjustment.z;
-        }
+    void LerpToTarget () {
+        // float d = Vector3.Distance(rawPosition, targetPosition);
+        // if (d < moveStartDist) return;
 
-        Rigidbody b = target.GetComponent<Rigidbody>();
-        if (b != null) v = Vector3.Scale(b.velocity, velocityAdjustment);
-
-        Vector3 off = offset;
-        if (instances.Length > 1) off = splitOffset;
-
-        float d = Vector3.Distance(target.position, unmergedPosition + off + v);
-        if (d > moveStartDist) {
-            Vector3 targetPosition = Vector3.Lerp(
-                unmergedPosition,
-                target.position + off + v,
-                Time.deltaTime * speed
-            );
-            if (zone == null) desiredPosition = targetPosition;
-            else desiredPosition = zone.position.Lerp3(targetPosition, zone.axisLock);
-        }
-        return desiredPosition;
+        rawPosition = Vector3.Lerp(rawPosition, targetPosition, Time.deltaTime * speed);
     }
 
     public void AddZone(CameraZone zone) {
@@ -272,25 +265,29 @@ public class CameraController : MonoBehaviour {
         transitioning = false;
         StopCoroutine("TransitionToZoneCoroutine");
         if (cameraZones.Count > 0) StartCoroutine("TransitionToZoneCoroutine");
-        else if (defaultMusic != null) AudioManager.CrossfadeMusic(instance.defaultMusic, 0.5f);
+        else {
+            rawPosition = transform.position;
+            if (defaultMusic != null) AudioManager.CrossfadeMusic(instance.defaultMusic, 0.5f);
+        }
     }
 
     IEnumerator TransitionToZoneCoroutine () {
         transitioning = true;
         CameraZone zone = cameraZones[cameraZones.Count - 1];
         if (zone.music != null) AudioManager.CrossfadeMusic(zone.music, zone.transitionTime);
-        Vector3 startPos = transform.position;
-        float t = 0;
-        while (t < zone.transitionTime) {
-            if (zone.useUnscaledTime) t += Time.unscaledDeltaTime;
-            else t += Time.deltaTime;
-            float frac = t / zone.transitionTime;
-            transform.position = Vector3.Lerp(startPos, zone.position.Lerp3(transform.position, zone.axisLock), frac);
-            unmergedPosition = transform.position;
+        Vector3 pos = transform.position;
+        float elapsedTime = 0;
+        while (elapsedTime < zone.transitionTime) {
+            float dT = Time.deltaTime;
+            if (zone.useUnscaledTime) dT = Time.unscaledDeltaTime;
+            elapsedTime += dT;
+            Vector3 dir = zone.position - transform.position;
+            float t = zone.transitionTime - elapsedTime;
+            pos += dir * dT / t;
+            transform.position = Vector3.Lerp(transform.position, pos, dT * speed);
             yield return new WaitForEndOfFrame();
         }
-        transform.position = zone.position.Lerp3(transform.position, zone.axisLock);
-        unmergedPosition = transform.position;
+        rawPosition = transform.position;
         transitioning = false;
     }
 
