@@ -68,11 +68,11 @@ public class ParticleManager : MonoBehaviour {
 	}
 
 	public static ParticleSystem Play(string name, Transform t) {
-		return Play(name, t.position, Vector3.up, 1, null, t);
+		return Play(name, t.gameObject.RendererBounds().center, Vector3.up, 1, null, t);
 	}
 
 	public static ParticleSystem Play(string name, Transform t, Color color) {
-		return Play(name, t.position, Vector3.up, 1, color, t);
+		return Play(name, t.gameObject.RendererBounds().center, Vector3.up, 1, color, t);
 	}
 
 	public static ParticleSystem Play(string name, Vector3 position, Color? color = null) {
