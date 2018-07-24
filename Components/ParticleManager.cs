@@ -26,7 +26,7 @@ namespace Paraphernalia.Components {
 public class ParticleManager : MonoBehaviour {
 
 	public ParticleSystem[] particlePrefabs;
-	[Range(0,10)] public int poolSize = 5;
+	[Range(0,50)] public int poolSize = 15;
 	public static ParticleManager instance;
 
 	private Dictionary<int, ParticleSystem> prefabs = new Dictionary<int, ParticleSystem>();

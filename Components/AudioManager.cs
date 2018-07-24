@@ -169,9 +169,9 @@ public class AudioManager : MonoBehaviour {
         }
     }
 
-    public static void PlayMusic (AudioClip clip) {
-        if (currentSource.clip == clip) return;
-        instance.musicQueue.Clear();
+    public static void PlayMusic (AudioClip clip, bool clearQueue = true) {
+        if (currentSource.clip == clip || clip == null) return;
+        if (clearQueue) musicQueue.Clear();
         currentSource.clip = clip;
         currentSource.Play();
     }
@@ -210,8 +210,9 @@ public class AudioManager : MonoBehaviour {
     }
 
     static Coroutine crossfadeCoroutine;
-    public static void CrossfadeMusic(AudioClip clip, float fadeDuration, bool looped = true) {
+    public static void CrossfadeMusic(AudioClip clip, float fadeDuration, bool looped = true, bool clearQueue = true) {
         if (clip == null || instance.musicSources == null) return;
+        if (clearQueue) musicQueue.Clear();        
         AudioSource nextSource = instance.musicSources[(instance.currentMusicSource + 1) % 2];
         if (currentSource.clip == clip) {
             FadeMusicVolume(1, fadeDuration);
@@ -275,13 +276,11 @@ public class AudioManager : MonoBehaviour {
             currentSource.Play();
             return;
         }
-        else {
-            instance.StopCoroutine("QueueMusicCoroutine");
-            instance.StartCoroutine("QueueMusicCoroutine", clip);
-        }
+        instance.StopCoroutine("QueueMusicCoroutine");
+        instance.StartCoroutine("QueueMusicCoroutine", clip);
     }
 
-    Queue<AudioClip> musicQueue = new Queue<AudioClip>();
+    static Queue<AudioClip> musicQueue = new Queue<AudioClip>();
     IEnumerator QueueMusicCoroutine (AudioClip clip) {
         musicQueue.Enqueue(clip);
         currentSource.loop = false;
