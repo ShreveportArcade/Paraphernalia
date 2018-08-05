@@ -19,6 +19,7 @@ public class CameraShake : MonoBehaviour {
 	}
 
 	public static void MainCameraShake () {
+		if (Camera.main == null) return;
 		CameraShake s = Camera.main.gameObject.GetOrAddComponent<CameraShake>();
 		s.Shake();
 	}

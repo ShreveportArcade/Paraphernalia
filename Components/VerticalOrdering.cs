@@ -22,34 +22,35 @@ using System.Collections;
 [ExecuteInEditMode]
 public class VerticalOrdering : MonoBehaviour {
 
-	public float orderMultiplier = 100;
-	public float orderOffset = 0;
-	public int order {
-		get {
-			return Mathf.RoundToInt(-transform.position.y * orderMultiplier + orderOffset);
-		}
-	}
-	public bool isStatic = true;
+    public Vector3 axis = Vector3.down;
+    public float orderMultiplier = 100;
+    public float orderOffset = 0;
+    public int order {
+        get {
+            return Mathf.RoundToInt(Vector3.Dot(transform.position * orderMultiplier, axis) + orderOffset);
+        }
+    }
+    public bool isStatic = true;
 
-	#if UNITY_EDITOR
-	void Update () {
-		if (!Application.isPlaying) UpdateSortOrder();
-	}
-	#endif
+    #if UNITY_EDITOR
+    void Update () {
+        if (!Application.isPlaying) UpdateSortOrder();
+    }
+    #endif
 
-	void OnEnable () {
-		UpdateSortOrder();
-		if (!isStatic) StartCoroutine("SortCoroutine");
-	}
+    void OnEnable () {
+        UpdateSortOrder();
+        if (!isStatic) StartCoroutine("SortCoroutine");
+    }
 
-	IEnumerator SortCoroutine () {
-		while (enabled && !isStatic) {
-			UpdateSortOrder();
-			yield return new WaitForEndOfFrame();
-		}
-	}
+    IEnumerator SortCoroutine () {
+        while (enabled && !isStatic) {
+            UpdateSortOrder();
+            yield return new WaitForEndOfFrame();
+        }
+    }
 
-	[ContextMenu("Update Sort Order")]
-	protected virtual void UpdateSortOrder () {
-	}
+    [ContextMenu("Update Sort Order")]
+    protected virtual void UpdateSortOrder () {
+    }
 }

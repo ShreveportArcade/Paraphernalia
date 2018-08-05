@@ -26,12 +26,12 @@ namespace Paraphernalia.Components {
 public class ParticleManager : MonoBehaviour {
 
 	public ParticleSystem[] particlePrefabs;
-	[Range(0,10)] public int poolSize = 5;
+	[Range(0,50)] public int poolSize = 15;
 	public static ParticleManager instance;
 
-	private Dictionary<string, ParticleSystem> prefabs = new Dictionary<string, ParticleSystem>();
-	private Dictionary<string, List<ParticleSystem>> pools = new Dictionary<string, List<ParticleSystem>>();
-	private Dictionary<string, int> currentIndices = new Dictionary<string, int>();
+	private Dictionary<int, ParticleSystem> prefabs = new Dictionary<int, ParticleSystem>();
+	private Dictionary<int, List<ParticleSystem>> pools = new Dictionary<int, List<ParticleSystem>>();
+	private Dictionary<int, int> currentIndices = new Dictionary<int, int>();
 
 	void Awake () {
 		if (instance != null) {
@@ -45,32 +45,34 @@ public class ParticleManager : MonoBehaviour {
 
 	void CreateParticleSystemPool () {
 		for (int prefabIndex = 0; prefabIndex < particlePrefabs.Length; prefabIndex++) {
-			string name = particlePrefabs[prefabIndex].name;
-			pools[name] = new List<ParticleSystem>();
-			currentIndices[name] = 0;
-			prefabs[name] = particlePrefabs[prefabIndex];
+            string name = particlePrefabs[prefabIndex].name;
+			int hashCode = name.GetHashCode();
+			pools[hashCode] = new List<ParticleSystem>();
+			currentIndices[hashCode] = 0;
+			prefabs[hashCode] = particlePrefabs[prefabIndex];
 			for (int poolIndex = 0; poolIndex < poolSize; poolIndex++) {
 				ParticleSystem particleSystem = particlePrefabs[prefabIndex].Instantiate() as ParticleSystem;
 				particleSystem.transform.parent = transform;
-				pools[name].Add(particleSystem);
+				pools[hashCode].Add(particleSystem);
 			}
 		}
 	}
 
 	void RefreshPool(string name) {
-		for (int poolIndex = pools[name].Count; poolIndex < poolSize; poolIndex++) {
-			ParticleSystem particleSystem = prefabs[name].Instantiate() as ParticleSystem;
+        int hashCode = name.GetHashCode();
+		for (int poolIndex = pools[hashCode].Count; poolIndex < poolSize; poolIndex++) {
+			ParticleSystem particleSystem = prefabs[hashCode].Instantiate() as ParticleSystem;
 			particleSystem.transform.parent = transform;
-			pools[name].Add(particleSystem);
+			pools[hashCode].Add(particleSystem);
 		}
 	}
 
 	public static ParticleSystem Play(string name, Transform t) {
-		return Play(name, t.position, Vector3.up, 1, null, t);
+		return Play(name, t.gameObject.RendererBounds().center, Vector3.up, 1, null, t);
 	}
 
 	public static ParticleSystem Play(string name, Transform t, Color color) {
-		return Play(name, t.position, Vector3.up, 1, color, t);
+		return Play(name, t.gameObject.RendererBounds().center, Vector3.up, 1, color, t);
 	}
 
 	public static ParticleSystem Play(string name, Vector3 position, Color? color = null) {
@@ -82,10 +84,12 @@ public class ParticleManager : MonoBehaviour {
 	}
 
 	public static ParticleSystem Play(string name, Vector3 position, Vector3 normal, float size, Color? color = null, Transform t = null) {
-		if (instance == null || !instance.currentIndices.ContainsKey(name)) return null;
-		List<ParticleSystem> pool = instance.pools[name];
+        int hashCode = name.GetHashCode();
+        if (instance == null || !instance.currentIndices.ContainsKey(hashCode)) return null;
+
+		List<ParticleSystem> pool = instance.pools[hashCode];
 		pool.RemoveAll((i) => i == null);
-		int index = instance.currentIndices[name];
+		int index = instance.currentIndices[hashCode];
 		if (index >= pool.Count) instance.RefreshPool(name);
 		
 		ParticleSystem particleSystem = pool[index];
@@ -93,12 +97,12 @@ public class ParticleManager : MonoBehaviour {
 		particleSystem.transform.position = position;
 		particleSystem.transform.localScale = Vector3.one * size;
 		particleSystem.transform.up = normal;
-		ParticleSystem prefab = instance.prefabs[name];
+		ParticleSystem prefab = instance.prefabs[hashCode];
 		ParticleSystem.MainModule main = particleSystem.main;
 		if (color != null) main.startColor = color.Value;
 		particleSystem.Play();
 		index = (index + 1) % instance.poolSize;
-		instance.currentIndices[name] = index;
+		instance.currentIndices[hashCode] = index;
 		return particleSystem;
 	}
 }

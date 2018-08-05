@@ -26,154 +26,272 @@ namespace Paraphernalia.Components {
 [ExecuteInEditMode]
 public class CameraController : MonoBehaviour {
 
-	private static CameraController _instance;
-	public static CameraController instance {
-		get { return _instance; }
-	}
+    private static CameraController _instance;
+    public static CameraController instance {
+        get { 
+            if (_instance == null) {
+                _instance = FindObjectOfType<CameraController>();
+            }
+            return _instance; 
+        }
+    }
 
-	public List<CameraZone> cameraZones = new List<CameraZone>();
-	public AudioClip defaultMusic;
-	public string targetTag = "Player";
-	new public Camera camera;
-	public Transform target;
-	public bool useFixedUpdate = false;
-	public Vector3 offset = -Vector3.forward;
-	public float speed = 1;
-	public float moveStartDist = 1f;
-	public Vector3 velocityAdjustment = new Vector2(0.2f, 0);
-	public bool bounded = false;
-	public GameObject boundsObject;
-	public Bounds bounds;
-	public Interpolate.EaseType easeType = Interpolate.EaseType.InOutQuad;
+    private static CameraController[] _instances;
+    public static CameraController[] instances {
+        get { 
+            if (_instances == null || _instances.Length == 0 || _instances[0] == null) {
+                _instances = FindObjectsOfType<CameraController>();
+            }
+            return _instances; 
+        }
+    }
 
-	private bool transitioning = false;
+    private static Vector3 center;
+    private static Bounds _splitBounds = new Bounds();
+    public static Bounds splitBounds {
+        get { return _splitBounds; }
+    } 
 
-	void Awake () {
-		if (_instance == null) { 
-			_instance = this;
-			SetPosition();
-		}
-		else {
-			Debug.LogWarning("Instance of CameraController already exists. Destroying duplicate.");
-			GameObjectUtils.Destroy(gameObject);
-		}
-	}
+    public List<CameraZone> cameraZones = new List<CameraZone>();
+    public AudioClip defaultMusic;
+    public string targetTag = "Player";
+    new public Camera camera;
+    public Transform target;
+    public bool useFixedUpdate = false;
+    public Vector3 offset = -Vector3.forward;
+    public float speed = 1;
+    public float moveStartDist = 1f;
+    public Vector3 velocityAdjustment = new Vector2(0.2f, 0);
+    public bool bounded = false;
+    public float mergeStartDistance = 10;
+    public float mergeDistance = 5;
+    public Vector3 splitOffset = -Vector3.forward;
+    public GameObject boundsObject;
+    public bool useBoundsObjectZ = false;
+    public Bounds bounds;
+    public Interpolate.EaseType easeType = Interpolate.EaseType.InOutQuad;
+    public bool destroyDuplicates = true;
+    private bool transitioning = false;
+    private Vector3 rawPosition;
 
-	void Start () {
-		if (instance.defaultMusic != null && Application.isPlaying) AudioManager.CrossfadeMusic(instance.defaultMusic, 0.5f);
-	}
+    private float _merge = 0;
+    public float merge {
+        get {
+            return _merge;
+        }
+    }
 
-	void LateUpdate () {
-		if (!useFixedUpdate || !Application.isPlaying) UpdatePosition();
-	}
+    public static CameraController CameraControllerFromTarget (GameObject target) {
+        foreach (CameraController c in CameraController.instances) {
+            if (target.GetInstanceID() == c.target.gameObject.GetInstanceID()) {
+                return c;
+            }
+        }
+        return null;
+    }
 
-	void FixedUpdate () {
-		if (useFixedUpdate) UpdatePosition();
-	}
+    Vector3 targetPosition {
+        get {
+            Vector3 v = Vector3.zero;
+            Rigidbody2D r = target.GetComponent<Rigidbody2D>();
+            if (r != null) {
+                v = Vector3.Scale(r.velocity, velocityAdjustment);
+                v = v - Vector3.forward * v.magnitude * velocityAdjustment.z;
+            }
 
-	void SetPosition () {
-		GameObject go = GameObject.FindWithTag(targetTag);
-		if (go == null) return;
-		Collider2D[] colliders = Physics2D.OverlapPointAll(go.transform.position);
+            Rigidbody b = target.GetComponent<Rigidbody>();
+            if (b != null) v = Vector3.Scale(b.velocity, velocityAdjustment);
 
-		if (target == null) target = go.transform;
-		transform.position = target.position + offset;
-		foreach (Collider2D collider in colliders) {
-			CameraZone zone = collider.gameObject.GetComponent<CameraZone>();
-			if (zone != null) {
-				transform.position = zone.position.Lerp3(transform.position, zone.axisLock);
-				return;
-			}
-		}
-		if (bounded) {
-			if (boundsObject) bounds = boundsObject.RendererBounds();
-			transform.position = camera.GetBoundedPos(bounds);
-		}
-	}
+            Vector3 off = offset;
+            if (instances.Length > 1) off = splitOffset;
 
-	public static void SetOffset(Vector3 offset) {
-		instance.offset = offset;
-		instance.SetPosition();
-	}
+            return target.position + off + v;
+        }
+    } 
 
-	void UpdatePosition () {
-		if (target != null && camera != null) {
+    void Awake () {
+        if (_instance == null) { 
+            _instance = this;
+            SetPosition();
+            AudioListener listener = GetComponent<AudioListener>();
+            if (listener != null) listener.enabled = true;
+        }
+        else if (_instance != this && destroyDuplicates) {
+            Debug.LogWarning("Instance of CameraController already exists. Destroying duplicate.");
+            GameObjectUtils.Destroy(gameObject);
+        }
+        else if (_instance != this && !destroyDuplicates) {
+            AudioListener listener = GetComponent<AudioListener>();
+            if (listener != null) listener.enabled = false;
+        }
+    }
 
-			#if UNITY_EDITOR
-			if (!Application.isPlaying) SetPosition();
-			else {
-			#endif
-				if (!transitioning) transform.position = LerpToTarget();
-			#if UNITY_EDITOR
-			}
-			#endif
-		}
-		else {
-			GameObject g = GameObject.FindWithTag(targetTag);
-			if (g!= null) {
-				target = g.transform;
-				transform.position = target.position + offset;
-			}
-		}
-	}
+    IEnumerator Start () {
+        SetPosition();
+        if (instance.defaultMusic != null && Application.isPlaying) AudioManager.CrossfadeMusic(instance.defaultMusic, 0.5f);
+        yield return null;
+        SetPosition();
+    }
 
-	Vector3 LerpToTarget () {
-		Vector3 desiredPosition = transform.position;
-		CameraZone zone = (cameraZones.Count > 0) ? cameraZones[cameraZones.Count - 1] : null;
-		
-		Rigidbody2D r = target.GetComponent<Rigidbody2D>();
-		Vector2 v = (r == null)? Vector2.zero: Vector2.Scale(r.velocity, (Vector2)velocityAdjustment);
-		float d = Vector3.Distance(target.position, transform.position + offset);
-		if (d > moveStartDist) {
-			Vector3 targetPosition = Vector3.Lerp(
-				transform.position,
-				target.position + offset + (Vector3)v - Vector3.forward * v.magnitude * velocityAdjustment.z,
-				Time.deltaTime * speed
-			);
-			if (zone == null) desiredPosition = targetPosition;
-			else desiredPosition = zone.position.Lerp3(targetPosition, zone.axisLock);
-		}
+    void LateUpdate () {
+        if (!useFixedUpdate || !Application.isPlaying) UpdatePosition();
+    }
 
-		if (bounded) {
-			if (boundsObject) bounds = boundsObject.RendererBounds();
-			desiredPosition = camera.GetBoundedPos(bounds, desiredPosition);
-		}
+    void FixedUpdate () {
+        if (useFixedUpdate) UpdatePosition();
+    }
 
-		return desiredPosition;
-	}
+    void Update () {
+        if (this != instance || instances[0].target == null) return;
+        center = System.Array.ConvertAll(instances, (i) => i.rawPosition).Average();
 
-	public static void AddZone(CameraZone zone) {
-		if (instance.cameraZones.Contains(zone)) return;
-		instance.cameraZones.Add(zone);
-		instance.StopCoroutine("TransitionToZoneCoroutine");
-		instance.StartCoroutine("TransitionToZoneCoroutine");
-	}
+        _splitBounds = new Bounds(instances[0].target.position, Vector3.zero);
+        int len = instances.Length;
+        for (int i = 1; i < len; i++) {
+            Vector3 v = _instances[i].target.position;
+            _splitBounds.Encapsulate(v);
+        }
+        _splitBounds.Expand(0.01f);
+    }
 
-	public static void RemoveZone(CameraZone zone) {
-		instance.cameraZones.Remove(zone);
-		instance.StopCoroutine("TransitionToZoneCoroutine");
-		if (instance.cameraZones.Count > 0) instance.StartCoroutine("TransitionToZoneCoroutine");
-		else if (instance.defaultMusic != null) AudioManager.CrossfadeMusic(instance.defaultMusic, 0.5f);
-		
-	}
+    void SetPosition () {
+        if (target == null) {
+            GameObject go = GameObject.FindWithTag(targetTag);
+            if (go == null) return;
+            target = go.transform;
+        }
+        Vector3 off = offset;
+        if (instances.Length > 1) off = splitOffset;
+        transform.position = target.position + off;
+        rawPosition = transform.position;
+        
+        Collider2D[] collider2Ds = Physics2D.OverlapPointAll(target.position);
+        foreach (Collider2D collider2D in collider2Ds) {
+            CameraZone zone = collider2D.gameObject.GetComponent<CameraZone>();
+            if (zone != null) {
+                transform.position = zone.position.Lerp3(transform.position, zone.axisLock);
+                break;
+            }
+        }
 
-	IEnumerator TransitionToZoneCoroutine () {
-		transitioning = true;
-		CameraZone zone = cameraZones[cameraZones.Count - 1];
-		if (zone.music != null) AudioManager.CrossfadeMusic(zone.music, zone.transitionTime);
-		Vector3 startPos = transform.position;
-		float t = 0;
-		while (t < zone.transitionTime) {
-			t += Time.deltaTime;
-			float frac = t / zone.transitionTime;
-			transform.position = Vector3.Lerp(startPos, zone.position.Lerp3(transform.position, zone.axisLock), frac);
-			yield return new WaitForEndOfFrame();
-		}
-		transform.position = zone.position.Lerp3(LerpToTarget(), zone.axisLock);
-		transitioning = false;
-	}
+        Collider[] colliders = Physics.OverlapSphere(target.position, 1);
+        foreach (Collider collider in colliders) {
+            CameraZone zone = collider.gameObject.GetComponent<CameraZone>();
+            if (zone != null) {
+                transform.position = zone.position.Lerp3(transform.position, zone.axisLock);
+                break;
+            }
+        }
 
-	void OnDrawGizmos() {
+        if (bounded) BoundPosition();
+    }
+
+    void BoundPosition () {
+        if (boundsObject) {
+            bounds = boundsObject.RendererBounds(); //TODO: don't do this every frame
+            if (!useBoundsObjectZ) {
+                Vector3 ext = bounds.extents;
+                ext.z = Mathf.Infinity;
+                bounds.extents = ext;
+            }
+        }
+        transform.position = camera.GetBoundedPos(bounds);
+    }
+
+    public static void SetOffset(Vector3 offset) {
+        instance.offset = offset;
+        instance.SetPosition();
+    }
+
+    void UpdatePosition () {
+        if (target != null && camera != null) {
+
+            #if UNITY_EDITOR
+            if (!Application.isPlaying) SetPosition();
+            else {
+            #endif
+                if (!transitioning) {
+                    LerpToTarget();
+
+                    Vector3 mergedPosition = rawPosition;
+                    Vector3 diff = center - rawPosition;
+                    float dist = diff.magnitude;
+                    if (dist < mergeDistance) {
+                        _merge = 1;
+                        mergedPosition = center;
+                    }
+                    else if (dist < mergeStartDistance) {
+                        _merge = (mergeStartDistance - dist) / (mergeStartDistance - mergeDistance);
+                        mergedPosition = Vector3.Lerp(rawPosition, center, _merge);
+                    }
+                    else _merge = 0;
+
+                    CameraZone zone = (cameraZones.Count > 0) ? cameraZones[cameraZones.Count - 1] : null;
+                    if (zone != null) mergedPosition = zone.position.Lerp3(mergedPosition, zone.axisLock);
+                    
+                    transform.position = mergedPosition;
+                }
+
+                if (bounded) BoundPosition();
+            #if UNITY_EDITOR
+            }
+            #endif
+        }
+        else {
+            GameObject g = GameObject.FindWithTag(targetTag);
+            if (g!= null) {
+                target = g.transform;
+                SetPosition();
+            }
+        }
+    }
+
+    void LerpToTarget () {
+        // float d = Vector3.Distance(rawPosition, targetPosition);
+        // if (d < moveStartDist) return;
+
+        rawPosition = Vector3.Lerp(rawPosition, targetPosition, Time.deltaTime * speed);
+    }
+
+    public void AddZone(CameraZone zone) {
+        if (cameraZones.Contains(zone)) return;
+        cameraZones.Add(zone);
+        StopCoroutine("TransitionToZoneCoroutine");
+        StartCoroutine("TransitionToZoneCoroutine");
+    }
+
+    public void RemoveZone(CameraZone zone) {
+        cameraZones.Remove(zone);
+        transitioning = false;
+        StopCoroutine("TransitionToZoneCoroutine");
+        if (cameraZones.Count > 0) StartCoroutine("TransitionToZoneCoroutine");
+        else {
+            rawPosition = transform.position;
+            if (defaultMusic != null) AudioManager.CrossfadeMusic(instance.defaultMusic, 0.5f);
+        }
+    }
+
+    IEnumerator TransitionToZoneCoroutine () {
+        transitioning = true;
+        CameraZone zone = cameraZones[cameraZones.Count - 1];
+        if (zone.music != null) AudioManager.CrossfadeMusic(zone.music, zone.transitionTime);
+        Vector3 pos = transform.position;
+        float elapsedTime = 0;
+        while (elapsedTime < zone.transitionTime) {
+            float dT = Time.deltaTime;
+            if (zone.useUnscaledTime) dT = Time.unscaledDeltaTime;
+            elapsedTime += dT;
+            Vector3 dir = zone.position - transform.position;
+            float t = zone.transitionTime - elapsedTime;
+            pos += dir * dT / t;
+            transform.position = Vector3.Lerp(transform.position, pos, dT * speed);
+            yield return new WaitForEndOfFrame();
+        }
+        rawPosition = transform.position;
+        transitioning = false;
+    }
+
+    void OnDrawGizmos() {
         Gizmos.color = Color.white;
         Gizmos.DrawWireCube(bounds.center, bounds.size);
     }
