@@ -22,6 +22,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+// based on https://github.com/marijnz/unity-editor-spotlight/tree/d7174ba1b7176cd102c1739b6337030e104398ba
+// updated and maintained by Nolan Baker
+// fixes select all functionality
+// updated style to match the rest of Paraphernalia
+// adds normal/highlighted color properties for convenience
+// renames to EditorQuickSearch to avoid copyright issue on use of "Spotlight"
+// TODO: 
+//   ditch use of "var" for actual types
+//   add function calls
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -30,10 +40,9 @@ using System.Text;
 using UnityEngine;
 using UnityEditor;
 
-public class EditorSpotlight : EditorWindow, IHasCustomMenu
-{
-    static class Styles
-    {
+public class EditorQuickSearch : EditorWindow, IHasCustomMenu {
+
+    static class Styles {
         public static readonly GUIStyle inputFieldStyle;
         public static readonly GUIStyle placeholderStyle;
         public static readonly GUIStyle resultLabelStyle;
@@ -46,23 +55,20 @@ public class EditorSpotlight : EditorWindow, IHasCustomMenu
         public static readonly string personalSkinHighlightColor = "eeeeee";
         public static readonly string personalSkinNormalColor = "222222";
 
-        static Styles()
-        {
-            inputFieldStyle = new GUIStyle(EditorStyles.textField)
-            {
+        static Styles () {
+            inputFieldStyle = new GUIStyle(EditorStyles.textField) {
                 contentOffset = new Vector2(10, 10),
                 fontSize = 32,
                 focused = new GUIStyleState()
             };
 
-            placeholderStyle = new GUIStyle(inputFieldStyle) {normal =
-            {
-                textColor = EditorGUIUtility.isProSkin ? new Color(1, 1, 1, .2f) : new Color(.2f, .2f, .2f, .4f)
-            }};
+            placeholderStyle = new GUIStyle(inputFieldStyle) {
+                normal = {
+                    textColor = EditorGUIUtility.isProSkin ? new Color(1, 1, 1, .2f) : new Color(.2f, .2f, .2f, .4f)
+                }
+            };
 
-
-            resultLabelStyle = new GUIStyle(EditorStyles.largeLabel)
-            {
+            resultLabelStyle = new GUIStyle(EditorStyles.largeLabel) {
                 alignment = TextAnchor.MiddleLeft,
                 richText = true
             };
@@ -72,11 +78,24 @@ public class EditorSpotlight : EditorWindow, IHasCustomMenu
         }
     }
 
-    [MenuItem("Window/Spotlight %k")]
-    private static void Init()
-    {
-        var window = CreateInstance<EditorSpotlight>();
-        window.titleContent = new GUIContent("Spotlight");
+    public string highlightColor {
+        get {
+            if (EditorGUIUtility.isProSkin) return Styles.proSkinHighlightColor;
+            return Styles.personalSkinHighlightColor;
+        }
+    }
+
+    public string normalColor {
+        get {
+            if (EditorGUIUtility.isProSkin) return Styles.proSkinNormalColor;
+            return Styles.personalSkinNormalColor;
+        }
+    }
+
+    [MenuItem("Window/Quick Search %k")]
+    private static void Init () {
+        var window = CreateInstance<EditorQuickSearch>();
+        window.titleContent = new GUIContent("Quick Search");
         var pos = window.position;
         pos.height = BaseHeight;
         pos.xMin = Screen.currentResolution.width / 2 - 500 / 2;
@@ -88,37 +107,35 @@ public class EditorSpotlight : EditorWindow, IHasCustomMenu
         window.Reset();
     }
 
-    [Serializable] private class SearchHistory : ISerializationCallbackReceiver
-    {
+    [Serializable] 
+    private class SearchHistory : ISerializationCallbackReceiver {
         public readonly Dictionary<string, int> clicks = new Dictionary<string, int>();
 
         [SerializeField] List<string> clickKeys = new List<string>();
         [SerializeField] List<int> clickValues = new List<int>();
 
-        public void OnBeforeSerialize()
-        {
+        public void OnBeforeSerialize () {
             clickKeys.Clear();
             clickValues.Clear();
 
             int i = 0;
-            foreach (var pair in clicks)
-            {
+            foreach (var pair in clicks) {
                 clickKeys.Add(pair.Key);
                 clickValues.Add(pair.Value);
                 i++;
             }
         }
 
-        public void OnAfterDeserialize()
-        {
+        public void OnAfterDeserialize () {
             clicks.Clear();
-            for (var i = 0; i < clickKeys.Count; i++)
+            for (var i = 0; i < clickKeys.Count; i++) {
                 clicks.Add(clickKeys[i], clickValues[i]);
+            }
         }
     }
 
-    const string PlaceholderInput = "Open Asset...";
-    const string SearchHistoryKey = "SearchHistoryKey";
+    const string PlaceholderInput = "Search...";
+    const string SearchHistoryKey = "QuickSearchHistoryKey";
     public const int BaseHeight = 90;
 
     List<string> hits = new List<string>();
@@ -126,9 +143,7 @@ public class EditorSpotlight : EditorWindow, IHasCustomMenu
     int selectedIndex = 0;
 
     SearchHistory history;
-
-    void Reset()
-    {
+    void Reset () {
         input = "";
         hits.Clear();
         var json = EditorPrefs.GetString(SearchHistoryKey, JsonUtility.ToJson(new SearchHistory()));
@@ -136,43 +151,45 @@ public class EditorSpotlight : EditorWindow, IHasCustomMenu
         Focus();
     }
 
-    void OnLostFocus()
-    {
+    void OnLostFocus() {
         Close();
     }
 
-    void OnGUI()
-    {
+    void OnGUI() {
         EnforceWindowSize();
         HandleEvents();
-
 
         GUILayout.BeginHorizontal();
         GUILayout.Space(15);
         GUILayout.BeginVertical();
         GUILayout.Space(15);
 
-        GUI.SetNextControlName("SpotlightInput");
+        GUI.SetNextControlName("QuickSearchInput");
         var prevInput = input;
-        input = GUILayout.TextField(input, Styles.inputFieldStyle, GUILayout.Height(60));
-        EditorGUI.FocusTextInControl("SpotlightInput");
+        input = EditorGUILayout.TextField(input, Styles.inputFieldStyle, GUILayout.Height(60));
+        EditorGUI.FocusTextInControl("QuickSearchInput");
 
-        if (input != prevInput)
+        if (input != prevInput) {
             ProcessInput();
-
-        if (selectedIndex >= hits.Count)
+        }
+        
+        if (selectedIndex >= hits.Count) {
             selectedIndex = hits.Count - 1;
-        else if (selectedIndex <= 0)
+        }
+        else if (selectedIndex <= 0) {
             selectedIndex = 0;
+        }
 
-        if (string.IsNullOrEmpty(input))
+        if (string.IsNullOrEmpty(input)) {
             GUI.Label(GUILayoutUtility.GetLastRect(), PlaceholderInput, Styles.placeholderStyle);
+        }
 
         GUILayout.BeginHorizontal();
         GUILayout.Space(6);
 
-        if (!string.IsNullOrEmpty(input))
+        if (!string.IsNullOrEmpty(input)) {
             VisualizeHits();
+        }
 
         GUILayout.Space(6);
         GUILayout.EndHorizontal();
@@ -183,15 +200,13 @@ public class EditorSpotlight : EditorWindow, IHasCustomMenu
         GUILayout.EndHorizontal();
     }
 
-    void ProcessInput()
-    {
+    void ProcessInput () {
         input = input.ToLower();
         var assetHits = AssetDatabase.FindAssets(input) ?? new string[0];
         hits = assetHits.ToList();
 
         // Sort the search hits
-        hits.Sort((x, y) =>
-        {
+        hits.Sort((x, y) => {
             // Generally, use click history
             int xScore;
             history.clicks.TryGetValue(x, out xScore);
@@ -199,14 +214,11 @@ public class EditorSpotlight : EditorWindow, IHasCustomMenu
             history.clicks.TryGetValue(y, out yScore);
 
             // Value files that actually begin with the search input higher
-            if (xScore != 0 && yScore != 0)
-            {
+            if (xScore != 0 && yScore != 0)             {
                 var xName = Path.GetFileName(AssetDatabase.GUIDToAssetPath(x)).ToLower();
                 var yName = Path.GetFileName(AssetDatabase.GUIDToAssetPath(y)).ToLower();
-                if (xName.StartsWith(input) && !yName.StartsWith(input))
-                    return -1;
-                if (!xName.StartsWith(input) && yName.StartsWith(input))
-                    return 1;
+                if (xName.StartsWith(input) && !yName.StartsWith(input)) return -1;
+                if (!xName.StartsWith(input) && yName.StartsWith(input)) return 1;
             }
 
             return yScore - xScore;
@@ -215,34 +227,29 @@ public class EditorSpotlight : EditorWindow, IHasCustomMenu
         hits = hits.Take(10).ToList();
     }
 
-    void HandleEvents()
-    {
+    void HandleEvents () {
         var current = Event.current;
-
-        if (current.type == EventType.KeyDown)
-        {
-            if (current.keyCode == KeyCode.UpArrow)
-            {
+    
+        if (current.type == EventType.KeyDown) {
+            if (current.keyCode == KeyCode.UpArrow) {
                 current.Use();
                 selectedIndex--;
             }
-            else if (current.keyCode == KeyCode.DownArrow)
-            {
+            else if (current.keyCode == KeyCode.DownArrow) {
                 current.Use();
                 selectedIndex++;
             }
-            else if (current.keyCode == KeyCode.Return)
-            {
+            else if (current.keyCode == KeyCode.Return) {
                 OpenSelectedAssetAndClose();
                 current.Use();
             }
-            else if (Event.current.keyCode == KeyCode.Escape)
+            else if (Event.current.keyCode == KeyCode.Escape) {
                 Close();
+            }
         }
     }
 
-    void VisualizeHits()
-    {
+    void VisualizeHits () {
         var current = Event.current;
 
         var windowRect = this.position;
@@ -251,18 +258,18 @@ public class EditorSpotlight : EditorWindow, IHasCustomMenu
         GUILayout.BeginVertical();
         GUILayout.Space(5);
 
-        if (hits.Count == 0)
-        {
+        if (hits.Count == 0) {
             windowRect.height += EditorGUIUtility.singleLineHeight;
             GUILayout.Label("No hits");
         }
 
-        for (int i = 0; i < hits.Count; i++)
-        {
+        for (int i = 0; i < hits.Count; i++) {
             var style = i % 2 == 0 ? Styles.entryOdd : Styles.entryEven;
 
-            GUILayout.BeginHorizontal(GUILayout.Height(EditorGUIUtility.singleLineHeight * 2),
-                GUILayout.ExpandWidth(true));
+            GUILayout.BeginHorizontal(
+                GUILayout.Height(EditorGUIUtility.singleLineHeight * 2),
+                GUILayout.ExpandWidth(true)
+            );
 
             var elementRect = GUILayoutUtility.GetRect(0, 0, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
 
@@ -270,8 +277,7 @@ public class EditorSpotlight : EditorWindow, IHasCustomMenu
 
             windowRect.height += EditorGUIUtility.singleLineHeight * 2;
 
-            if (current.type == EventType.Repaint)
-            {
+            if (current.type == EventType.Repaint) {
                 style.Draw(elementRect, false, false, i == selectedIndex, false);
                 var assetPath = AssetDatabase.GUIDToAssetPath(hits[i]);
                 var icon = AssetDatabase.GetCachedIcon(assetPath);
@@ -281,36 +287,44 @@ public class EditorSpotlight : EditorWindow, IHasCustomMenu
                 iconRect.width = 25;
                 GUI.DrawTexture(iconRect, icon, ScaleMode.ScaleToFit);
 
-
                 var assetName = Path.GetFileName(assetPath);
                 StringBuilder coloredAssetName = new StringBuilder();
 
                 int start = assetName.ToLower().IndexOf(input);
                 int end = start + input.Length;
 
-                var highlightColor = EditorGUIUtility.isProSkin
-                    ? Styles.proSkinHighlightColor
-                    : Styles.personalSkinHighlightColor;
-
-                var normalColor = EditorGUIUtility.isProSkin
-                    ? Styles.proSkinNormalColor
-                    : Styles.personalSkinNormalColor;
-
                 // Sometimes the AssetDatabase finds assets without the search input in it.
-                if (start == -1)
+                if (start == -1) {
                     coloredAssetName.Append(string.Format("<color=#{0}>{1}</color>", normalColor, assetName));
-                else
-                {
-                    if (0 != start)
-                        coloredAssetName.Append(string.Format("<color=#{0}>{1}</color>",
-                            normalColor, assetName.Substring(0, start)));
+                }
+                else {
+                    if (0 != start) {
+                        coloredAssetName.Append(
+                            string.Format(
+                                "<color=#{0}>{1}</color>", 
+                                normalColor, 
+                                assetName.Substring(0, start)
+                            )
+                        );
+                    }
 
                     coloredAssetName.Append(
-                        string.Format("<color=#{0}><b>{1}</b></color>", highlightColor, assetName.Substring(start, end - start)));
+                        string.Format(
+                            "<color=#{0}><b>{1}</b></color>", 
+                            highlightColor, 
+                            assetName.Substring(start, end - start)
+                        )
+                    );
 
-                    if (end != assetName.Length - end)
-                        coloredAssetName.Append(string.Format("<color=#{0}>{1}</color>",
-                            normalColor, assetName.Substring(end, assetName.Length - end)));
+                    if (end != assetName.Length - end) {
+                        coloredAssetName.Append(
+                            string.Format(
+                                "<color=#{0}>{1}</color>",
+                                normalColor,
+                                assetName.Substring(end, assetName.Length - end)
+                            )
+                        );
+                    }
                 }
 
                 var labelRect = elementRect;
@@ -318,13 +332,12 @@ public class EditorSpotlight : EditorWindow, IHasCustomMenu
                 GUI.Label(labelRect, coloredAssetName.ToString(), Styles.resultLabelStyle);
             }
 
-            if (current.type == EventType.MouseDown && elementRect.Contains(current.mousePosition))
-            {
+            if (current.type == EventType.MouseDown && elementRect.Contains(current.mousePosition)) {
                 selectedIndex = i;
-                if (current.clickCount == 2)
+                if (current.clickCount == 2) {
                     OpenSelectedAssetAndClose();
-                else
-                {
+                }
+                else {
                     Selection.activeObject = GetSelectedAsset();
                     EditorGUIUtility.PingObject(Selection.activeGameObject);
                 }
@@ -335,48 +348,41 @@ public class EditorSpotlight : EditorWindow, IHasCustomMenu
 
         windowRect.height += 5;
         position = windowRect;
-
         GUILayout.EndVertical();
     }
 
-    void OpenSelectedAssetAndClose()
-    {
+    void OpenSelectedAssetAndClose() {
         Close();
-
         AssetDatabase.OpenAsset(GetSelectedAsset());
 
         var guid = hits[selectedIndex];
-        if (!history.clicks.ContainsKey(guid))
+        if (!history.clicks.ContainsKey(guid)) { 
             history.clicks[guid] = 0;
+        }
 
         history.clicks[guid]++;
         EditorPrefs.SetString(SearchHistoryKey, JsonUtility.ToJson(history));
     }
 
-    UnityEngine.Object GetSelectedAsset()
-    {
+    UnityEngine.Object GetSelectedAsset() {
         var assetPath = AssetDatabase.GUIDToAssetPath(hits[selectedIndex]);
         return (AssetDatabase.LoadMainAssetAtPath(assetPath));
     }
 
-    public void EnforceWindowSize()
-    {
+    public void EnforceWindowSize() {
         var pos = position;
         pos.width = 500;
         pos.height = BaseHeight;
         position = pos;
     }
 
-    public void AddItemsToMenu(GenericMenu menu)
-    {
-        menu.AddItem(new GUIContent("Reset history"), false, () =>
-        {
+    public void AddItemsToMenu(GenericMenu menu) {
+        menu.AddItem(new GUIContent("Reset history"), false, () => {
             EditorPrefs.SetString(SearchHistoryKey, JsonUtility.ToJson(new SearchHistory()));
             Reset();
         });
 
-        menu.AddItem(new GUIContent("Output history"), false, () =>
-        {
+        menu.AddItem(new GUIContent("Output history"), false, () => {
             var json = EditorPrefs.GetString(SearchHistoryKey, JsonUtility.ToJson(new SearchHistory()));
             Debug.Log(json);
         });
