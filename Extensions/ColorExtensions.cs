@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (C) 2014 Nolan Baker
+Copyright (C) 2018 Nolan Baker
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
 documentation files (the "Software"), to deal in the Software without restriction, including without limitation 
@@ -21,14 +21,14 @@ using UnityEngine;
 namespace Paraphernalia.Extensions {
 public static class ColorExtensions {
 
-	public static Color[] SetAlpha (this Color[] colors, float alpha) {
-		for (int i = 0; i < colors.Length; i++) colors[i].a = alpha;
-		return colors;
-	}	
+    public static Color[] SetAlpha (this Color[] colors, float alpha) {
+        for (int i = 0; i < colors.Length; i++) colors[i].a = alpha;
+        return colors;
+    }	
 
-	public static Color SetAlpha (this Color color, float alpha) {
-		color.a = alpha;
-		return color;
-	}
+    public static Color SetAlpha (this Color color, float alpha) {
+        color.a = alpha;
+        return color;
+    }
 }
 }
