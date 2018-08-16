@@ -30,7 +30,7 @@ SOFTWARE.
 // renames to EditorQuickSearch to avoid copyright issue on use of "Spotlight"
 // TODO: 
 //   ditch use of "var" for actual types
-//   add function calls
+//   add searchable editor function calls (ie. menu items)
 
 using System;
 using System.Collections.Generic;
@@ -213,7 +213,7 @@ public class EditorQuickSearch : EditorWindow, IHasCustomMenu {
             int yScore;
             history.clicks.TryGetValue(y, out yScore);
 
-            // Value files that actually begin with the search input higher
+            //Value files that actually begin with the search input higher
             if (xScore != 0 && yScore != 0)             {
                 var xName = Path.GetFileName(AssetDatabase.GUIDToAssetPath(x)).ToLower();
                 var yName = Path.GetFileName(AssetDatabase.GUIDToAssetPath(y)).ToLower();
