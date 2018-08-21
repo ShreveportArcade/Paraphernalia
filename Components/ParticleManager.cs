@@ -105,5 +105,13 @@ public class ParticleManager : MonoBehaviour {
 		instance.currentIndices[hashCode] = index;
 		return particleSystem;
 	}
+
+    public static void StopAll() {
+        foreach (List<ParticleSystem> pool in instance.pools.Values) {
+            foreach (ParticleSystem p in pool) {
+                p.Stop();
+            }
+        }
+    }
 }
 }
