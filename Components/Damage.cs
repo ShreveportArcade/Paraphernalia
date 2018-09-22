@@ -63,6 +63,7 @@ public class Damage : MonoBehaviour {
         if (ignoreTags.Contains(g.tag)) return null;
         HealthController h = g.GetComponent<HealthController>();
         if (h == null && affectAncestor) h = g.GetAncestorComponent<HealthController>();
+        if (h != null && transform.IsChildOf(h.transform)) return null;
         if (h != null && !h.enabled) return null;
         return h;
     }
