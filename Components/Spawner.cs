@@ -10,12 +10,18 @@ public class Spawner : MonoBehaviour {
 
     public bool reparentObjects = true;
     public GameObject[] prefabs;
+    public int poolStartSize = 10;
 
     private Dictionary<string, GameObject> prefabsDict;
     private Dictionary<string, List<GameObject>> poolsDict;
 
     void Awake () {
         if (instance == null) instance = this;
+        if (instances.Find(s => s.name == name)) {
+            Destroy(gameObject);
+            return;
+        }
+
         instances.Add(this);
 
         prefabsDict = new Dictionary<string, GameObject>();
@@ -25,6 +31,13 @@ public class Spawner : MonoBehaviour {
             poolsDict[prefab.name] = new List<GameObject>();
             prefabsDict[prefab.name] = prefab;
         }
+
+        for (int i = 0; i < poolStartSize; i++) {
+            foreach (string name in prefabsDict.Keys) {
+                Spawner.Spawn(name);
+            }
+        }
+        Disable();
     }
 
     void OnDestroy () {
@@ -67,15 +80,24 @@ public class Spawner : MonoBehaviour {
         return g;
     }
 
+    public void Disable () {
+        foreach (string poolName in poolsDict.Keys) {
+            Disable(poolName);
+        }
+    }
+
+    public void Disable (string name) {
+        List<GameObject> pool = poolsDict[name];
+        for (int i = pool.Count-1; i >= 0; i--) {
+            GameObject g = pool[i];
+            if (g == null) pool.RemoveAt(i);
+            else g.SetActive(false);
+        }
+    }
+
     public static void DisableAll() {
         foreach (Spawner spawner in instances) {
-            foreach (List<GameObject> pool in spawner.poolsDict.Values) {
-                for (int i = pool.Count-1; i >= 0; i--) {
-                    GameObject g = pool[i];
-                    if (g == null) pool.RemoveAt(i);
-                    else g.SetActive(false);
-                }
-            }
+            spawner.Disable();
         }
     }
 
@@ -84,12 +106,7 @@ public class Spawner : MonoBehaviour {
 
         foreach (Spawner spawner in instances) {
             if (!spawner.poolsDict.ContainsKey(name)) continue;
-            List<GameObject> pool = spawner.poolsDict[name];
-            for (int i = pool.Count-1; i >= 0; i--) {
-                GameObject g = pool[i];
-                if (g == null) pool.RemoveAt(i);
-                else g.SetActive(false);
-            }
+            spawner.Disable(name);
             break;
         }
     }
