@@ -36,21 +36,26 @@ Shader "Paraphernalia/Flow Sprite" {
 				float4 vertex   : POSITION;
 				float4 color    : COLOR;
 				float2 texcoord : TEXCOORD0;
+				float2 flowUV : TEXCOORD1;
 			};
 
 			struct v2f {
 				float4 vertex   : SV_POSITION;
 				float4 color    : COLOR;
 				float2 texcoord  : TEXCOORD0;
+				float2 flowUV : TEXCOORD1;
 			};
 
 			sampler2D _MainTex;
-	        float4 _MainTex_ST;
+			float4 _MainTex_ST;
+			sampler2D _FlowMap;
+			float4 _FlowMap_ST;
 
 			v2f vert(appdata_t IN) {
 				v2f OUT;
 				OUT.vertex = UnityObjectToClipPos(IN.vertex);
 				OUT.texcoord = TRANSFORM_TEX(IN.texcoord, _MainTex);;
+				OUT.flowUV = TRANSFORM_TEX(IN.flowUV, _FlowMap);;
 				OUT.color = IN.color;
 				#ifdef PIXELSNAP_ON
 				OUT.vertex = UnityPixelSnap(OUT.vertex);
@@ -59,15 +64,13 @@ Shader "Paraphernalia/Flow Sprite" {
 				return OUT;
 			}
 
-			sampler2D _FlowMap;
 			float4 _Flow;
 			float _XOffset;
 			float _YOffset;
 			float _Alpha;
 
 			float4 frag(v2f IN) : SV_Target {
-				float2 uv = IN.texcoord;
-				float2 flowmap = -2 * tex2D(_FlowMap, uv) + 1;
+				float2 flowmap = -2 * tex2D(_FlowMap, IN.flowUV) + 1;
 				flowmap.x *= _Flow.x;
 				flowmap.y *= _Flow.y;
 
@@ -76,6 +79,7 @@ Shader "Paraphernalia/Flow Sprite" {
 				float phase1 = fmod(_Time.x * _Flow.w, _Flow.z);     
 				float opacity = abs(phase0 - halfCycle) / halfCycle;
 
+				float2 uv = IN.texcoord;
 				float4 c1 = tex2D(_MainTex, uv + flowmap * phase0);
 				float4 c2 = tex2D(_MainTex, uv + float2(_XOffset, 0) + flowmap * phase1);
 				float4 c = lerp(c1, c2, opacity);
