@@ -25,7 +25,7 @@ public class SceneViewController {
 	}
 
 #if UNITY_EDITOR_OSX
-	[MenuItem("View/Look Right _2")]
+	[MenuItem("View/Look Forward _2")]
 #else
  	[MenuItem("View/Look Forward _&2")]
 #endif 
@@ -34,7 +34,7 @@ public class SceneViewController {
 	}
 
 #if UNITY_EDITOR_OSX
-	[MenuItem("View/Look Right _3")]
+	[MenuItem("View/Look Down _3")]
 #else
 	[MenuItem("View/Look Down _&3")]
 #endif
@@ -43,7 +43,7 @@ public class SceneViewController {
 	}
 
 #if UNITY_EDITOR_OSX
-	[MenuItem("View/Look Right _4")]
+	[MenuItem("View/Look Left _4")]
 #else
 	[MenuItem("View/Look Left _&4")]
 #endif
@@ -52,7 +52,7 @@ public class SceneViewController {
 	}
 
 #if UNITY_EDITOR_OSX
-	[MenuItem("View/Look Right _5")]
+	[MenuItem("View/Look Back _5")]
 #else
 	[MenuItem("View/Look Back _&5")]
 #endif
@@ -61,7 +61,7 @@ public class SceneViewController {
 	}
 
 #if UNITY_EDITOR_OSX
-	[MenuItem("View/Look Right _6")]
+	[MenuItem("View/Look Up _6")]
 #else
 	[MenuItem("View/Look Up _&6")]
 #endif
@@ -70,9 +70,9 @@ public class SceneViewController {
 	}
 
 #if UNITY_EDITOR_OSX
-	[MenuItem("View/Look Right _7")]
+	[MenuItem("View/Toggle Perspective _7")]
 #else
-	[MenuItem("View/Toggle Perspective/Ortho _&7")]
+	[MenuItem("View/Toggle Perspective _&7")]
 #endif
     static void TogglePerspectiveOrtho() {
 		sceneView.orthographic = !sceneView.orthographic;
