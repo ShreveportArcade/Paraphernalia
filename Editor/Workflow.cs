@@ -32,7 +32,7 @@ public class Workflow : Editor {
 			r.anchorMax = Vector2.one;
 			r.offsetMin = Vector2.zero;
 			r.offsetMax = Vector2.zero;
-			r.localPosition = Vector3.zero;
+			r.position = center;
 			newParentTransform = r as Transform;
 		}
 
