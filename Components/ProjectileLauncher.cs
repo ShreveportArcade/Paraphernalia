@@ -12,6 +12,7 @@ public class ProjectileLauncher : MonoBehaviour {
     [Range(0,360)] public float spread = 0;
     [Range(0,1)] public float accuracy = 1;
     public int projectilesPerShot = 1;
+    [Tooltip("per second")] public float ammoRecoveryRate = 0;
     
     [Tooltip("-1 = infinite ammo")] public int maxAmmo = -1;
     private int _ammo;
@@ -67,7 +68,13 @@ public class ProjectileLauncher : MonoBehaviour {
         return 0;
     }
 
+    float ammoRecovered = 0;
     void Update () {
+        if (ammoRecoveryRate > 0) {
+            ammoRecovered += ammoRecoveryRate * Time.deltaTime;
+            ammo += Mathf.FloorToInt(ammoRecovered);
+            ammoRecovered %= 1f;
+        }
         Ready();
     }
 }
