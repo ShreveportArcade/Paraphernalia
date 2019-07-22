@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (C) 2014 Nolan Baker
+Copyright (C) 2014-2019 Nolan Baker
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
 documentation files (the "Software"), to deal in the Software without restriction, including without limitation 
@@ -60,7 +60,6 @@ public class CameraController : MonoBehaviour {
     public bool useFixedUpdate = false;
     public Vector3 offset = -Vector3.forward;
     public float speed = 1;
-    public float moveStartDist = 1f;
     public Vector3 velocityAdjustment = new Vector2(0.2f, 0);
     public bool bounded = false;
     public float mergeStartDistance = 10;
@@ -247,10 +246,8 @@ public class CameraController : MonoBehaviour {
     }
 
     void LerpToTarget () {
-        // float d = Vector3.Distance(rawPosition, targetPosition);
-        // if (d < moveStartDist) return;
-
-        rawPosition = Vector3.Lerp(rawPosition, targetPosition, Time.deltaTime * speed);
+        float dT = useFixedUpdate ? Time.fixedDeltaTime : Time.deltaTime;
+        rawPosition = Vector3.Lerp(rawPosition, targetPosition, speed * dT);
     }
 
     public void AddZone(CameraZone zone) {
@@ -278,8 +275,8 @@ public class CameraController : MonoBehaviour {
         Vector3 pos = transform.position;
         float elapsedTime = 0;
         while (elapsedTime < zone.transitionTime) {
-            float dT = Time.deltaTime;
-            if (zone.useUnscaledTime) dT = Time.unscaledDeltaTime;
+            float dT = useFixedUpdate ? Time.fixedDeltaTime : Time.deltaTime;
+            if (zone.useUnscaledTime) dT = useFixedUpdate ? Time.fixedUnscaledDeltaTime : Time.unscaledDeltaTime;
             elapsedTime += dT;
             Vector3 dir = zone.position - transform.position;
             float t = zone.transitionTime - elapsedTime;
