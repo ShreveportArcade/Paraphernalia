@@ -126,10 +126,12 @@ public class CameraController : MonoBehaviour {
     }
 
     IEnumerator Start () {
+        transitioning = true;
         SetPosition();
         if (instance.defaultMusic != null && Application.isPlaying) AudioManager.CrossfadeMusic(instance.defaultMusic, 0.5f);
         yield return null;
         SetPosition();
+        transitioning = false;
     }
 
     void LateUpdate () {
@@ -209,27 +211,26 @@ public class CameraController : MonoBehaviour {
             if (!Application.isPlaying) SetPosition();
             else {
             #endif
-                if (!transitioning) {
-                    LerpToTarget();
+                if (transitioning) return;
+                LerpToTarget();
 
-                    Vector3 mergedPosition = rawPosition;
-                    Vector3 diff = center - rawPosition;
-                    float dist = diff.magnitude;
-                    if (dist < mergeDistance) {
-                        _merge = 1;
-                        mergedPosition = center;
-                    }
-                    else if (dist < mergeStartDistance) {
-                        _merge = (mergeStartDistance - dist) / (mergeStartDistance - mergeDistance);
-                        mergedPosition = Vector3.Lerp(rawPosition, center, _merge);
-                    }
-                    else _merge = 0;
-
-                    CameraZone zone = (cameraZones.Count > 0) ? cameraZones[cameraZones.Count - 1] : null;
-                    if (zone != null) mergedPosition = zone.position.Lerp3(mergedPosition, zone.axisLock);
-                    
-                    transform.position = mergedPosition;
+                Vector3 mergedPosition = rawPosition;
+                Vector3 diff = center - rawPosition;
+                float dist = diff.magnitude;
+                if (dist < mergeDistance) {
+                    _merge = 1;
+                    mergedPosition = center;
                 }
+                else if (dist < mergeStartDistance) {
+                    _merge = (mergeStartDistance - dist) / (mergeStartDistance - mergeDistance);
+                    mergedPosition = Vector3.Lerp(rawPosition, center, _merge);
+                }
+                else _merge = 0;
+
+                CameraZone zone = (cameraZones.Count > 0) ? cameraZones[cameraZones.Count - 1] : null;
+                if (zone != null) mergedPosition = zone.position.Lerp3(mergedPosition, zone.axisLock);
+                
+                transform.position = mergedPosition;
 
                 if (bounded) BoundPosition();
             #if UNITY_EDITOR
@@ -275,16 +276,18 @@ public class CameraController : MonoBehaviour {
         Vector3 pos = transform.position;
         float elapsedTime = 0;
         while (elapsedTime < zone.transitionTime) {
-            float dT = useFixedUpdate ? Time.fixedDeltaTime : Time.deltaTime;
-            if (zone.useUnscaledTime) dT = useFixedUpdate ? Time.fixedUnscaledDeltaTime : Time.unscaledDeltaTime;
+            float dT = zone.useUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime;
             elapsedTime += dT;
-            Vector3 dir = zone.position - transform.position;
             float t = zone.transitionTime - elapsedTime;
+
+            Vector3 dir = zone.position.Lerp3(targetPosition, zone.axisLock) - transform.position;
             pos += dir * dT / t;
+
             transform.position = Vector3.Lerp(transform.position, pos, dT * speed);
+            if (bounded) BoundPosition();
             yield return new WaitForEndOfFrame();
         }
-        rawPosition = transform.position;
+        SetPosition();
         transitioning = false;
     }
 
