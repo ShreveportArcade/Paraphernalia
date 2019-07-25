@@ -28,9 +28,14 @@ public class AudioManager : MonoBehaviour {
     public bool autoStartMusic = true;
     public bool dontDestroyOnLoad = true;
     public List<AudioClip> clips = new List<AudioClip>();
-    public List<AudioMixerGroup> mixers = new List<AudioMixerGroup>();
-    public AudioMixerGroup musicMixer;
-    public AudioMixerGroup defaultSFXMixer;
+    public AudioMixer mixer;
+    public string[] mixerGroupPaths;
+    public string musicGroupPath = "Master/Music";
+    public string sfxGroupPath = "Master/SFX";
+
+    List<AudioMixerGroup> mixers = new List<AudioMixerGroup>();
+    AudioMixerGroup musicMixer;
+    AudioMixerGroup defaultSFXMixer;
 
     [Range(0,100)] public int sfxSourcesCount = 5;
     private int currentSFXSource = 0;
@@ -68,11 +73,26 @@ public class AudioManager : MonoBehaviour {
         if (_instance == null) {
             _instance = this;
             if (_instance.transform.parent == null && dontDestroyOnLoad) DontDestroyOnLoad(_instance.gameObject);
+            
+            if (mixer != null) {
+                AudioMixerGroup[] groups;
+                foreach (string groupPath in mixerGroupPaths) {
+                    groups = mixer.FindMatchingGroups(groupPath);
+                    mixers.AddRange(groups);
+                }
+
+                groups = mixer.FindMatchingGroups(sfxGroupPath);
+                if (groups.Length > 0) defaultSFXMixer = groups[0];
+                if (defaultSFXMixer != null && !mixers.Contains(defaultSFXMixer)) mixers.Add(defaultSFXMixer);
+                
+                groups = mixer.FindMatchingGroups(musicGroupPath);
+                if (groups.Length > 0) musicMixer = groups[0];
+                if (musicMixer != null && !mixers.Contains(musicMixer)) mixers.Add(musicMixer);
+            }
+
             CreateSFXPool();
             CreateMusicPool();
             if (autoStartMusic) PlayMusic();
-
-            if (!mixers.Contains(musicMixer)) mixers.Add(musicMixer);
         }
         else if (_instance != this) {
             if (autoStartMusic) {

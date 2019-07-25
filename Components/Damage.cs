@@ -26,6 +26,7 @@ public class Damage : MonoBehaviour {
     }
 
     void OnTriggerEnter2D (Collider2D collider) {
+        if (!enabled) return;
         HealthController h = GetHealthController(collider.gameObject);
         if (h != null) {
             h.TakeDamage(GetDamage(), allowRecovery);
@@ -34,6 +35,7 @@ public class Damage : MonoBehaviour {
     }
 
     void OnCollisionEnter2D (Collision2D collision) {
+        if (!enabled) return;
         HealthController h = GetHealthController(collision.collider.gameObject);
         if (h != null) {
             Vector3 norm = Vector3.up;
@@ -44,6 +46,7 @@ public class Damage : MonoBehaviour {
     }
 
     void OnTriggerEnter (Collider collider) {
+        if (!enabled) return;
         HealthController h = GetHealthController(collider.gameObject);
         if (h != null) {
             h.TakeDamage(GetDamage(), allowRecovery);
@@ -52,6 +55,7 @@ public class Damage : MonoBehaviour {
     }
 
     void OnCollisionEnter (Collision collision) {
+        if (!enabled) return;
         HealthController h = GetHealthController(collision.collider.gameObject);
         if (h != null) {
             h.TakeDamage(GetDamage(collision.relativeVelocity, collision.contacts[0].normal), allowRecovery);
