@@ -98,7 +98,10 @@ public class Projectile : MonoBehaviour {
         AudioManager.PlayEffect(onFireAudioClipName, audioMixerName, transform, Random.Range(0.7f, 1), Random.Range(0.95f, 1.05f), pan, audioSpatialBlend);
 
         startPosition = transform.position;
-        if (orientToVelocity) transform.right = direction; // TODO: t.forward for RB(3D)
+        if (orientToVelocity) {
+            transform.right = direction; // TODO: t.forward for RB(3D)
+            if (direction.x < 0) transform.Rotate(Vector3.right, 180, Space.Self);
+        }
         gameObject.SetActive(true);
         if (particles) particles.Play();
         if (lifetime > 0) StartCoroutine("LifeCycleCoroutine");
@@ -194,7 +197,7 @@ public class Projectile : MonoBehaviour {
         if (body2D != null) diff = body2D.position + body2D.velocity * Time.fixedDeltaTime - (Vector2)startPosition;
         if (limitDistance && diff.sqrMagnitude > maxDistance * maxDistance) {
             transform.position = startPosition + diff.normalized * maxDistance;
-
+            StopCoroutine("LifeCycleCoroutine");
             ParticleManager.Play(onFinishParticleSystemName, gameObject.RendererBounds().center);
             gameObject.SetActive(false);
         }
