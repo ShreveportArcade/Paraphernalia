@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using Paraphernalia.Components;
 using Paraphernalia.Utils;
 
@@ -18,6 +19,8 @@ public class HealthController : MonoBehaviour {
     public event OnLifeChangeEvent onDeath = delegate {};
     public event OnLifeChangeEvent onDestruction = delegate {};
     public event OnLifeChangeEvent onResurection = delegate {};
+
+    public List<string> ignoreTags = new List<string>();
 
     public string damageSoundName;
     public string deathSoundName;
@@ -43,6 +46,8 @@ public class HealthController : MonoBehaviour {
         get { return _isRecovering; }
     }
 
+    public bool spawnInvincible = false;
+    public bool healOnEnable = false;
     public float _maxHealth = 3;
     public float maxHealth {
         get { return _maxHealth; }
@@ -133,7 +138,9 @@ public class HealthController : MonoBehaviour {
     }
 
     void OnEnable () {
+        if (healOnEnable) health = maxHealth;
         _isRecovering = false;
+        if (spawnInvincible) StartCoroutine("Recover");
     }
 
     public void TakeDamage(float damage, bool allowRecovery = true) {

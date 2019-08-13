@@ -59,16 +59,19 @@ public class Damage : MonoBehaviour {
         HealthController h = GetHealthController(collision.collider.gameObject);
         if (h != null) {
             h.TakeDamage(GetDamage(collision.relativeVelocity, collision.contacts[0].normal), allowRecovery);
-            HitObject(collision.collider.gameObject);
         }
+        HitObject(collision.collider.gameObject);
     }
 
     HealthController GetHealthController (GameObject g) {
         if (ignoreTags.Contains(g.tag)) return null;
         HealthController h = g.GetComponent<HealthController>();
         if (h == null && affectAncestor) h = g.GetAncestorComponent<HealthController>();
-        if (h != null && transform.IsChildOf(h.transform)) return null;
-        if (h != null && !h.enabled) return null;
+        if (h != null) {
+            if (transform.IsChildOf(h.transform)) return null;
+            if (!h.enabled) return null;
+            if (h.ignoreTags.Contains(tag)) return null;
+        }
         return h;
     }
 
