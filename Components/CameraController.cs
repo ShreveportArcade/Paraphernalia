@@ -61,6 +61,7 @@ public class CameraController : MonoBehaviour {
     public Vector3 offset = -Vector3.forward;
     public float speed = 1;
     public Vector3 velocityAdjustment = new Vector2(0.2f, 0);
+    public bool platformLock = false;
     public bool bounded = false;
     public float mergeStartDistance = 10;
     public float mergeDistance = 5;
@@ -89,6 +90,8 @@ public class CameraController : MonoBehaviour {
         return null;
     }
 
+
+    [HideInInspector] public float platformY;
     Vector3 targetPosition {
         get {
             Vector3 v = Vector3.zero;
@@ -104,7 +107,10 @@ public class CameraController : MonoBehaviour {
             Vector3 off = offset;
             if (instances.Length > 1) off = splitOffset;
 
-            return target.position + off + v;
+            Vector3 pos = target.position;
+            if (platformLock && pos.y > platformY) pos.y = platformY;
+
+            return pos + off + v;
         }
     } 
 
@@ -125,12 +131,10 @@ public class CameraController : MonoBehaviour {
         }
     }
 
-    IEnumerator Start () {
+    void Start () {
         transitioning = true;
         SetPosition();
         if (instance.defaultMusic != null && Application.isPlaying) AudioManager.CrossfadeMusic(instance.defaultMusic, 0.5f);
-        yield return null;
-        SetPosition();
         transitioning = false;
     }
 
@@ -160,6 +164,9 @@ public class CameraController : MonoBehaviour {
             GameObject go = GameObject.FindWithTag(targetTag);
             if (go == null) return;
             target = go.transform;
+        }
+        if (target != null) {
+            platformY = target.position.y;
         }
         Vector3 off = offset;
         if (instances.Length > 1) off = splitOffset;
