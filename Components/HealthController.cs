@@ -139,8 +139,8 @@ public class HealthController : MonoBehaviour {
 
     void OnEnable () {
         if (healOnEnable) health = maxHealth;
-        _isRecovering = false;
         if (spawnInvincible) StartCoroutine("Recover");
+        else _isRecovering = false;
     }
 
     public void TakeDamage(float damage, bool allowRecovery = true) {
