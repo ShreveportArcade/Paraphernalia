@@ -4,7 +4,6 @@ Shader "Paraphernalia/Flow Sprite" {
 	Properties {
 		_MainTex ("Sprite Texture", 2D) = "white" {}
 		[MaterialToggle] PixelSnap ("Pixel snap", Float) = 0
-		_Alpha ("Alpha", Range(0, 1)) = 1
 		_FlowMap ("Flow Map", 2D) = "white" {}
     	_Flow ("Flow (X, Y, Cycle Time, Cycle Speed)", Vector) = (1, 1, 0.1, 1)
 	}
@@ -67,7 +66,6 @@ Shader "Paraphernalia/Flow Sprite" {
 			float4 _Flow;
 			float _XOffset;
 			float _YOffset;
-			float _Alpha;
 
 			float4 frag(v2f IN) : SV_Target {
 				float2 flowmap = -2 * tex2D(_FlowMap, IN.flowUV) + 1;
@@ -85,8 +83,6 @@ Shader "Paraphernalia/Flow Sprite" {
 				float4 c = lerp(c1, c2, opacity);
 
 				c *= IN.color;
-				c.rgb *= c.a;
-				c.a *= _Alpha;
 				return c;
 			}
 			ENDCG

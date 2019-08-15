@@ -80,6 +80,7 @@ public class Spawner : MonoBehaviour {
         return g;
     }
 
+    [ContextMenu("Disable")]
     public void Disable () {
         foreach (string poolName in poolsDict.Keys) {
             Disable(poolName);

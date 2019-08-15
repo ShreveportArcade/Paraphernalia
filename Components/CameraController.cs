@@ -170,7 +170,9 @@ public class CameraController : MonoBehaviour {
         }
         Vector3 off = offset;
         if (instances.Length > 1) off = splitOffset;
-        transform.position = target.position + off;
+        Vector3 pos = target.position;
+        if (platformLock && pos.y > platformY) pos.y = platformY;
+        transform.position = pos + off;
         rawPosition = transform.position;
         
         Collider2D[] collider2Ds = Physics2D.OverlapPointAll(target.position);

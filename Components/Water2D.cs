@@ -10,6 +10,7 @@ using Paraphernalia.Extensions;
 [ExecuteInEditMode]
 public class Water2D : MonoBehaviour {
 
+    public Color color = Color.white;
     [Range(8,512)]public int segments = 8;
     public Rect rect = new Rect(-1, -1, 2, 2);
     [Range(0.001f,100)] public float springK = 0.02f;
@@ -50,6 +51,7 @@ public class Water2D : MonoBehaviour {
 
     void SetupMesh () {
         Vector3[] vertices = new Vector3[segments * 4];
+        Color[] colors = new Color[segments * 4];
         Vector3[] normals = new Vector3[segments * 4];
         Vector2[] uv = new Vector2[segments * 4];
         int[] triangles = new int[segments * 6];
@@ -68,12 +70,15 @@ public class Water2D : MonoBehaviour {
                     new Vector2(a, 0)
                 }
             );
+            colors.SetRange(i * 4, new Color[] {color, color, color, color});
             normals.SetRange(i * 4, new Vector3[] {-Vector3.forward, -Vector3.forward, -Vector3.forward, -Vector3.forward});
             triangles.SetRange(i * 6, new int[] {triIndex, triIndex+2, triIndex+3, triIndex, triIndex+1, triIndex+2});
             triIndex += 4;
         }
 
+        mesh.Clear();
         mesh.vertices = vertices;
+        mesh.colors = colors;
         mesh.normals = normals;
         mesh.uv = uv;
         mesh.triangles = triangles;
@@ -87,6 +92,7 @@ public class Water2D : MonoBehaviour {
     }
 
     void UpdateMesh () {
+        Color[] colors = new Color[segments * 4];
         Vector3[] vertices = new Vector3[segments * 4];
         float w = rect.width / (float)segments;
         for (int i = 0; i < segments; i++) {
@@ -101,9 +107,11 @@ public class Water2D : MonoBehaviour {
                     min
                 }
             );
+            colors.SetRange(i * 4, new Color[] {color, color, color, color});
         }
 
         mesh.vertices = vertices;
+        mesh.colors = colors;
         mesh.RecalculateBounds();
         GetComponent<MeshFilter>().mesh = mesh;
     }
