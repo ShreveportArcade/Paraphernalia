@@ -46,5 +46,25 @@ public static class Vector2Extensions {
         average /= (float)points.Length;
         return average;
     }
+
+    public static float Winding (this Vector2[] path) {
+        float ang = 0;
+        for (int i = 1; i < path.Length - 1; i++) {
+            ang += Vector3.Cross(path[i-1] - path[i], path[i+1] - path[i]).z;
+        }
+
+        return ang;
+    }
+
+    public static float ClosedWinding (this Vector2[] path) {
+        float ang = 0;
+        for (int i = 0; i < path.Length; i++) {
+            ang += Vector3.Cross(
+                path[(i-1+path.Length)%path.Length] - path[i], 
+                path[(i+1)%path.Length] - path[i]).z;
+        }
+
+        return ang;
+    }
 }
 }
