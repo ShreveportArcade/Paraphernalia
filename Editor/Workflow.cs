@@ -53,46 +53,6 @@ public class Workflow : Editor {
 		Vector3 center = System.Array.ConvertAll(transforms, t => t.position).Average();
  		AddParent(center);
 	}
- 
-	// From: http://wiki.unity3d.com/index.php/InvertSelection
-	// Original Author: Mift (mift)
-	[MenuItem ("Edit/Invert Selection &i")]
-	static void InvertSelection() { 
-		List< GameObject > oldSelection = new List< GameObject >();
-		List< GameObject > newSelection = new List< GameObject >();
- 
-		foreach(GameObject obj in Selection.GetFiltered(typeof(GameObject), SelectionMode.ExcludePrefab)) {
-			oldSelection.Add(obj);
-		}
- 
-		foreach(GameObject obj in FindObjectsOfType(typeof(GameObject))) {
-			if (!oldSelection.Contains(obj)) {
-				newSelection.Add(obj);
-			}
-		}
- 
-		Undo.RecordObjects(Selection.objects, "inverts selection");
-		Selection.objects = newSelection.ToArray();
-	}
-
-	[MenuItem ("Edit/Select Children %&c")]
-	static void SelectChildren() { 
-		List< GameObject > oldSelection = new List< GameObject >();
-		List< GameObject > newSelection = new List< GameObject >();
- 
-		foreach (GameObject obj in Selection.GetFiltered(typeof(GameObject), SelectionMode.ExcludePrefab)) {
-			oldSelection.Add(obj);
-		}
- 
-		foreach (GameObject obj in oldSelection) {
-			foreach (Transform t in obj.transform) {
-				newSelection.Add(t.gameObject);
-			}
-		}
- 
-		Undo.RecordObjects(Selection.objects, "selects children");
-		Selection.objects = newSelection.ToArray();
-	}
 
 	// From: http://wiki.unity3d.com/index.php/MoveToOrigin
 	// Original Author: Matthew Miner (matthew@matthewminer.com)
