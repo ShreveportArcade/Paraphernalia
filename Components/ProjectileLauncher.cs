@@ -41,7 +41,7 @@ public class ProjectileLauncher : MonoBehaviour {
 
     void Ready () {
         if (showProjectileOnReady && projectile == null && Time.time - launchTime > launchDelay) {
-            projectile = Spawner.Spawn(projectileName).GetComponent<Projectile>();
+            projectile = Spawner.Spawn(projectileName, false).GetComponent<Projectile>();
             projectile.Ready(transform);
         }
     }
@@ -54,7 +54,7 @@ public class ProjectileLauncher : MonoBehaviour {
             direction = Quaternion.AngleAxis(-spread * 0.5f, Vector3.forward) * direction;
             Quaternion rotation = Quaternion.AngleAxis(spread / (float)projectileCount, Vector3.forward);
             for (int i = 0; i < projectileCount; i++) {
-                if (projectile == null) projectile = Spawner.Spawn(projectileName).GetComponent<Projectile>();
+                if (projectile == null) projectile = Spawner.Spawn(projectileName, false).GetComponent<Projectile>();
                 projectile.transform.position = transform.position;
                 direction = rotation * direction;
                 Vector3 fuzzedDir = Quaternion.AngleAxis(180 * Random.Range(accuracy-1, 1-accuracy), Vector3.forward) * direction;
