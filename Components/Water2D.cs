@@ -22,19 +22,14 @@ public class Water2D : MonoBehaviour {
     [SortingLayer] public string sortingLayerName = "Default";
     public int sortingOrder = 100;
 
-    private float[] offsets;
-    private float[] velocities;
-    private float[] accelerations;
-
-    private Mesh _mesh;
-    private Mesh mesh {
-        get {
-            if (_mesh == null) {
-                _mesh = new Mesh();
-            }
-            return _mesh;
-        }
-    }
+    float[] offsets;
+    float[] velocities;
+    float[] accelerations;
+    float[] leftDeltas;
+    float[] rightDeltas;
+    Vector3[] vertices;
+    Mesh mesh;
+    Bounds bounds; 
 
     void Start() {
         Setup();
@@ -42,15 +37,18 @@ public class Water2D : MonoBehaviour {
 
     [ContextMenu("Setup")]
     void Setup () {
+        if (mesh == null) mesh = new Mesh();
+        if (bounds == null) bounds = new Bounds(rect.center, rect.size);
         offsets = new float[segments+1];
         velocities = new float[segments+1];
         accelerations = new float[segments+1];
-
+        leftDeltas = new float[segments+1];
+        rightDeltas = new float[segments+1];
+        vertices = new Vector3[segments * 4];
         SetupMesh();
     }
 
     void SetupMesh () {
-        Vector3[] vertices = new Vector3[segments * 4];
         Color[] colors = new Color[segments * 4];
         Vector3[] normals = new Vector3[segments * 4];
         Vector2[] uv = new Vector2[segments * 4];
@@ -92,28 +90,26 @@ public class Water2D : MonoBehaviour {
     }
 
     void UpdateMesh () {
-        Color[] colors = new Color[segments * 4];
-        Vector3[] vertices = new Vector3[segments * 4];
         float w = rect.width / (float)segments;
+        Vector3 min = (Vector3)rect.min;
+        Vector3 max = (Vector3)rect.max;
+        float h = rect.height;
         for (int i = 0; i < segments; i++) {
-            Vector3 min = (Vector3)rect.min + Vector3.right * i * w;
-            float h = rect.height;
-            vertices.SetRange(
-                i * 4, 
-                new Vector3[] {
-                    min + Vector3.up * (h + offsets[i]),
-                    min + Vector3.right * w + Vector3.up * (h + offsets[i+1]),
-                    min + Vector3.right * w,
-                    min
-                }
-            );
-            colors.SetRange(i * 4, new Color[] {color, color, color, color});
+            if (h+offsets[i]>max.y) max.y = h + offsets[i];
+            vertices[i*4] = min;
+            vertices[i*4].y += h + offsets[i];
+            vertices[i*4+1] = min;
+            vertices[i*4+1].x += w;
+            vertices[i*4+1].y += h + offsets[i+1];
+            vertices[i*4+2] = min;
+            vertices[i*4+2].x += w;
+            vertices[i*4+3] = min;
+            min.x += w;
         }
 
         mesh.vertices = vertices;
-        mesh.colors = colors;
-        mesh.RecalculateBounds();
-        GetComponent<MeshFilter>().mesh = mesh;
+        bounds.max = max;
+        mesh.bounds = bounds;
     }
 
     void Update () {
@@ -125,14 +121,13 @@ public class Water2D : MonoBehaviour {
         }
         #endif
         
+        float dt = Time.deltaTime;
         for (int i = 0; i <= segments; i++) {
             accelerations[i] = -springK * offsets[i] - velocities[i] * damping;
-            velocities[i] += accelerations[i] * Time.deltaTime;
-            offsets[i] += velocities[i] * Time.deltaTime;
+            velocities[i] += accelerations[i] * dt;
+            offsets[i] += velocities[i] * dt;
         }
 
-        float[] leftDeltas = new float[segments+1];
-        float[] rightDeltas = new float[segments+1];
         for (int j = 0; j < 8; j++) {
             for (int i = 0; i <= segments; i++) {
                 if (i > 0) {
