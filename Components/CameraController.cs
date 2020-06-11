@@ -108,7 +108,10 @@ public class CameraController : MonoBehaviour {
             if (instances.Length > 1) off = splitOffset;
 
             Vector3 pos = target.position;
-            if (platformLock && pos.y > platformY) pos.y = platformY;
+            if (platformLock && pos.y > platformY - 0.5f) {
+                pos.y = platformY;
+                v.y = 0;
+            }
 
             return pos + off + v;
         }
@@ -175,10 +178,11 @@ public class CameraController : MonoBehaviour {
         transform.position = pos + off;
         rawPosition = transform.position;
         
+        CameraZone zone = null;
         Collider2D[] collider2Ds = Physics2D.OverlapPointAll(target.position);
         foreach (Collider2D collider2D in collider2Ds) {
-            CameraZone zone = collider2D.gameObject.GetComponent<CameraZone>();
-            if (zone != null) {
+            zone = collider2D.gameObject.GetComponent<CameraZone>();
+            if (zone != null && zone.setCameraOffset) {
                 transform.position = zone.position.Lerp3(transform.position, zone.axisLock);
                 break;
             }
@@ -186,24 +190,25 @@ public class CameraController : MonoBehaviour {
 
         Collider[] colliders = Physics.OverlapSphere(target.position, 1);
         foreach (Collider collider in colliders) {
-            CameraZone zone = collider.gameObject.GetComponent<CameraZone>();
-            if (zone != null) {
+            zone = collider.gameObject.GetComponent<CameraZone>();
+            if (zone != null && zone.setCameraOffset) {
                 transform.position = zone.position.Lerp3(transform.position, zone.axisLock);
                 break;
             }
         }
 
-        if (bounded) BoundPosition();
+        if (bounded) BoundPosition(zone);
     }
 
-    void BoundPosition () {
-        if (boundsObject) {
-            bounds = boundsObject.RendererBounds(); //TODO: don't do this every frame
-            if (!useBoundsObjectZ) {
-                Vector3 ext = bounds.extents;
-                ext.z = Mathf.Infinity;
-                bounds.extents = ext;
-            }
+    void BoundPosition (CameraZone zone) {
+        //TODO: don't do this every frame
+        if (zone) bounds = zone.gameObject.RendererBounds();
+        else if (boundsObject) bounds = boundsObject.RendererBounds();
+
+        if ((zone || boundsObject) && !useBoundsObjectZ) {
+            Vector3 ext = bounds.extents;
+            ext.z = Mathf.Infinity;
+            bounds.extents = ext;
         }
         transform.position = camera.GetBoundedPos(bounds);
     }
@@ -237,11 +242,11 @@ public class CameraController : MonoBehaviour {
                 else _merge = 0;
 
                 CameraZone zone = (cameraZones.Count > 0) ? cameraZones[cameraZones.Count - 1] : null;
-                if (zone != null) mergedPosition = zone.position.Lerp3(mergedPosition, zone.axisLock);
+                if (zone != null && zone.setCameraOffset) mergedPosition = zone.position.Lerp3(mergedPosition, zone.axisLock);
                 
                 transform.position = mergedPosition;
 
-                if (bounded) BoundPosition();
+                if (bounded) BoundPosition(zone);
             #if UNITY_EDITOR
             }
             #endif
@@ -282,21 +287,24 @@ public class CameraController : MonoBehaviour {
         transitioning = true;
         CameraZone zone = cameraZones[cameraZones.Count - 1];
         if (zone.music != null) AudioManager.CrossfadeMusic(zone.music, zone.transitionTime);
-        Vector3 pos = transform.position;
-        float elapsedTime = 0;
-        while (elapsedTime < zone.transitionTime) {
-            float dT = zone.useUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime;
-            elapsedTime += dT;
-            float t = zone.transitionTime - elapsedTime;
+        if (zone.setCameraOffset) {
+            Vector3 pos = transform.position;
+            float elapsedTime = 0;
+            while (elapsedTime < zone.transitionTime) {
+                float dT = zone.useUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime;
+                elapsedTime += dT;
+                float t = zone.transitionTime - elapsedTime;
 
-            Vector3 dir = zone.position.Lerp3(targetPosition, zone.axisLock) - transform.position;
-            pos += dir * dT / t;
+                Vector3 dir = zone.position.Lerp3(targetPosition, zone.axisLock) - transform.position;
+                pos += dir * dT / t;
 
-            transform.position = Vector3.Lerp(transform.position, pos, dT * speed);
-            if (bounded) BoundPosition();
-            yield return new WaitForEndOfFrame();
+                transform.position = Vector3.Lerp(transform.position, pos, dT * speed);
+                if (bounded) BoundPosition(zone);
+                yield return new WaitForEndOfFrame();
+            }
+            SetPosition();
         }
-        SetPosition();
+        else yield return null;        
         transitioning = false;
     }
 

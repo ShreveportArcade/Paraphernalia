@@ -5,8 +5,10 @@ namespace Paraphernalia.Components {
 public class CameraZone : MonoBehaviour {
 
     public AudioClip music;
+    public bool setCameraOffset = true;
     public Vector3 offset = new Vector3(0,0,-150);
     public Vector3 axisLock = Vector3.one;
+    public bool setCameraBounds = false;
     public float transitionTime = 1;
     public bool useUnscaledTime = false;
     public MonoBehaviour[] behavioursToActivate;
