@@ -150,7 +150,7 @@ public class CameraController : MonoBehaviour {
     }
 
     void Update () {
-        if (this != instance || instances[0].target == null) return;
+        if (this != instance || instances.Length == 0 || instances[0].target == null) return;
         center = System.Array.ConvertAll(instances, (i) => i.rawPosition).Average();
 
         _splitBounds = new Bounds(instances[0].target.position, Vector3.zero);
