@@ -202,7 +202,7 @@ public class CameraController : MonoBehaviour {
 
     void BoundPosition (CameraZone zone) {
         //TODO: don't do this every frame
-        if (zone) bounds = zone.gameObject.RendererBounds();
+        if (zone && zone.setCameraBounds) bounds = zone.gameObject.RendererBounds();
         else if (boundsObject) bounds = boundsObject.RendererBounds();
 
         if ((zone || boundsObject) && !useBoundsObjectZ) {
