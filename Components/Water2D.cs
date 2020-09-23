@@ -44,34 +44,25 @@ public class Water2D : MonoBehaviour {
         accelerations = new float[segments+1];
         leftDeltas = new float[segments+1];
         rightDeltas = new float[segments+1];
-        vertices = new Vector3[segments * 4];
+        vertices = new Vector3[(segments+1)*2];
         SetupMesh();
     }
 
     void SetupMesh () {
-        Color[] colors = new Color[segments * 4];
-        Vector3[] normals = new Vector3[segments * 4];
-        Vector2[] uv = new Vector2[segments * 4];
+        Color[] colors = new Color[(segments+1)*2];
+        Vector3[] normals = new Vector3[(segments+1)*2];
+        Vector2[] uv = new Vector2[(segments+1)*2];
         int[] triangles = new int[segments * 6];
 
         int triIndex = 0;
         float frac = rect.width / (rect.height * (float)segments);
         for (int i = 0; i < segments; i++) {
             float a = (float)i * frac;
-            float b = (float)(i + 1) * frac;
-            uv.SetRange(
-                i * 4, 
-                new Vector2[]{
-                    new Vector2(a, 1),
-                    new Vector2(b, 1),
-                    new Vector2(b, 0),
-                    new Vector2(a, 0)
-                }
-            );
-            colors.SetRange(i * 4, new Color[] {color, color, color, color});
-            normals.SetRange(i * 4, new Vector3[] {-Vector3.forward, -Vector3.forward, -Vector3.forward, -Vector3.forward});
-            triangles.SetRange(i * 6, new int[] {triIndex, triIndex+2, triIndex+3, triIndex, triIndex+1, triIndex+2});
-            triIndex += 4;
+            uv.SetRange(i * 2, new Vector2[]{new Vector2(a, 0), new Vector2(a, 1)});
+            colors.SetRange(i * 2, new Color[] {color, color});
+            normals.SetRange(i * 2, new Vector3[] {Vector3.back, Vector3.back});
+            triangles.SetRange(i * 6, new int[] {triIndex, triIndex+1, triIndex+3, triIndex, triIndex+3, triIndex+2});
+            triIndex += 2;
         }
 
         mesh.Clear();
@@ -94,16 +85,11 @@ public class Water2D : MonoBehaviour {
         Vector3 min = (Vector3)rect.min;
         Vector3 max = (Vector3)rect.max;
         float h = rect.height;
-        for (int i = 0; i < segments; i++) {
+        for (int i = 0; i <= segments; i++) {
             if (h+offsets[i]>max.y) max.y = h + offsets[i];
-            vertices[i*4] = min;
-            vertices[i*4].y += h + offsets[i];
-            vertices[i*4+1] = min;
-            vertices[i*4+1].x += w;
-            vertices[i*4+1].y += h + offsets[i+1];
-            vertices[i*4+2] = min;
-            vertices[i*4+2].x += w;
-            vertices[i*4+3] = min;
+            vertices[i*2] = min;
+            vertices[i*2+1] = min;
+            vertices[i*2+1].y += h + offsets[i];
             min.x += w;
         }
 
@@ -115,7 +101,7 @@ public class Water2D : MonoBehaviour {
     void Update () {
         #if UNITY_EDITOR
         if (!Application.isPlaying) {
-            if (mesh.vertices.Length == segments*4) UpdateMesh();
+            if (mesh.vertices.Length == (segments+1)*2) UpdateMesh();
             else Setup();
             return;
         }
