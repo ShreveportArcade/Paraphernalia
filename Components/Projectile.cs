@@ -99,10 +99,14 @@ public class Projectile : MonoBehaviour {
 
         startPosition = transform.position;
         if (orientToVelocity) {
-            // TODO: t.forward for RB(3D)
-            transform.right = direction;
-            if (direction.x * direction.y < 0) {
-                transform.Rotate(Vector3.right * 180, Space.Self);
+            if (body != null) {
+                transform.forward = direction;
+            }
+            else {
+                transform.right = direction;
+                if (direction.x * direction.y < 0) {
+                    transform.Rotate(Vector3.right * 180, Space.Self);
+                }
             }
         }
         gameObject.SetActive(true);
