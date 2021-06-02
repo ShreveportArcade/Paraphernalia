@@ -30,7 +30,7 @@ public class Projectile : MonoBehaviour {
     public string onHitParticleSystemName = "";
     public string onHitSpawnName = "";
     public Color onHitColor = Color.white;
-    public Rigidbody2D target;
+    public Transform target;
     
     private static Camera _cam;
     private static Camera cam {
@@ -173,9 +173,10 @@ public class Projectile : MonoBehaviour {
             float scale = velocity.magnitude / speed;
             volume *= scale * scale;
         }
-        AudioManager.PlayEffect(onHitAudioClipName, audioMixerName, transform, volume, Random.Range(0.95f, 1.05f), pan, spatialBlend);
+        AudioManager.PlayEffect(onHitAudioClipName, audioMixerName, t, volume, Random.Range(0.95f, 1.05f), pan, spatialBlend);
         ParticleManager.Play(onHitParticleSystemName, point, normal, size * size, onHitColor, t);
         if (!string.IsNullOrEmpty(onHitSpawnName)) {
+            Debug.Log(point);
             GameObject hitSpawn = Spawner.Spawn(onHitSpawnName);
             hitSpawn.transform.position = point;
             hitSpawn.transform.up = normal;
@@ -188,12 +189,12 @@ public class Projectile : MonoBehaviour {
     void FixedUpdate () {
         if (target != null && speed > 0) {
             if (body != null) {
-                Vector3 steering = Steering.Seek(body, (Vector2)target.position, speed);
+                Vector3 steering = Steering.Seek(body, target.position, speed);
                 body2D.AddForce(steering * pursuitDamping, ForceMode.VelocityChange);
                 transform.forward = body2D.velocity.normalized;
             }
             else {
-                Vector2 steering = Steering.Seek(body2D, (Vector2)target.position, speed);
+                Vector2 steering = Steering.Seek(body2D, target.position, speed);
                 body2D.AddForce(steering * pursuitDamping, ForceMode.VelocityChange);
                 transform.right = body2D.velocity.normalized;
             }
