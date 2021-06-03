@@ -190,8 +190,8 @@ public class Projectile : MonoBehaviour {
         if (target != null && speed > 0) {
             if (body != null) {
                 Vector3 steering = Steering.Seek(body, target.position, speed);
-                body2D.AddForce(steering * pursuitDamping, ForceMode.VelocityChange);
-                transform.forward = body2D.velocity.normalized;
+                body.AddForce(steering * pursuitDamping, ForceMode.VelocityChange);
+                transform.forward = body.velocity.normalized;
             }
             else {
                 Vector2 steering = Steering.Seek(body2D, target.position, speed);
