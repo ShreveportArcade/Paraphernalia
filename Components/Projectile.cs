@@ -188,13 +188,14 @@ public class Projectile : MonoBehaviour {
 
     void FixedUpdate () {
         if (target != null && speed > 0) {
+            Bounds b = target.gameObject.RendererBounds();
             if (body != null) {
-                Vector3 steering = Steering.Seek(body, target.position, speed);
+                Vector3 steering = Steering.Seek(body, b.center, speed);
                 body.AddForce(steering * pursuitDamping, ForceMode.VelocityChange);
                 transform.forward = body.velocity.normalized;
             }
             else {
-                Vector2 steering = Steering.Seek(body2D, target.position, speed);
+                Vector2 steering = Steering.Seek(body2D, b.center, speed);
                 body2D.AddForce(steering * pursuitDamping, ForceMode.VelocityChange);
                 transform.right = body2D.velocity.normalized;
             }
