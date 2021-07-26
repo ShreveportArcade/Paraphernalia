@@ -11,7 +11,7 @@ public class Workflow : Editor {
 	// From: http://wiki.unity3d.com/index.php/AddParent
 	// Original Author: Neil Carter (NCarter)
 	static void AddParent(Vector3 center) {
-		Transform[] transforms = Selection.GetTransforms(SelectionMode.TopLevel | SelectionMode.OnlyUserModifiable);
+		Transform[] transforms = Selection.GetTransforms(SelectionMode.TopLevel | SelectionMode.Editable);
  		if (transforms.Length == 0) return;
 		
 		GameObject newParent = new GameObject("NewParent");
@@ -49,7 +49,7 @@ public class Workflow : Editor {
 
 	[MenuItem ("GameObject/Add Parent at Center &g")]
 	static void AddParentAtCenter () {
-		Transform[] transforms = Selection.GetTransforms(SelectionMode.TopLevel | SelectionMode.OnlyUserModifiable);
+		Transform[] transforms = Selection.GetTransforms(SelectionMode.TopLevel | SelectionMode.Editable);
 		Vector3 center = System.Array.ConvertAll(transforms, t => t.position).Average();
  		AddParent(center);
 	}
