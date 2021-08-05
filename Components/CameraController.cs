@@ -162,7 +162,7 @@ public class CameraController : MonoBehaviour {
         _splitBounds.Expand(0.01f);
     }
 
-    void SetPosition () {
+    public void SetPosition () {
         if (target == null) {
             GameObject go = GameObject.FindWithTag(targetTag);
             if (go == null) return;
