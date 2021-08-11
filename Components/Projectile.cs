@@ -110,8 +110,14 @@ public class Projectile : MonoBehaviour {
             }
         }
         gameObject.SetActive(true);
-        if (particles) particles.Play();
+        if (particles) {
+            particles.transform.SetParent(transform);
+            particles.transform.localPosition = Vector3.zero;
+            particles.Play();
+        }
+
         if (lifetime > 0) StartCoroutine("LifeCycleCoroutine");
+
         if (body != null) {
             body.angularVelocity = Vector3.zero;
             float s = speed + Random.Range(-speedVariation, speedVariation);
@@ -184,6 +190,10 @@ public class Projectile : MonoBehaviour {
         }
         if (dieOnHit) gameObject.SetActive(false);
         if (shakeCamera) CameraShake.MainCameraShake();
+        if (particles) {
+            particles.transform.SetParent(null);
+            particles.Stop();
+        }
     }
 
     void FixedUpdate () {
