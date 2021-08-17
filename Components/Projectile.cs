@@ -110,9 +110,15 @@ public class Projectile : MonoBehaviour {
             }
         }
         gameObject.SetActive(true);
-        if (particles) {
+        if (particles != null) {
             particles.transform.SetParent(transform);
             particles.transform.localPosition = Vector3.zero;
+            particles.transform.localScale = Vector3.one;
+            particles.transform.localRotation = Quaternion.identity;
+            ParticleSystem.MainModule main = particles.main;
+            float rot = transform.localEulerAngles.z * Mathf.Deg2Rad;
+            main.startRotation = rot;
+            if (transform.forward.z > 0) main.startRotation = Mathf.PI - rot;
             particles.Play();
         }
 
