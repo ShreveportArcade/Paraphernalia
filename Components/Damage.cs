@@ -15,6 +15,8 @@ public class Damage : MonoBehaviour {
     public bool allowRecovery = true;
     public string hitSoundName;
     public List<string> ignoreTags = new List<string>();
+    public Animator anim;
+    public string animTrigger;
 
     protected virtual float GetDamage() {
         if (disableOnCollision) gameObject.SetActive(false);
@@ -85,5 +87,6 @@ public class Damage : MonoBehaviour {
             if (r2D != null) r2D.AddForce(f, ForceMode.Impulse);
         }
         AudioManager.PlayVariedEffect(hitSoundName);
+        if (anim) anim.SetTrigger(animTrigger);
     }
 }
