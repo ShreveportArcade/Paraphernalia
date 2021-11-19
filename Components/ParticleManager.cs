@@ -56,6 +56,7 @@ public class ParticleManager : MonoBehaviour {
 				pools[hashCode].Add(particleSystem);
 			}
 		}
+		StopAll();
 	}
 
 	void RefreshPool(string name) {

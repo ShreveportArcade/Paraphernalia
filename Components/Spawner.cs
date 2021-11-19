@@ -34,7 +34,7 @@ public class Spawner : MonoBehaviour {
 
         for (int i = 0; i < poolStartSize; i++) {
             foreach (string name in prefabsDict.Keys) {
-                Spawner.Spawn(name);
+                Spawner.Spawn(name, false);
             }
         }
         Disable();
